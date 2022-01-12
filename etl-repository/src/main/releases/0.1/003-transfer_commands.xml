@@ -1,0 +1,62 @@
+<?xml version="1.1" encoding="UTF-8"?>
+<databaseChangeLog 
+    xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+    xmlns:ext="http://www.liquibase.org/xml/ns/dbchangelog-ext"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog-ext 
+        http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-ext.xsd 
+        http://www.liquibase.org/xml/ns/dbchangelog 
+        http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.1.xsd">
+
+	<changeSet id="transfer_command" author="${user}">
+
+		<createTable tableName="transfer_command" remarks="Data transfer command">
+			<column name="id" type="integer" autoIncrement="true" remarks="Identifier">
+				<constraints nullable="false" />
+			</column>
+			<column name="transfer_id" type="integer" remarks="Transfer identifier">
+				<constraints nullable="false" />
+			</column>
+			<column name="command_id" type="integer" remarks="Command identifier">
+				<constraints nullable="false" />
+			</column>
+			<column name="ordinal_position" type="integer" remarks="Ordinal position">
+				<constraints nullable="true" />
+			</column>
+		</createTable>
+		
+		<addPrimaryKey 
+			constraintName="pk_transfer_command" 
+			tableName="transfer_command"
+			columnNames="id" />
+			
+		<createIndex 
+			indexName="i_transfer_command$transfer_id" 
+			tableName="transfer_command">
+			<column name="transfer_id" />
+		</createIndex>
+
+		<addForeignKeyConstraint 
+			constraintName="fk_transfer_command$transfer_id"
+			baseTableName="transfer_command" 
+			baseColumnNames="transfer_id" 
+			referencedTableName="transfer" 
+			referencedColumnNames="id" />
+
+		<createIndex 
+			indexName="i_transfer_command$command_id" 
+			tableName="transfer_command">
+			<column name="command_id" />
+		</createIndex>
+
+		<addForeignKeyConstraint 
+			constraintName="fk_transfer_command$command_id"
+			baseTableName="transfer_command" 
+			baseColumnNames="command_id" 
+			referencedTableName="command" 
+			referencedColumnNames="id" />
+			
+	</changeSet>
+
+
+</databaseChangeLog>

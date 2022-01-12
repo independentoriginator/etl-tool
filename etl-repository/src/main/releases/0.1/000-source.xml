@@ -1,0 +1,118 @@
+<?xml version="1.1" encoding="UTF-8"?>
+<databaseChangeLog 
+    xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+    xmlns:ext="http://www.liquibase.org/xml/ns/dbchangelog-ext"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog-ext 
+        http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-ext.xsd 
+        http://www.liquibase.org/xml/ns/dbchangelog 
+        http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.1.xsd">
+
+	<changeSet id="source" author="${user}">
+
+		<createTable tableName="source_type" remarks="Data source types">
+			<column name="id" type="integer" autoIncrement="true" remarks="Identifier">
+				<constraints nullable="false" />
+			</column>
+			<column name="internal_name" type="varchar(63)" remarks="Internal name">
+				<constraints nullable="false" />
+			</column>
+			<column name="name" type="varchar(255)" remarks="Name">
+				<constraints nullable="false" />
+			</column>
+			<column name="master_id" type="integer" remarks="Source type group identifier">
+				<constraints nullable="true" />
+			</column>
+			<column name="description" type="varchar(4000)" remarks="Description">
+				<constraints nullable="true" />
+			</column>
+		</createTable>
+
+		<addPrimaryKey 
+			constraintName="pk_source_type" 
+			tableName="source_type"
+			columnNames="id" />
+			
+		<addUniqueConstraint 
+			constraintName="uc_source_type" 
+			tableName="source_type"
+			columnNames="internal_name" />
+			
+		<createIndex 
+			indexName="i_source_type$master_id" 
+			tableName="source_type">
+			<column name="master_id" />
+		</createIndex>
+
+		<addForeignKeyConstraint 
+			constraintName="fk_source_type$master_id"
+			baseTableName="source_type" 
+			baseColumnNames="master_id" 
+			referencedTableName="source_type" 
+			referencedColumnNames="id" />
+			
+		<createTable tableName="source" remarks="Data source">
+			<column name="id" type="integer" autoIncrement="true" remarks="Identifier">
+				<constraints nullable="false" />
+			</column>
+			<column name="internal_name" type="varchar(63)" remarks="Internal name">
+				<constraints nullable="false" />
+			</column>
+			<column name="name" type="varchar(255)" remarks="Name">
+				<constraints nullable="false" />
+			</column>
+			<column name="source_type_id" type="integer" remarks="Data source type identifier">
+				<constraints nullable="false" />
+			</column>
+			<column name="description" type="varchar(4000)" remarks="Description">
+				<constraints nullable="true" />
+			</column>
+		</createTable>
+		
+		<addPrimaryKey 
+			constraintName="pk_source" 
+			tableName="source"
+			columnNames="id" />
+			
+		<addUniqueConstraint 
+			constraintName="uc_source" 
+			tableName="source"
+			columnNames="internal_name" />
+			
+		<createIndex 
+			indexName="i_source$source_type_id" 
+			tableName="source">
+			<column name="source_type_id" />
+		</createIndex>
+
+		<addForeignKeyConstraint 
+			constraintName="fk_source$source_type_id"
+			baseTableName="source" 
+			baseColumnNames="source_type_id" 
+			referencedTableName="source_type" 
+			referencedColumnNames="id" />
+
+	</changeSet>
+	
+	<changeSet id="this-db-built-in-source" author="${user}">
+
+		<insert tableName="source_type">
+			<column name="internal_name" value="dbms"/>
+			<column name="name" value="DBMS"/>
+		</insert>
+	
+		<insert tableName="source_type">
+			<column name="internal_name" value="this database"/>
+			<column name="name" value="Current database"/>
+			<column name="master_id" valueComputed="(select id from source_type where internal_name = 'dbms')"/>			
+		</insert>
+
+		<insert tableName="source">
+			<column name="internal_name" value="this database"/>
+			<column name="name" value="Current database"/>
+			<column name="source_type_id" valueComputed="(select id from source_type where internal_name = 'this database')"/>
+		</insert>
+		
+	</changeSet>
+
+</databaseChangeLog>
