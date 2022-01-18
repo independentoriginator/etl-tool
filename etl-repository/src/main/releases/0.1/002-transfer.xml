@@ -1,0 +1,105 @@
+<?xml version="1.1" encoding="UTF-8"?>
+<databaseChangeLog 
+    xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+    xmlns:ext="http://www.liquibase.org/xml/ns/dbchangelog-ext"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog-ext 
+        http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-ext.xsd 
+        http://www.liquibase.org/xml/ns/dbchangelog 
+        http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.1.xsd">
+
+	<changeSet id="transfer" author="${user}">
+
+		<createTable tableName="transfer" remarks="Data transfer">
+			<column name="id" type="${type.id}" autoIncrement="true" remarks="Identifier">
+				<constraints nullable="false" />
+			</column>
+			<column name="project_id" type="${type.id}" remarks="Project identifier">
+				<constraints nullable="false" />
+			</column>
+			<column name="internal_name" type="${type.internal_name}" remarks="Internal name">
+				<constraints nullable="false" />
+			</column>
+			<column name="name" type="${type.name}" remarks="Name">
+				<constraints nullable="false" />
+			</column>
+			<column name="description" type="${type.description}" remarks="Description">
+				<constraints nullable="true" />
+			</column>
+			<column name="ordinal_position" type="integer" remarks="Ordinal position">
+				<constraints nullable="true" />
+			</column>
+		</createTable>
+		
+		<addPrimaryKey 
+			constraintName="pk_transfer" 
+			tableName="transfer"
+			columnNames="id" />
+			
+		<addUniqueConstraint 
+			constraintName="uc_transfer" 
+			tableName="transfer"
+			columnNames="project_id, internal_name" />
+
+		<createIndex 
+			indexName="i_transfer$project_id" 
+			tableName="transfer">
+			<column name="project_id" />
+		</createIndex>
+
+		<addForeignKeyConstraint 
+			constraintName="fk_transfer$project_id"
+			baseTableName="transfer" 
+			baseColumnNames="project_id" 
+			referencedTableName="project" 
+			referencedColumnNames="id" />
+			
+		<createTable tableName="transfer_stage" remarks="Data transfer stage">
+			<column name="id" type="${type.id}" autoIncrement="true" remarks="Identifier">
+				<constraints nullable="false" />
+			</column>
+			<column name="transfer_id" type="${type.id}" remarks="Transfer identifier">
+				<constraints nullable="false" />
+			</column>
+			<column name="operation_id" type="${type.id}" remarks="Operation identifier">
+				<constraints nullable="false" />
+			</column>
+			<column name="ordinal_position" type="integer" remarks="Ordinal position">
+				<constraints nullable="true" />
+			</column>
+		</createTable>
+			
+		<addPrimaryKey 
+			constraintName="pk_transfer_stage" 
+			tableName="transfer_stage"
+			columnNames="id" />
+			
+		<createIndex 
+			indexName="i_transfer_stage$transfer_id" 
+			tableName="transfer_stage">
+			<column name="transfer_id" />
+		</createIndex>
+
+		<addForeignKeyConstraint 
+			constraintName="fk_transfer_stage$transfer_id"
+			baseTableName="transfer_stage" 
+			baseColumnNames="transfer_id" 
+			referencedTableName="transfer" 
+			referencedColumnNames="id" />
+
+		<createIndex 
+			indexName="i_transfer_stage$operation_id" 
+			tableName="transfer_stage">
+			<column name="operation_id" />
+		</createIndex>
+
+		<addForeignKeyConstraint 
+			constraintName="fk_transfer_stage$operation_id"
+			baseTableName="transfer_stage" 
+			baseColumnNames="operation_id" 
+			referencedTableName="source" 
+			referencedColumnNames="id" />
+			
+	</changeSet>
+
+</databaseChangeLog>

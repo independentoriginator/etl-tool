@@ -1,0 +1,179 @@
+<?xml version="1.1" encoding="UTF-8"?>
+<databaseChangeLog 
+    xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+    xmlns:ext="http://www.liquibase.org/xml/ns/dbchangelog-ext"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog-ext 
+        http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-ext.xsd 
+        http://www.liquibase.org/xml/ns/dbchangelog 
+        http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.1.xsd">
+
+	<changeSet id="source" author="${user}">
+
+		<createTable tableName="source_type" remarks="Data source types">
+			<column name="id" type="${type.id}" autoIncrement="true" remarks="Identifier">
+				<constraints nullable="false" />
+			</column>
+			<column name="internal_name" type="${type.internal_name}" remarks="Internal name">
+				<constraints nullable="false" />
+			</column>
+			<column name="name" type="${type.name}" remarks="Name">
+				<constraints nullable="false" />
+			</column>
+			<column name="master_id" type="${type.id}" remarks="Source type group identifier">
+				<constraints nullable="true" />
+			</column>
+			<column name="description" type="${type.description}" remarks="Description">
+				<constraints nullable="true" />
+			</column>
+			<column name="ordinal_position" type="integer" remarks="Ordinal position">
+				<constraints nullable="true" />
+			</column>
+		</createTable>
+
+		<addPrimaryKey 
+			constraintName="pk_source_type" 
+			tableName="source_type"
+			columnNames="id" />
+			
+		<addUniqueConstraint 
+			constraintName="uc_source_type" 
+			tableName="source_type"
+			columnNames="internal_name" />
+			
+		<createIndex 
+			indexName="i_source_type$master_id" 
+			tableName="source_type">
+			<column name="master_id" />
+		</createIndex>
+
+		<addForeignKeyConstraint 
+			constraintName="fk_source_type$master_id"
+			baseTableName="source_type" 
+			baseColumnNames="master_id" 
+			referencedTableName="source_type" 
+			referencedColumnNames="id" />
+			
+		<createTable tableName="source" remarks="Data source">
+			<column name="id" type="${type.id}" autoIncrement="true" remarks="Identifier">
+				<constraints nullable="false" />
+			</column>
+			<column name="project_id" type="${type.id}" remarks="Project identifier">
+				<constraints nullable="false" />
+			</column>
+			<column name="source_type_id" type="${type.id}" remarks="Source type identifier">
+				<constraints nullable="false" />
+			</column>
+			<column name="master_id" type="${type.id}" remarks="Master source identifier">
+				<constraints nullable="true" />
+			</column>
+			<column name="second_source_id" type="${type.id}" remarks="Second source identifier">
+				<constraints nullable="true" />
+			</column>
+			<column name="internal_name" type="${type.internal_name}" remarks="Internal name">
+				<constraints nullable="false" />
+			</column>
+			<column name="name" type="${type.name}" remarks="Name">
+				<constraints nullable="false" />
+			</column>
+			<column name="description" type="${type.description}" remarks="Description">
+				<constraints nullable="true" />
+			</column>
+			<column name="command" type="clob" remarks="Command">
+				<constraints nullable="true" />
+			</column>
+			<column name="user_name" type="${type.internal_name}" remarks="User name">
+				<constraints nullable="true" />
+			</column>
+			<column name="user_password" type="${type.name}" remarks="User password">
+				<constraints nullable="true" />
+			</column>
+		</createTable>
+		
+		<addPrimaryKey 
+			constraintName="pk_source" 
+			tableName="source"
+			columnNames="id" />
+			
+		<addUniqueConstraint 
+			constraintName="uc_source" 
+			tableName="source"
+			columnNames="project_id, internal_name" />
+
+		<createIndex 
+			indexName="i_source$project_id" 
+			tableName="source">
+			<column name="project_id" />
+		</createIndex>
+
+		<addForeignKeyConstraint 
+			constraintName="fk_source$project_id"
+			baseTableName="source" 
+			baseColumnNames="project_id" 
+			referencedTableName="project" 
+			referencedColumnNames="id" />
+			
+		<createIndex 
+			indexName="i_source$source_type_id" 
+			tableName="source">
+			<column name="source_type_id" />
+		</createIndex>
+
+		<addForeignKeyConstraint 
+			constraintName="fk_source$source_type_id"
+			baseTableName="source" 
+			baseColumnNames="source_type_id" 
+			referencedTableName="source_type" 
+			referencedColumnNames="id" />
+
+		<createIndex 
+			indexName="i_source$master_id" 
+			tableName="source">
+			<column name="master_id" />
+		</createIndex>
+
+		<addForeignKeyConstraint 
+			constraintName="fk_source$master_id"
+			baseTableName="source" 
+			baseColumnNames="master_id" 
+			referencedTableName="source" 
+			referencedColumnNames="id" />
+
+	</changeSet>
+	
+	<changeSet id="built-in-source-types" author="${user}">
+
+		<insert tableName="source_type">
+			<column name="internal_name" value="dbms"/>
+			<column name="name" value="DBMS"/>
+			<column name="description" value="Database Management System"/>
+		</insert>
+	
+		<insert tableName="source">
+			<column name="internal_name" value="this database"/>
+			<column name="name" value="Current database"/>
+			<column name="project_id" valueComputed="(select id from project where internal_name = 'general')"/>
+			<column name="source_type_id" valueComputed="(select id from source_type where internal_name = 'dbms')"/>
+		</insert>
+
+		<insert tableName="source_type">
+			<column name="internal_name" value="extraction"/>
+			<column name="name" value="Extraction"/>
+			<column name="description" value="Data extraction"/>
+		</insert>
+
+		<insert tableName="source_type">
+			<column name="internal_name" value="transformation"/>
+			<column name="name" value="Transformation"/>
+			<column name="description" value="Data transformation"/>
+		</insert>
+
+		<insert tableName="source_type">
+			<column name="internal_name" value="load"/>
+			<column name="name" value="Load"/>
+			<column name="description" value="Data load"/>
+		</insert>
+
+	</changeSet>
+
+</databaseChangeLog>

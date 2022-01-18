@@ -1,14 +1,14 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
-	
+
 	<parent>
 		<groupId>com.github.independentoriginator</groupId>
 		<artifactId>etl-tool</artifactId>
 		<version>0.0.1-SNAPSHOT</version>
 	</parent>
-	
+
 	<artifactId>etl-repository</artifactId>
-	
+
 	<packaging>pom</packaging>
 
 	<properties>
@@ -16,6 +16,10 @@
 
 		<liquibase.version>4.6.2</liquibase.version>
 		<postgresql.jdbcdriver.version>42.3.1</postgresql.jdbcdriver.version>
+
+		<database.defaultSchemaName>etl_schema</database.defaultSchemaName>
+		<database.stagingSchemaName>etl_staging</database.stagingSchemaName>
+		<database.stagingTableSpace></database.stagingTableSpace>
 	</properties>
 
 	<dependencies>
@@ -47,6 +51,33 @@
 					<verbose>${profile.verbose}</verbose>
 					<logging>${profile.logging}</logging>
 					<promptOnNonLocalDatabase>false</promptOnNonLocalDatabase>
+					<!-- custom properties  -->
+					<systemProperties>
+						<property>
+							<name>stagingSchemaName</name>
+							<value>${database.stagingSchemaName}</value>
+						</property>
+						<property>
+							<name>stagingTableSpace</name>
+							<value>${database.stagingTableSpace}</value>
+						</property>
+						<property>
+							<name>type.id</name>
+							<value>integer</value>
+						</property>
+						<property>
+							<name>type.internal_name</name>
+							<value>varchar(63)</value>
+						</property>
+						<property>
+							<name>type.name</name>
+							<value>varchar(255)</value>
+						</property>
+						<property>
+							<name>type.description</name>
+							<value>varchar(4000)</value>
+						</property>
+					</systemProperties>
 				</configuration>
 				<executions>
 					<execution>
