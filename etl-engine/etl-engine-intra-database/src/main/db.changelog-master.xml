@@ -11,10 +11,6 @@
         http://www.liquibase.org/xml/ns/dbchangelog 
         http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.1.xsd">
         
-	<property name="stagingSchemaName" value="${stagingSchemaName}"/>        
-
-	<includeAll path="releases" relativeToChangelogFile="true" />
-	<!--<include file="functions/functions.xml" relativeToChangelogFile="true" />-->
-	<include file="views/views.xml" relativeToChangelogFile="true" />
-	<!--<include file="procedures/procedures.xml" relativeToChangelogFile="true" />-->
+	<include file="functions/functions.xml" relativeToChangelogFile="true" />
+	<include file="procedures/procedures.xml" relativeToChangelogFile="true" />
 </databaseChangeLog>
