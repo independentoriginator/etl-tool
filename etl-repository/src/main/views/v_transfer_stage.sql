@@ -23,6 +23,9 @@ with recursive transfer_stage as (
 )
 select
 	ts.transfer_id
+	, p.internal_name as project_name
+	, t.is_deletion
+	, t.is_partial
 	, st.internal_name as source_type_name
 	, s.internal_name as source_name
 	, ct.internal_name as container_type_name
@@ -31,11 +34,15 @@ select
 	, pst.internal_name as master_source_type_name
     , ps.internal_name as master_source_name
 	, ct.internal_name as master_container_type_name
-	, s.container as master_container    
+	, ps.container as master_container    
     , ts.preceding_operation_id
 	, ts.ordinal_position
 from 
 	transfer_stage ts
+join ${database.defaultSchemaName}.transfer t 
+	on t.id = ts.transfer_id
+join ${database.defaultSchemaName}.project p
+	on p.id = t.project_id
 join ${database.defaultSchemaName}.source s 
 	on s.id = ts.operation_id
 join ${database.defaultSchemaName}.source_type st 

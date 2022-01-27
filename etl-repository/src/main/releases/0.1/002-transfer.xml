@@ -26,6 +26,12 @@
 			<column name="description" type="${type.description}" remarks="Description">
 				<constraints nullable="true" />
 			</column>
+			<column name="is_deletion" type="boolean" remarks="Deletion flag" defaultValueBoolean="false">
+				<constraints nullable="false" />
+			</column>
+			<column name="is_partial" type="boolean" remarks="Target data partial package flag" defaultValueBoolean="true">
+				<constraints nullable="false" />
+			</column>
 			<column name="ordinal_position" type="integer" remarks="Ordinal position">
 				<constraints nullable="true" />
 			</column>
