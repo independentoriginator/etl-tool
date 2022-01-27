@@ -103,8 +103,18 @@ begin
 			if l_stage_rec.container_type_name = 'table' then
 				l_load_command := 
 					format('
-							insert into %I.%I(data_package_id, %s)
-							select %s, %s from %I
+							insert into 
+								%I.%I(
+									data_package_id 
+									, data_package_rn
+									, %s
+								)
+							select 
+								%s as data_package_id
+								, row_number() over() as data_package_rn
+								, %s 
+							from 
+								%I
 						'
 						, '${stagingSchemaName}'
 						, l_stage_rec.container
