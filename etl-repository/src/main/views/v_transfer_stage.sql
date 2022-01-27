@@ -33,7 +33,7 @@ select
     , ts.operation_id
 	, pst.internal_name as master_source_type_name
     , ps.internal_name as master_source_name
-	, ct.internal_name as master_container_type_name
+	, pct.internal_name as master_container_type_name
 	, ps.container as master_container    
     , ts.preceding_operation_id
 	, ts.ordinal_position

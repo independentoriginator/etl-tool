@@ -108,6 +108,7 @@ begin
 			
 			call ${stagingSchemaName}.p_apply_data_package(
 				i_data_package_id => l_data_package_id
+				, i_container_name => l_stage_rec.source_name
 				, io_check_date => l_check_date
 			);
 		end if;		
