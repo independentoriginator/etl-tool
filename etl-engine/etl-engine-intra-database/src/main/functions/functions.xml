@@ -8,5 +8,13 @@
         http://www.liquibase.org/xml/ns/dbchangelog 
         http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.1.xsd">
 
+	<changeSet id="f_extraction_temp_table_name-function" author="${user}" runOnChange="true">
+		<createProcedure 
+			procedureName="f_extraction_temp_table_name" 
+			dbms="postgresql" 
+			path="f_extraction_temp_table_name.sql" 
+			relativeToChangelogFile="true"/>
+		<rollback/>
+	</changeSet>
 	
 </databaseChangeLog>

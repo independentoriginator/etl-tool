@@ -49,9 +49,11 @@ begin
 			
 			l_extraction_command := 
 				format('
-						create temporary table t_%I
+						create temporary table t_%s_%I
+						on commit drop
 						as %s
 					'
+					, i_transfer_id
 					, l_stage_rec.source_name
 					, l_stage_rec.container
 				);
@@ -61,14 +63,26 @@ begin
 					raise exception 'Unsupported container type specified: %', l_stage_rec.master_container_type_name;
 				end if;
 
-				l_extraction_command := replace(l_extraction_command, '{{master_recordset}}', 't_' || l_stage_rec.master_source_name);
+				l_extraction_command := 
+					replace(
+						l_extraction_command
+						, '{{master_recordset}}'
+						, ${database.defaultSchemaName}.f_extraction_temp_table_name(
+							i_transfer_id => i_transfer_id
+							, i_extraction_name => l_stage_rec.master_source_name
+						)
+					);
 			end if;		
 			
 			raise notice 'Extraction command: %', l_extraction_command;
 			
 			execute l_extraction_command;
 		elsif l_stage_rec.source_type_name = 'load' then
-			l_temp_table_name := 't_' || l_stage_rec.master_source_name;
+			l_temp_table_name := 
+				${database.defaultSchemaName}.f_extraction_temp_table_name(
+					i_transfer_id => i_transfer_id
+					, i_extraction_name => l_stage_rec.master_source_name
+				);
 			l_column_list := (
 				select 
 					string_agg(c.column_name, ', ' order by c.ordinal_position)
