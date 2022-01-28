@@ -37,6 +37,7 @@ select
 	, ps.container as master_container    
     , ts.preceding_operation_id
 	, ts.ordinal_position
+	, s.reexec_results
 from 
 	transfer_stage ts
 join ${database.defaultSchemaName}.transfer t 
