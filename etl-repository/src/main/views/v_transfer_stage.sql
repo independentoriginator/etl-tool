@@ -8,7 +8,7 @@ with recursive transfer_stage as (
 		, ts.ordinal_position
 	from 
 		${database.defaultSchemaName}.transfer t
-	join ${database.defaultSchemaName}.transfer_stage ts on ts.transfer_id = t.id
+	join ${database.defaultSchemaName}.transfer_stage ts on ts.transfer_id = t.id and ts.is_disabled = false
 	join ${database.defaultSchemaName}.source s on s.id = ts.operation_id
 	union all
 	select
