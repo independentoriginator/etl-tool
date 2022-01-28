@@ -38,6 +38,9 @@ select
     , ts.preceding_operation_id
 	, ts.ordinal_position
 	, s.reexec_results
+	, params.positional_arguments as source_positional_arguments
+	, s.is_virtual
+	, ps.is_virtual as is_master_source_virtual
 from 
 	transfer_stage ts
 join ${database.defaultSchemaName}.transfer t 
@@ -56,5 +59,14 @@ left join ${database.defaultSchemaName}.source_type pst
 	on pst.id = ps.source_type_id
 left join ${database.defaultSchemaName}.container_type pct 
 	on pct.id = ps.container_type_id
+left join lateral (
+	select 
+		string_agg(sp.param_value, ', ' order by sp.ordinal_position) as positional_arguments
+	from 
+		${database.defaultSchemaName}.source_param sp
+	where 
+		sp.source_id = s.id
+		and sp.is_disabled = false
+) params on true
 	
 ;

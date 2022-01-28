@@ -23,6 +23,9 @@
 			<column name="param_value" type="${type.name}" remarks="Parameter value">
 				<constraints nullable="false" />
 			</column>
+			<column name="ordinal_position" type="integer" remarks="Ordinal position">
+				<constraints nullable="true" />
+			</column>
 			<column name="is_disabled" type="boolean" remarks="Is disabled" defaultValueBoolean="false">
 				<constraints nullable="false" />
 			</column>

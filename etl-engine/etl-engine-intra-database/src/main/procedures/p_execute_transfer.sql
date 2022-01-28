@@ -42,21 +42,12 @@ begin
 			if l_stage_rec.source_name <> 'this database' then
 				raise exception 'Unsupported DBMS connection type specified: %', l_stage_rec.source_name;
 			end if;
-		elsif l_stage_rec.source_type_name = 'extraction' then
+		elsif l_stage_rec.source_type_name = 'extraction' and l_stage_rec.is_virtual = false then
 			if l_stage_rec.container_type_name <> 'sql' then
 				raise exception 'Unsupported container type specified: %', l_stage_rec.container_type_name;
 			end if;
 			
-			l_extraction_command := 
-				format('
-						create temporary table t_%s_%I
-						on commit drop
-						as %s
-					'
-					, i_transfer_id
-					, l_stage_rec.source_name
-					, l_stage_rec.container
-				);
+			l_extraction_command := l_stage_rec.container;
 			
 			if l_stage_rec.master_source_type_name = 'extraction' then
 				if l_stage_rec.master_container_type_name <> 'sql' then
@@ -67,12 +58,42 @@ begin
 					replace(
 						l_extraction_command
 						, '{{master_recordset}}'
-						, ${database.defaultSchemaName}.f_extraction_temp_table_name(
-							i_transfer_id => i_transfer_id
-							, i_extraction_name => l_stage_rec.master_source_name
-						)
+						, case 
+							when l_stage_rec.is_master_source_virtual = true then
+								l_stage_rec.master_container
+							else
+								${database.defaultSchemaName}.f_extraction_temp_table_name(
+									i_transfer_id => i_transfer_id
+									, i_extraction_name => l_stage_rec.master_source_name
+								)::text
+						end
 					);
 			end if;		
+			
+			if l_stage_rec.reexec_results then
+				raise notice 'Re-executing command: %', l_extraction_command;
+				if l_stage_rec.source_positional_arguments is not null then
+					execute l_extraction_command into l_extraction_command using l_stage_rec.source_positional_arguments;
+				else
+					execute l_extraction_command into l_extraction_command;
+				end if;
+			end if;
+
+			l_temp_table_name := 
+				${database.defaultSchemaName}.f_extraction_temp_table_name(
+					i_transfer_id => i_transfer_id
+					, i_extraction_name => l_stage_rec.source_name
+				);
+
+			l_extraction_command := 
+				format('
+						create temporary table %I
+						on commit drop
+						as %s
+					'
+					, l_temp_table_name
+					, l_extraction_command
+				);
 			
 			raise notice 'Extraction command: %', l_extraction_command;
 			
@@ -83,28 +104,41 @@ begin
 					i_transfer_id => i_transfer_id
 					, i_extraction_name => l_stage_rec.master_source_name
 				);
-			l_column_list := (
-				select 
-					string_agg(c.column_name, ', ' order by c.ordinal_position)
-				from 
-					information_schema.columns c
-				where 
-					c.table_schema = (
-						select 
-							nspname 
-						from 
-							pg_catalog.pg_namespace 
-						where 
-							oid = pg_my_temp_schema()
-					)
-					and c.table_name = l_temp_table_name
-			);
 		
 			if l_stage_rec.container_type_name = 'table' then
+				l_column_list := (
+					select 
+						string_agg(c.column_name, ', ')
+					from ( 
+						select
+							c.column_name
+						from 
+							information_schema.columns c
+						where 
+							c.table_schema = (
+								select 
+									nspname 
+								from 
+									pg_catalog.pg_namespace 
+								where 
+									oid = pg_my_temp_schema()
+							)
+							and c.table_name = l_temp_table_name
+						intersect 
+						select
+							c.column_name
+						from
+							information_schema.columns c
+						where 
+							c.table_schema = '${stagingSchemaName}'
+							and c.table_name = l_stage_rec.container
+					) c			
+				);
+			
 				l_load_command := 
 					format('
 							insert into 
-								%I.%I(
+								${stagingSchemaName}.%I(
 									data_package_id 
 									, data_package_rn
 									, %s
@@ -116,7 +150,6 @@ begin
 							from 
 								%I
 						'
-						, '${stagingSchemaName}'
 						, l_stage_rec.container
 						, l_column_list
 						, l_data_package_id
