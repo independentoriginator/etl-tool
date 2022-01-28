@@ -156,18 +156,18 @@ begin
 						, l_column_list
 						, l_temp_table_name
 					);
+					
+				raise notice 'Load command: %', l_load_command;
+				execute l_load_command;
+				
+				call ${stagingSchemaName}.p_apply_data_package(
+					i_data_package_id => l_data_package_id
+					, i_container_name => l_stage_rec.container
+					, io_check_date => l_check_date
+				);
 			else
 				raise exception 'Unsupported container type specified: %', l_stage_rec.container_type_name;
 			end if;
-			
-			raise notice 'Load command: %', l_load_command;
-			execute l_load_command;
-			
-			call ${stagingSchemaName}.p_apply_data_package(
-				i_data_package_id => l_data_package_id
-				, i_container_name => l_stage_rec.source_name
-				, io_check_date => l_check_date
-			);
 		end if;		
 	end loop;
 	
