@@ -77,6 +77,9 @@ begin
 				else
 					execute l_extraction_command into l_extraction_command;
 				end if;
+				if l_extraction_command is null then
+					raise exception 'Re-executed command generated empty result (% %)', l_stage_rec.source_type_name, l_stage_rec.source_name;
+				end if;
 			end if;
 
 			l_temp_table_name := 
@@ -99,6 +102,10 @@ begin
 			
 			execute l_extraction_command;
 		elsif l_stage_rec.source_type_name = 'load' then
+			if l_stage_rec.master_source_name is null then
+				raise exception 'Load operation have not expected extraction: %', l_stage_rec.source_name;
+			end if;
+			
 			l_temp_table_name := 
 				${database.defaultSchemaName}.f_extraction_temp_table_name(
 					i_transfer_id => i_transfer_id
