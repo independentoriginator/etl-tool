@@ -1,0 +1,39 @@
+<?xml version="1.1" encoding="UTF-8"?>
+<databaseChangeLog 
+    xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+    xmlns:ext="http://www.liquibase.org/xml/ns/dbchangelog-ext"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog-ext 
+        http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-ext.xsd 
+        http://www.liquibase.org/xml/ns/dbchangelog 
+        http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.1.xsd">
+
+
+	<changeSet id="f_string_significant_pomace-function" author="${user}" runOnChange="true">
+		<createProcedure 
+			procedureName="f_string_significant_pomace" 
+			dbms="postgresql" 
+			path="f_string_significant_pomace.sql" 
+			relativeToChangelogFile="true"/>
+		<rollback/>
+	</changeSet>
+	
+	<changeSet id="f_string_are_the_same-function" author="${user}" runOnChange="true">
+		<createProcedure 
+			procedureName="f_string_are_the_same" 
+			dbms="postgresql" 
+			path="f_string_are_the_same.sql" 
+			relativeToChangelogFile="true"/>
+		<rollback/>
+	</changeSet>
+
+	<changeSet id="f_generate_record_id_from_name-function" author="${user}" runOnChange="true">
+		<createProcedure 
+			procedureName="f_generate_record_id_from_name" 
+			dbms="postgresql" 
+			path="f_generate_record_id_from_name.sql" 
+			relativeToChangelogFile="true"/>
+		<rollback/>
+	</changeSet>
+	
+</databaseChangeLog>
