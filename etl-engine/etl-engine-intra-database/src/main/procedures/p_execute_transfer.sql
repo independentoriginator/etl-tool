@@ -165,13 +165,15 @@ begin
 					, i_container_name => l_stage_rec.container
 					, io_check_date => l_check_date
 				);
+				
+				l_data_package_id := null;
 			else
 				raise exception 'Unsupported container type specified: %', l_stage_rec.container_type_name;
 			end if;
 		end if;		
 	end loop;
 	
-	if l_data_package_id is null then
+	if l_stage_rec.transfer_id is null then
 		raise exception 'Unknown transfer identifier specified: %', i_transfer_id;
 	end if;
 end
