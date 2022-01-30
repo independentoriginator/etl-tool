@@ -20,7 +20,9 @@ begin
 		where
 			ts.transfer_id = i_transfer_id
 		order by 
-			ordinal_position 
+			stage_ordinal_position
+			, target_operation_id
+			, ordinal_position 
 	) 
 	loop
 		if l_data_package_id is null then

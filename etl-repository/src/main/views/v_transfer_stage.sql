@@ -5,7 +5,9 @@ with recursive transfer_stage as (
 		ts.transfer_id
         , ts.operation_id
         , s.master_id as preceding_operation_id
+        , ts.operation_id as target_operation_id
 		, ts.ordinal_position
+		, ts.ordinal_position as stage_ordinal_position
 	from 
 		${database.defaultSchemaName}.transfer t
 	join ${database.defaultSchemaName}.transfer_stage ts on ts.transfer_id = t.id and ts.is_disabled = false
@@ -15,7 +17,9 @@ with recursive transfer_stage as (
 		ts.transfer_id
 		, preceding_operation.id as operation_id
         , preceding_operation.master_id as preceding_operation_id
-        , ts.ordinal_position - 1 as ordinal_position 
+        , ts.target_operation_id
+        , ts.ordinal_position - 1 as ordinal_position
+        , ts.stage_ordinal_position
 	from 
 		transfer_stage ts
 	join ${database.defaultSchemaName}.source preceding_operation
@@ -41,6 +45,8 @@ select
 	, params.positional_arguments as source_positional_arguments
 	, s.is_virtual
 	, ps.is_virtual as is_master_source_virtual
+	, ts.target_operation_id
+	, ts.stage_ordinal_position
 from 
 	transfer_stage ts
 join ${database.defaultSchemaName}.transfer t 
@@ -68,5 +74,4 @@ left join lateral (
 		sp.source_id = s.id
 		and sp.is_disabled = false
 ) params on true
-	
 ;
