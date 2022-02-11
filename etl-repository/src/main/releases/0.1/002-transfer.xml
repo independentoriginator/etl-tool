@@ -10,11 +10,49 @@
 
 	<changeSet id="transfer" author="${user}">
 
-		<createTable tableName="transfer" remarks="Data transfer">
+		<createTable tableName="transfer_type" remarks="Data transfer types">
 			<column name="id" type="${type.id}" autoIncrement="true" remarks="Identifier">
 				<constraints nullable="false" />
 			</column>
-			<column name="project_id" type="${type.id}" remarks="Project identifier">
+			<column name="internal_name" type="${type.internal_name}" remarks="Internal name">
+				<constraints nullable="false" />
+			</column>
+			<column name="name" type="${type.name}" remarks="Name">
+				<constraints nullable="false" />
+			</column>
+			<column name="master_id" type="${type.id}" remarks="Master transfer type identifier">
+				<constraints nullable="true" />
+			</column>
+			<column name="description" type="${type.description}" remarks="Description">
+				<constraints nullable="true" />
+			</column>
+		</createTable>
+
+		<addPrimaryKey 
+			constraintName="pk_transfer_type" 
+			tableName="transfer_type"
+			columnNames="id" />
+			
+		<addUniqueConstraint 
+			constraintName="uc_transfer_type" 
+			tableName="transfer_type"
+			columnNames="internal_name" />
+
+		<createIndex 
+			indexName="i_transfer_type$master_id" 
+			tableName="transfer_type">
+			<column name="master_id" />
+		</createIndex>
+
+		<addForeignKeyConstraint 
+			constraintName="fk_transfer_type$master_id"
+			baseTableName="transfer_type" 
+			baseColumnNames="master_id" 
+			referencedTableName="transfer_type" 
+			referencedColumnNames="id" />
+
+		<createTable tableName="container_type" remarks="Data container types">
+			<column name="id" type="${type.id}" autoIncrement="true" remarks="Identifier">
 				<constraints nullable="false" />
 			</column>
 			<column name="internal_name" type="${type.internal_name}" remarks="Internal name">
@@ -26,13 +64,56 @@
 			<column name="description" type="${type.description}" remarks="Description">
 				<constraints nullable="true" />
 			</column>
-			<column name="is_deletion" type="boolean" remarks="Deletion flag" defaultValueBoolean="false">
-				<constraints nullable="false" />
-			</column>
-			<column name="is_partial" type="boolean" remarks="Target data partial package flag" defaultValueBoolean="true">
-				<constraints nullable="false" />
-			</column>
 			<column name="ordinal_position" type="integer" remarks="Ordinal position">
+				<constraints nullable="true" />
+			</column>
+		</createTable>
+
+		<addPrimaryKey 
+			constraintName="pk_container_type" 
+			tableName="container_type"
+			columnNames="id" />
+			
+		<addUniqueConstraint 
+			constraintName="uc_container_type" 
+			tableName="container_type"
+			columnNames="internal_name" />
+
+		<createTable tableName="transfer" remarks="Data transfer">
+			<column name="id" type="${type.id}" autoIncrement="true" remarks="Identifier">
+				<constraints nullable="false" />
+			</column>
+			<column name="project_id" type="${type.id}" remarks="Project identifier">
+				<constraints nullable="false" />
+			</column>
+			<column name="type_id" type="${type.id}" remarks="Transfer type identifier">
+				<constraints nullable="false" />
+			</column>
+			<column name="source_id" type="${type.id}" remarks="Data source identifier">
+				<constraints nullable="false" />
+			</column>
+			<column name="master_id" type="${type.id}" remarks="Master transfer identifier">
+				<constraints nullable="true" />
+			</column>
+			<column name="internal_name" type="${type.internal_name}" remarks="Internal name">
+				<constraints nullable="false" />
+			</column>
+			<column name="name" type="${type.name}" remarks="Name">
+				<constraints nullable="false" />
+			</column>
+			<column name="container_type_id" type="${type.id}" remarks="Container type identifier">
+				<constraints nullable="true" />
+			</column>
+			<column name="container" type="clob" remarks="Container">
+				<constraints nullable="true" />
+			</column>
+			<column name="reexec_results" type="boolean" remarks="Treat results as compiled commands and execute them" defaultValueBoolean="false">
+				<constraints nullable="false" />
+			</column>
+			<column name="is_virtual" type="boolean" remarks="Is virtual" defaultValueBoolean="false">
+				<constraints nullable="false" />
+			</column>
+			<column name="description" type="${type.description}" remarks="Description">
 				<constraints nullable="true" />
 			</column>
 		</createTable>
@@ -45,7 +126,7 @@
 		<addUniqueConstraint 
 			constraintName="uc_transfer" 
 			tableName="transfer"
-			columnNames="project_id, internal_name" />
+			columnNames="project_id, type_id, internal_name" />
 
 		<createIndex 
 			indexName="i_transfer$project_id" 
@@ -59,53 +140,109 @@
 			baseColumnNames="project_id" 
 			referencedTableName="project" 
 			referencedColumnNames="id" />
-			
-		<createTable tableName="transfer_stage" remarks="Data transfer stage">
-			<column name="id" type="${type.id}" autoIncrement="true" remarks="Identifier">
-				<constraints nullable="false" />
-			</column>
-			<column name="transfer_id" type="${type.id}" remarks="Transfer identifier">
-				<constraints nullable="false" />
-			</column>
-			<column name="operation_id" type="${type.id}" remarks="Operation identifier">
-				<constraints nullable="false" />
-			</column>
-			<column name="ordinal_position" type="integer" remarks="Ordinal position">
-				<constraints nullable="true" />
-			</column>
-		</createTable>
-			
-		<addPrimaryKey 
-			constraintName="pk_transfer_stage" 
-			tableName="transfer_stage"
-			columnNames="id" />
-			
+
 		<createIndex 
-			indexName="i_transfer_stage$transfer_id" 
-			tableName="transfer_stage">
-			<column name="transfer_id" />
+			indexName="i_transfer$type_id" 
+			tableName="transfer">
+			<column name="type_id" />
 		</createIndex>
 
 		<addForeignKeyConstraint 
-			constraintName="fk_transfer_stage$transfer_id"
-			baseTableName="transfer_stage" 
-			baseColumnNames="transfer_id" 
+			constraintName="fk_transfer$type_id"
+			baseTableName="transfer" 
+			baseColumnNames="type_id" 
+			referencedTableName="transfer_type" 
+			referencedColumnNames="id" />
+
+		<createIndex 
+			indexName="i_transfer$source_id" 
+			tableName="transfer">
+			<column name="source_id" />
+		</createIndex>
+
+		<addForeignKeyConstraint 
+			constraintName="fk_transfer$source_id"
+			baseTableName="transfer" 
+			baseColumnNames="source_id" 
+			referencedTableName="source" 
+			referencedColumnNames="id" />
+
+		<createIndex 
+			indexName="i_transfer$master_id" 
+			tableName="transfer">
+			<column name="master_id" />
+		</createIndex>
+
+		<addForeignKeyConstraint 
+			constraintName="fk_transfer$master_id"
+			baseTableName="transfer" 
+			baseColumnNames="master_id" 
 			referencedTableName="transfer" 
 			referencedColumnNames="id" />
 
 		<createIndex 
-			indexName="i_transfer_stage$operation_id" 
-			tableName="transfer_stage">
-			<column name="operation_id" />
+			indexName="i_transfer$container_type_id" 
+			tableName="transfer">
+			<column name="container_type_id" />
 		</createIndex>
 
 		<addForeignKeyConstraint 
-			constraintName="fk_transfer_stage$operation_id"
-			baseTableName="transfer_stage" 
-			baseColumnNames="operation_id" 
-			referencedTableName="source" 
+			constraintName="fk_transfer$container_type_id"
+			baseTableName="transfer" 
+			baseColumnNames="container_type_id" 
+			referencedTableName="container_type" 
 			referencedColumnNames="id" />
 			
+	</changeSet>
+
+	<changeSet id="built-in-transfer-types" author="${user}">
+
+		<insert tableName="transfer_type">
+			<column name="internal_name" value="extraction"/>
+			<column name="name" value="Extraction"/>
+			<column name="description" value="Data extraction"/>
+		</insert>
+
+		<insert tableName="transfer_type">
+			<column name="internal_name" value="transformation"/>
+			<column name="name" value="Transformation"/>
+			<column name="description" value="Data transformation"/>
+		</insert>
+
+		<insert tableName="transfer_type">
+			<column name="internal_name" value="load"/>
+			<column name="name" value="Load"/>
+			<column name="description" value="Data load"/>
+		</insert>
+		
+	</changeSet>
+
+	<changeSet id="built-in-container-types" author="${user}">
+
+		<insert tableName="container_type">
+			<column name="internal_name" value="sql"/>
+			<column name="name" value="SQL"/>
+			<column name="description" value="SQL command result"/>
+		</insert>
+
+		<insert tableName="container_type">
+			<column name="internal_name" value="table"/>
+			<column name="name" value="Table"/>
+			<column name="description" value="Database table"/>
+		</insert>
+
+		<insert tableName="container_type">
+			<column name="internal_name" value="folder"/>
+			<column name="name" value="Folder"/>
+			<column name="description" value="File folder"/>
+		</insert>
+
+		<insert tableName="container_type">
+			<column name="internal_name" value="file"/>
+			<column name="name" value="File"/>
+			<column name="description" value="Stored file attachment"/>
+		</insert>
+
 	</changeSet>
 
 </databaseChangeLog>

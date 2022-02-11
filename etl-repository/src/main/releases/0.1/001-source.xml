@@ -20,9 +20,6 @@
 			<column name="name" type="${type.name}" remarks="Name">
 				<constraints nullable="false" />
 			</column>
-			<column name="master_id" type="${type.id}" remarks="Source type group identifier">
-				<constraints nullable="true" />
-			</column>
 			<column name="description" type="${type.description}" remarks="Description">
 				<constraints nullable="true" />
 			</column>
@@ -41,47 +38,6 @@
 			tableName="source_type"
 			columnNames="internal_name" />
 			
-		<createIndex 
-			indexName="i_source_type$master_id" 
-			tableName="source_type">
-			<column name="master_id" />
-		</createIndex>
-
-		<addForeignKeyConstraint 
-			constraintName="fk_source_type$master_id"
-			baseTableName="source_type" 
-			baseColumnNames="master_id" 
-			referencedTableName="source_type" 
-			referencedColumnNames="id" />
-			
-		<createTable tableName="container_type" remarks="Data container types">
-			<column name="id" type="${type.id}" autoIncrement="true" remarks="Identifier">
-				<constraints nullable="false" />
-			</column>
-			<column name="internal_name" type="${type.internal_name}" remarks="Internal name">
-				<constraints nullable="false" />
-			</column>
-			<column name="name" type="${type.name}" remarks="Name">
-				<constraints nullable="false" />
-			</column>
-			<column name="description" type="${type.description}" remarks="Description">
-				<constraints nullable="true" />
-			</column>
-			<column name="ordinal_position" type="integer" remarks="Ordinal position">
-				<constraints nullable="true" />
-			</column>
-		</createTable>
-
-		<addPrimaryKey 
-			constraintName="pk_container_type" 
-			tableName="container_type"
-			columnNames="id" />
-			
-		<addUniqueConstraint 
-			constraintName="uc_container_type" 
-			tableName="container_type"
-			columnNames="internal_name" />
-			
 		<createTable tableName="source" remarks="Data source">
 			<column name="id" type="${type.id}" autoIncrement="true" remarks="Identifier">
 				<constraints nullable="false" />
@@ -92,12 +48,6 @@
 			<column name="source_type_id" type="${type.id}" remarks="Source type identifier">
 				<constraints nullable="false" />
 			</column>
-			<column name="master_id" type="${type.id}" remarks="Master source identifier">
-				<constraints nullable="true" />
-			</column>
-			<column name="second_source_id" type="${type.id}" remarks="Second source identifier">
-				<constraints nullable="true" />
-			</column>
 			<column name="internal_name" type="${type.internal_name}" remarks="Internal name">
 				<constraints nullable="false" />
 			</column>
@@ -107,10 +57,7 @@
 			<column name="description" type="${type.description}" remarks="Description">
 				<constraints nullable="true" />
 			</column>
-			<column name="container_type_id" type="${type.id}" remarks="Container type identifier">
-				<constraints nullable="true" />
-			</column>
-			<column name="container" type="clob" remarks="Container">
+			<column name="connection_string" type="${type.description}" remarks="Connection string">
 				<constraints nullable="true" />
 			</column>
 			<column name="user_name" type="${type.internal_name}" remarks="User name">
@@ -157,77 +104,60 @@
 			referencedTableName="source_type" 
 			referencedColumnNames="id" />
 
-		<createIndex 
-			indexName="i_source$master_id" 
-			tableName="source">
-			<column name="master_id" />
-		</createIndex>
-
-		<addForeignKeyConstraint 
-			constraintName="fk_source$master_id"
-			baseTableName="source" 
-			baseColumnNames="master_id" 
-			referencedTableName="source" 
-			referencedColumnNames="id" />
-			
-		<createIndex 
-			indexName="i_source$container_type_id" 
-			tableName="source">
-			<column name="container_type_id" />
-		</createIndex>
-
-		<addForeignKeyConstraint 
-			constraintName="fk_source$container_type_id"
-			baseTableName="source" 
-			baseColumnNames="container_type_id" 
-			referencedTableName="container_type" 
-			referencedColumnNames="id" />
-
 	</changeSet>
 	
-	<changeSet id="built-in-types" author="${user}">
+	<changeSet id="built-in-source-types" author="${user}">
 
 		<insert tableName="source_type">
-			<column name="internal_name" value="dbms"/>
-			<column name="name" value="DBMS"/>
-			<column name="description" value="Database Management System"/>
+			<column name="internal_name" value="postgresql"/>
+			<column name="name" value="PostgreSQL"/>
+			<column name="description" value="Open source object-relational database system"/>
 		</insert>
-	
+
 		<insert tableName="source">
 			<column name="internal_name" value="this database"/>
 			<column name="name" value="Current database"/>
 			<column name="project_id" valueComputed="(select id from project where internal_name = 'general')"/>
-			<column name="source_type_id" valueComputed="(select id from source_type where internal_name = 'dbms')"/>
+			<column name="source_type_id" valueComputed="(select id from source_type where internal_name = 'postgresql')"/>
 		</insert>
 
 		<insert tableName="source_type">
-			<column name="internal_name" value="extraction"/>
-			<column name="name" value="Extraction"/>
-			<column name="description" value="Data extraction"/>
+			<column name="internal_name" value="sqlite"/>
+			<column name="name" value="SQLite"/>
+			<column name="description" value="SQLite is an embedded SQL database engine"/>
+		</insert>
+
+		<insert tableName="source">
+			<column name="internal_name" value="transitional database"/>
+			<column name="name" value="Transitional row-oriented database"/>
+			<column name="project_id" valueComputed="(select id from project where internal_name = 'general')"/>
+			<column name="source_type_id" valueComputed="(select id from source_type where internal_name = 'sqlite')"/>
 		</insert>
 
 		<insert tableName="source_type">
-			<column name="internal_name" value="transformation"/>
-			<column name="name" value="Transformation"/>
-			<column name="description" value="Data transformation"/>
+			<column name="internal_name" value="duckdb"/>
+			<column name="name" value="DuckDB"/>
+			<column name="description" value="In-process SQL OLAP database management system"/>
+		</insert>
+
+		<insert tableName="source">
+			<column name="internal_name" value="transitional columnar database"/>
+			<column name="name" value="Transitional column-oriented database"/>
+			<column name="project_id" valueComputed="(select id from project where internal_name = 'general')"/>
+			<column name="source_type_id" valueComputed="(select id from source_type where internal_name = 'duckdb')"/>
 		</insert>
 
 		<insert tableName="source_type">
-			<column name="internal_name" value="load"/>
-			<column name="name" value="Load"/>
-			<column name="description" value="Data load"/>
-		</insert>
-		
-		<insert tableName="container_type">
-			<column name="internal_name" value="sql"/>
-			<column name="name" value="SQL"/>
-			<column name="description" value="SQL command result"/>
+			<column name="internal_name" value="dsv"/>
+			<column name="name" value="Delimiter-separated values"/>
+			<column name="description" value="Delimited text files"/>
 		</insert>
 
-		<insert tableName="container_type">
-			<column name="internal_name" value="table"/>
-			<column name="name" value="Table"/>
-			<column name="description" value="Database table"/>
+		<insert tableName="source">
+			<column name="internal_name" value="temp dsv folder"/>
+			<column name="name" value="Temporary DSV files folder"/>
+			<column name="project_id" valueComputed="(select id from project where internal_name = 'general')"/>
+			<column name="source_type_id" valueComputed="(select id from source_type where internal_name = 'dsv')"/>
 		</insert>
 
 	</changeSet>

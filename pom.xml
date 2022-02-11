@@ -65,6 +65,10 @@
 							<value>${database.stagingTableSpace}</value>
 						</property>
 						<property>
+							<name>dataExchangeFolder</name>
+							<value>~/etl/dataExchangeFolder</value>
+						</property>
+						<property>
 							<name>type.id</name>
 							<value>integer</value>
 						</property>

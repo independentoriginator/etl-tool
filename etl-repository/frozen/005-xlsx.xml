@@ -1,0 +1,184 @@
+<?xml version="1.1" encoding="UTF-8"?>
+<databaseChangeLog 
+    xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+    xmlns:ext="http://www.liquibase.org/xml/ns/dbchangelog-ext"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog-ext 
+        http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-ext.xsd 
+        http://www.liquibase.org/xml/ns/dbchangelog 
+        http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.1.xsd">
+
+	<changeSet id="xlsx as database" author="${user}">
+
+		<insert tableName="project">
+			<column name="internal_name" value="xlsx as database"/>
+			<column name="name" value="Office Open XML SpreadsheetML data extraction using SQL"/>
+		</insert>
+
+		<insert tableName="source">
+			<column name="internal_name" value="file inbox"/>
+			<column name="name" value="File Inbox"/>
+			<column name="project_id" valueComputed="(select id from project where internal_name = 'xlsx as database')"/>
+			<column name="source_type_id" valueComputed="(select id from source_type where internal_name = 'folder')"/>
+			<column name="connection_string" value="${data_import.inbox.xlsx}"/>
+		</insert>
+
+		<insert tableName="source">
+			<column name="internal_name" value="temp folder"/>
+			<column name="name" value="Temporary folder"/>
+			<column name="project_id" valueComputed="(select id from project where internal_name = 'xlsx as database')"/>
+			<column name="source_type_id" valueComputed="(select id from source_type where internal_name = 'folder')"/>
+		</insert>
+
+		<insert tableName="source">
+			<column name="internal_name" value="books.csv"/>
+			<column name="name" value="Excel book list"/>
+			<column name="project_id" valueComputed="(select id from project where internal_name = 'xlsx as database')"/>
+			<column name="source_type_id" valueComputed="(select id from source_type where internal_name = 'csv')"/>
+		</insert>
+
+		<insert tableName="source">
+			<column name="internal_name" value="sheets.csv"/>
+			<column name="name" value="Excel sheet list"/>
+			<column name="project_id" valueComputed="(select id from project where internal_name = 'xlsx as database')"/>
+			<column name="source_type_id" valueComputed="(select id from source_type where internal_name = 'csv')"/>
+		</insert>
+
+		<insert tableName="source">
+			<column name="internal_name" value="cells.csv"/>
+			<column name="name" value="Excel cell list"/>
+			<column name="project_id" valueComputed="(select id from project where internal_name = 'xlsx as database')"/>
+			<column name="source_type_id" valueComputed="(select id from source_type where internal_name = 'csv')"/>
+		</insert>
+
+		<insert tableName="source">
+			<column name="internal_name" value="temp duckdb"/>
+			<column name="name" value="Temporary DuckDB instance"/>
+			<column name="project_id" valueComputed="(select id from project where internal_name = 'xlsx as database')"/>
+			<column name="source_type_id" valueComputed="(select id from source_type where internal_name = 'duckdb')"/>
+		</insert>
+
+		<!-- folder/*.zip files -->
+		<insert tableName="transfer">
+			<column name="internal_name" value="zip files"/>
+			<column name="name" value="Incoming Zip files"/>
+			<column name="type_id" valueComputed="(select id from transfer_type where internal_name = 'extraction')"/>
+			<column name="source_id" valueComputed="(
+				select 
+					source.id 
+				from 
+					source 	
+				join project on project.id = source.project_id and project.internal_name = 'xlsx as database'
+				where 
+					source.internal_name = 'file inbox'
+			)"/>
+			<column name="container_type_id" valueComputed="(select id from container_type where internal_name = 'file')"/>
+			<column name="container" value="*.zip"/>
+			<column name="project_id" valueComputed="(select id from project where internal_name = 'xlsx as database')"/>
+		</insert>
+
+		<!-- { *.zip } to { *.xlsx } -->
+		<insert tableName="transfer">
+			<column name="internal_name" value="unpacking zip"/>
+			<column name="name" value="Unpacking zip archives"/>
+			<column name="type_id" valueComputed="(select id from transfer_type where internal_name = 'transformation')"/>
+			<column name="source_id" valueComputed="(
+				select 
+					source.id 
+				from 
+					source 	
+				join project on project.id = source.project_id and project.internal_name = 'xlsx as database'
+				where 
+					source.internal_name = 'temp folder'
+			)"/>
+			<column name="master_id" valueComputed="(
+				select 
+					transfer.id 
+				from 
+					transfer 	
+				join project on project.id = transfer.project_id and project.internal_name = 'xlsx as database'
+				join transfer_type on transfer_type.id = transfer.type_id and transfer_type.internal_name = 'extraction'
+				where 
+					transfer.internal_name = 'zip files'
+			)"/>
+			<column name="project_id" valueComputed="(select id from project where internal_name = 'xlsx as database')"/>
+		</insert>
+
+		<!-- { *.xlsx } to { books.csv, sheets.csv, cells.csv } -->
+		<insert tableName="transfer">
+			<column name="internal_name" value="xlsx to csv"/>
+			<column name="name" value="Transformation { *.xlsx } to { books.csv, sheets.csv, cells.csv }"/>
+			<column name="type_id" valueComputed="(select id from transfer_type where internal_name = 'transformation')"/>
+			<column name="source_id" valueComputed="(
+				select 
+					source.id 
+				from 
+					source 	
+				join project on project.id = source.project_id and project.internal_name = 'xlsx as database'
+				where 
+					source.internal_name = 'input_file.xlsx'
+			)"/>
+			<column name="project_id" valueComputed="(select id from project where internal_name = 'xlsx as database')"/>
+		</insert>
+
+		<!-- books.csv extraction -->
+		<insert tableName="transfer">
+			<column name="internal_name" value="books"/>
+			<column name="name" value="Extraction data from books.csv"/>
+			<column name="type_id" valueComputed="(select id from transfer_type where internal_name = 'extraction')"/>
+			<column name="source_id" valueComputed="(
+				select 
+					source.id 
+				from 
+					source 	
+				join project on project.id = source.project_id and project.internal_name = 'xlsx as database'
+				where 
+					source.internal_name = 'books.csv'
+			)"/>
+			<column name="container_type_id" valueComputed="(select id from container_type where internal_name = 'folder')"/>
+			<column name="container" value="*"/>
+			<column name="master_id" valueComputed="(
+				select 
+					transfer.id 
+				from 
+					transfer 	
+				join project on project.id = transfer.project_id and project.internal_name = 'xlsx as database'
+				join transfer_type on transfer_type.id = transfer.type_id and transfer_type.internal_name = 'extraction'
+				where 
+					transfer.internal_name = 'books'
+			)"/>
+			<column name="project_id" valueComputed="(select id from project where internal_name = 'xlsx as database')"/>
+		</insert>
+
+		<!-- books.csv load into duckdb -->
+		<insert tableName="transfer">
+			<column name="internal_name" value="books"/>
+			<column name="name" value="Load books.csv into temp duckdb"/>
+			<column name="type_id" valueComputed="(select id from transfer_type where internal_name = 'load')"/>
+			<column name="source_id" valueComputed="(
+				select 
+					source.id 
+				from 
+					source 	
+				join project on project.id = source.project_id and project.internal_name = 'xlsx as database'
+				where 
+					source.internal_name = 'temp duckdb'
+			)"/>
+			<column name="container_type_id" valueComputed="(select id from container_type where internal_name = 'table')"/>
+			<column name="container" value="*"/>
+			<column name="master_id" valueComputed="(
+				select 
+					transfer.id 
+				from 
+					transfer 	
+				join project on project.id = transfer.project_id and project.internal_name = 'xlsx as database'
+				join transfer_type on transfer_type.id = transfer.type_id and transfer_type.internal_name = 'extraction'
+				where 
+					transfer.internal_name = 'books'
+			)"/>
+			<column name="project_id" valueComputed="(select id from project where internal_name = 'xlsx as database')"/>
+		</insert>
+
+	</changeSet>
+
+</databaseChangeLog>

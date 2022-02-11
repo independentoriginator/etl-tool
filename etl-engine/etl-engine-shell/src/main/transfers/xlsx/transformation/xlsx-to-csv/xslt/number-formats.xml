@@ -1,0 +1,35 @@
+<?xml version="1.0"?>
+<!-- 
+	SpreadsheetML built in number formats
+	(source: ECMA-376 Office Open XML file formats)
+-->
+<numFmts>
+	<numFmt numFmtId="0">General</numFmt>
+	<numFmt numFmtId="1">0</numFmt>
+	<numFmt numFmtId="2">0.00</numFmt>
+	<numFmt numFmtId="3">#,##0</numFmt>
+	<numFmt numFmtId="4">#,##0.00</numFmt>
+	<numFmt numFmtId="9">0%</numFmt>
+	<numFmt numFmtId="10">0.00%</numFmt>
+	<numFmt numFmtId="11">0.00E+00</numFmt>
+	<numFmt numFmtId="12"># ?/?</numFmt>
+	<numFmt numFmtId="13"># ??/??</numFmt>
+	<numFmt numFmtId="14">mm-dd-yy</numFmt>
+	<numFmt numFmtId="15">d-mmm-yy</numFmt>
+	<numFmt numFmtId="16">d-mmm</numFmt>
+	<numFmt numFmtId="17">mmm-yy</numFmt>
+	<numFmt numFmtId="18">h:mm AM/PM</numFmt>
+	<numFmt numFmtId="19">h:mm:ss AM/PM</numFmt>
+	<numFmt numFmtId="20">h:mm</numFmt>
+	<numFmt numFmtId="21">h:mm:ss</numFmt>
+	<numFmt numFmtId="22">m/d/yy h:mm</numFmt>
+	<numFmt numFmtId="37">#,##0 ;(#,##0)</numFmt>
+	<numFmt numFmtId="38">#,##0 ;[Red](#,##0)</numFmt>
+	<numFmt numFmtId="39">#,##0.00;(#,##0.00)</numFmt>
+	<numFmt numFmtId="40">#,##0.00;[Red](#,##0.00)</numFmt>
+	<numFmt numFmtId="45">mm:ss</numFmt>
+	<numFmt numFmtId="46">[h]:mm:ss</numFmt>
+	<numFmt numFmtId="47">mmss.0</numFmt>
+	<numFmt numFmtId="48">##0.0E+0</numFmt>
+	<numFmt numFmtId="49">@</numFmt>
+</numFmts>	

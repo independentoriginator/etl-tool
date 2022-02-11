@@ -1,0 +1,111 @@
+<?xml version="1.1" encoding="UTF-8"?>
+<databaseChangeLog 
+    xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+    xmlns:ext="http://www.liquibase.org/xml/ns/dbchangelog-ext"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog-ext 
+        http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-ext.xsd 
+        http://www.liquibase.org/xml/ns/dbchangelog 
+        http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.1.xsd">
+
+	<changeSet id="task" author="${user}">
+
+		<createTable tableName="task" remarks="Data transfer task">
+			<column name="id" type="${type.id}" autoIncrement="true" remarks="Identifier">
+				<constraints nullable="false" />
+			</column>
+			<column name="project_id" type="${type.id}" remarks="Project identifier">
+				<constraints nullable="false" />
+			</column>
+			<column name="internal_name" type="${type.internal_name}" remarks="Internal name">
+				<constraints nullable="false" />
+			</column>
+			<column name="name" type="${type.name}" remarks="Name">
+				<constraints nullable="false" />
+			</column>
+			<column name="description" type="${type.description}" remarks="Description">
+				<constraints nullable="true" />
+			</column>
+			<column name="ordinal_position" type="integer" remarks="Ordinal position">
+				<constraints nullable="true" />
+			</column>
+			<column name="is_disabled" type="boolean" remarks="Is disabled" defaultValueBoolean="false">
+				<constraints nullable="false" />
+			</column>
+		</createTable>
+		
+		<addPrimaryKey 
+			constraintName="pk_task" 
+			tableName="task"
+			columnNames="id" />
+			
+		<addUniqueConstraint 
+			constraintName="uc_task" 
+			tableName="task"
+			columnNames="project_id, internal_name" />
+
+		<createIndex 
+			indexName="i_task$project_id" 
+			tableName="task">
+			<column name="project_id" />
+		</createIndex>
+
+		<addForeignKeyConstraint 
+			constraintName="fk_task$project_id"
+			baseTableName="task" 
+			baseColumnNames="project_id" 
+			referencedTableName="project" 
+			referencedColumnNames="id" />
+			
+		<createTable tableName="task_stage" remarks="Data task stage">
+			<column name="id" type="${type.id}" autoIncrement="true" remarks="Identifier">
+				<constraints nullable="false" />
+			</column>
+			<column name="task_id" type="${type.id}" remarks="task identifier">
+				<constraints nullable="false" />
+			</column>
+			<column name="transfer_id" type="${type.id}" remarks="Transfer identifier">
+				<constraints nullable="false" />
+			</column>
+			<column name="ordinal_position" type="integer" remarks="Ordinal position">
+				<constraints nullable="true" />
+			</column>
+			<column name="is_disabled" type="boolean" remarks="Is disabled" defaultValueBoolean="false">
+				<constraints nullable="false" />
+			</column>
+		</createTable>
+			
+		<addPrimaryKey 
+			constraintName="pk_task_stage" 
+			tableName="task_stage"
+			columnNames="id" />
+			
+		<createIndex 
+			indexName="i_task_stage$task_id" 
+			tableName="task_stage">
+			<column name="task_id" />
+		</createIndex>
+
+		<addForeignKeyConstraint 
+			constraintName="fk_task_stage$task_id"
+			baseTableName="task_stage" 
+			baseColumnNames="task_id" 
+			referencedTableName="task" 
+			referencedColumnNames="id" />
+
+		<createIndex 
+			indexName="i_task_stage$transfer_id" 
+			tableName="task_stage">
+			<column name="transfer_id" />
+		</createIndex>
+
+		<addForeignKeyConstraint 
+			constraintName="fk_task_stage$transfer_id"
+			baseTableName="task_stage" 
+			baseColumnNames="transfer_id" 
+			referencedTableName="transfer" 
+			referencedColumnNames="id" />
+			
+	</changeSet>
+
+</databaseChangeLog>
