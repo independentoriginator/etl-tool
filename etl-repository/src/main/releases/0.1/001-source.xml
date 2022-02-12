@@ -153,11 +153,17 @@
 			<column name="description" value="Delimited text files"/>
 		</insert>
 
+		<insert tableName="source_type">
+			<column name="internal_name" value="folder"/>
+			<column name="name" value="File folder"/>
+			<column name="description" value="File folder"/>
+		</insert>
+
 		<insert tableName="source">
-			<column name="internal_name" value="temp dsv folder"/>
-			<column name="name" value="Temporary DSV files folder"/>
+			<column name="internal_name" value="temp folder"/>
+			<column name="name" value="Temporary folder"/>
 			<column name="project_id" valueComputed="(select id from project where internal_name = 'general')"/>
-			<column name="source_type_id" valueComputed="(select id from source_type where internal_name = 'dsv')"/>
+			<column name="source_type_id" valueComputed="(select id from source_type where internal_name = 'folder')"/>
 		</insert>
 
 	</changeSet>

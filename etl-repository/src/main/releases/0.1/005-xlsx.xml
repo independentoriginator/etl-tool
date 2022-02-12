@@ -37,8 +37,8 @@
 		</insert>
 
 		<insert tableName="transfer">
-			<column name="internal_name" value="xlsx to csv"/>
-			<column name="name" value="xlsx to csv"/>
+			<column name="internal_name" value="select xlsx"/>
+			<column name="name" value="select xlsx"/>
 			<column name="type_id" valueComputed="(select id from transfer_type where internal_name = 'extraction')"/>
 			<column name="source_id" valueComputed="(
 				select 
@@ -61,9 +61,9 @@
 					source.id 
 				from 
 					source 	
-				join project on project.id = source.project_id and project.internal_name = 'xlsx as database'
+				join project on project.id = source.project_id and project.internal_name = 'general'
 				where 
-					source.internal_name = 'xlsx inbox'
+					source.internal_name = 'temp folder'
 			)"/>
 			<column name="master_id" valueComputed="(
 				select 
@@ -73,13 +73,13 @@
 				join project on project.id = transfer.project_id and project.internal_name = 'xlsx as database'
 				join transfer_type on transfer_type.id = transfer.type_id and transfer_type.internal_name = 'extraction'
 				where 
-					transfer.internal_name = 'xlsx to csv'
+					transfer.internal_name = 'select xlsx'
 			)"/>
 			<column name="project_id" valueComputed="(select id from project where internal_name = 'xlsx as database')"/>
 		</insert>
 
 		<insert tableName="transfer">
-			<column name="internal_name" value="csv to duckdb"/>
+			<column name="internal_name" value="csv to columnar database"/>
 			<column name="name" value="csv to duckdb"/>
 			<column name="type_id" valueComputed="(select id from transfer_type where internal_name = 'load')"/>
 			<column name="source_id" valueComputed="(
@@ -129,7 +129,7 @@
 				join project on project.id = transfer.project_id and project.internal_name = 'xlsx as database'
 				join transfer_type on transfer_type.id = transfer.type_id and transfer_type.internal_name = 'load'
 				where 
-					transfer.internal_name = 'csv to duckdb'
+					transfer.internal_name = 'csv to columnar database'
 			)"/>
 		</insert>
 

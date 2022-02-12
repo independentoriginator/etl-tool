@@ -232,14 +232,14 @@
 		</insert>
 
 		<insert tableName="container_type">
-			<column name="internal_name" value="folder"/>
-			<column name="name" value="Folder"/>
-			<column name="description" value="File folder"/>
+			<column name="internal_name" value="file"/>
+			<column name="name" value="File"/>
+			<column name="description" value="File in folder"/>
 		</insert>
 
 		<insert tableName="container_type">
-			<column name="internal_name" value="file"/>
-			<column name="name" value="File"/>
+			<column name="internal_name" value="attachment"/>
+			<column name="name" value="File attachment"/>
 			<column name="description" value="Stored file attachment"/>
 		</insert>
 
