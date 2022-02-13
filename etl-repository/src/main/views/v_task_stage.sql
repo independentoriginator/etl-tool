@@ -28,6 +28,7 @@ with recursive task_stage as (
 select
 	ts.task_id
 	, t.internal_name as task_name
+	, p.internal_name as project_name
     , ts.transfer_id
 	, tr.internal_name as transfer_name
 	, trt.internal_name as transfer_type_name
@@ -56,6 +57,8 @@ from
 	task_stage ts
 join ${database.defaultSchemaName}.task t 
 	on t.id = ts.task_id
+join ${database.defaultSchemaName}.project p 
+	on p.id = t.project_id
 join ${database.defaultSchemaName}.transfer tr 
 	on tr.id = ts.transfer_id
 join ${database.defaultSchemaName}.transfer_type trt 
