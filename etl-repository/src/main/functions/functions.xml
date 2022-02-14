@@ -35,5 +35,14 @@
 			relativeToChangelogFile="true"/>
 		<rollback/>
 	</changeSet>
+
+	<changeSet id="f_normalize_text-function" author="${user}" runOnChange="true">
+		<createProcedure 
+			procedureName="f_normalize_text" 
+			dbms="postgresql" 
+			path="f_normalize_text.sql" 
+			relativeToChangelogFile="true"/>
+		<rollback/>
+	</changeSet>
 	
 </databaseChangeLog>

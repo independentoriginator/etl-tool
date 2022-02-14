@@ -7,5 +7,5 @@ immutable
 parallel safe
 as $function$
 select 
-	lower(regexp_replace(i_str, '\W', '', 'g'))
+	lower(nullif(regexp_replace(i_str, '\W', '', 'g'), ''))
 $function$;		
