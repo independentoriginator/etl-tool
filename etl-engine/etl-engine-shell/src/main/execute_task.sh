@@ -54,9 +54,7 @@ echo "
 	where 
 		ts.task_name = '$task_name'
 	order by 
-		stage_ordinal_position
-		, target_transfer_id
-		, ordinal_position	
+		sort_order
 " | \
 psql $pg_connection_string \
 	--tuples-only \
