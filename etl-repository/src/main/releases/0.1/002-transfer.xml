@@ -251,7 +251,7 @@
 			<column 
 				name="is_deletion" 
 				type="boolean"
-				remarks="Признак удаления"
+				remarks="Deletion flag"
 				defaultValueBoolean="false"	>
 				<constraints nullable="false" />
 			</column>
