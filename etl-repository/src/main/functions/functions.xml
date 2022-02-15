@@ -44,5 +44,41 @@
 			relativeToChangelogFile="true"/>
 		<rollback/>
 	</changeSet>
+
+	<changeSet id="f_extract_number-function" author="${user}" runOnChange="true">
+		<createProcedure 
+			procedureName="f_extract_number" 
+			dbms="postgresql" 
+			path="f_extract_number.sql" 
+			relativeToChangelogFile="true"/>
+		<rollback/>
+	</changeSet>
+
+	<changeSet id="f_normalize_number-function" author="${user}" runOnChange="true">
+		<createProcedure 
+			procedureName="f_normalize_number" 
+			dbms="postgresql" 
+			path="f_normalize_number.sql" 
+			relativeToChangelogFile="true"/>
+		<rollback/>
+	</changeSet>
+
+	<changeSet id="f_normalize_date-function" author="${user}" runOnChange="true">
+		<createProcedure 
+			procedureName="f_normalize_date" 
+			dbms="postgresql" 
+			path="f_normalize_date.sql" 
+			relativeToChangelogFile="true"/>
+		<rollback/>
+	</changeSet>
+
+	<changeSet id="f_normalize_bool-function" author="${user}" runOnChange="true">
+		<createProcedure 
+			procedureName="f_normalize_bool" 
+			dbms="postgresql" 
+			path="f_normalize_bool.sql" 
+			relativeToChangelogFile="true"/>
+		<rollback/>
+	</changeSet>
 	
 </databaseChangeLog>
