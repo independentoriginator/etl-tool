@@ -100,6 +100,16 @@ else
 				> $sql_file
 			fi
 			
+			if [[ $transfer_type_name = "extraction" ]] && \
+				[[ ! -z $master_transfer_name ]] && \
+				[[ $master_transfer_name != "null" ]] && \
+				[[ $is_master_transfer_virtual = "t" ]]; then
+					master_query=$temp_dir/sql-$master_transfer_type_name-$master_transfer_name
+					singleline_sql=$(tr '\n' ' ' < $master_query)
+					# Replacing {{master_recordset}} with the master sql file contents
+					sed --in-place "s/{{master_recordset}}/$singleline_sql/" $sql_file	
+			fi
+			
 			if [[ "$is_virtual" = "t" ]]; then
 				continue
 			fi
@@ -111,16 +121,6 @@ else
 			if [[ $transfer_type_name = "extraction" ]]; then
 				extraction_result="$temp_dir/$transfer_type_name-$transfer_name"
 				
-				if [[ ! -z $master_transfer_name ]] && [[ $master_transfer_name != "null" ]]; then
-					# {{master_recordset}} substitution
-					if [[ $is_master_transfer_virtual = "t" ]]; then
-						master_query=$temp_dir/sql-$master_transfer_type_name-$master_transfer_name
-						singleline_sql=$(tr '\n' ' ' < $master_query)
-						# Replacing {{master_recordset}} with the master sql file contents
-						sed --in-place "s/{{master_recordset}}/$singleline_sql/" $sql_file	
-					fi
-				fi				
-			
 				if [[ $source_type_name = "postgresql" ]]; then
 					if [[ $container_type_name = "table" ]]; then
 						psql $connection_string \
