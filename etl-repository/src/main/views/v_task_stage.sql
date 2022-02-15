@@ -48,6 +48,7 @@ with
 			, tr.container
 			, tr.is_virtual
 			, tr.reexec_results
+			, tr.is_deletion			
 			, ts.ordinal_position
 			, ts.target_transfer_id
 			, ts.stage_ordinal_position

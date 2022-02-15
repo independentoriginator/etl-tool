@@ -44,6 +44,7 @@ echo "
 		, coalesce(ts.container_type_name, 'null') as container_type_name
 		, coalesce(case when ts.container_type_name = 'table' then ts.container end, 'null') as table_name
 		, ts.reexec_results
+		, ts.is_deletion
 		, coalesce(ts.master_transfer_name, 'null') as master_transfer_name
 		, coalesce(ts.master_transfer_type_name, 'null') as master_transfer_type_name
 		, coalesce(ts.master_source_name, 'null') as master_source_name
@@ -82,6 +83,7 @@ else
 			container_type_name \
 			table_name \
 			reexec_results \
+			is_deletion \
 			master_transfer_name \
 			master_transfer_type_name \
 			master_source_name \
@@ -252,6 +254,7 @@ else
 													ng_staging.f_insert_data_package(
 														i_type_name => '$table_name'
 														, i_source_name => '$project_name'
+														, i_is_deletion => '$is_deletion'::boolean
 													)
 												;
 											
