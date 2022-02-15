@@ -110,6 +110,16 @@ else
 			
 			if [[ $transfer_type_name = "extraction" ]]; then
 				extraction_result="$temp_dir/$transfer_type_name-$transfer_name"
+				
+				if [[ ! -z $master_transfer_name ]] && [[ $master_transfer_name != "null" ]]; then
+					# {{master_recordset}} substitution
+					if [[ $is_master_transfer_virtual = "t" ]]; then
+						master_query=$temp_dir/sql-$master_transfer_type_name-$master_transfer_name
+						singleline_sql=$(tr '\n' ' ' < $master_query)
+						# Replacing {{master_recordset}} with the master sql file contents
+						sed --in-place "s/{{master_recordset}}/$singleline_sql/" $sql_file	
+					fi
+				fi				
 			
 				if [[ $source_type_name = "postgresql" ]]; then
 					if [[ $container_type_name = "table" ]]; then
@@ -123,18 +133,14 @@ else
 						fi						
 					elif [[ $container_type_name = "sql" ]]; then
 						if [[ ! -z $master_transfer_name ]] && [[ $master_transfer_name != "null" ]]; then
-							# {{master_recordset}} substitution
 							if [[ $is_master_transfer_virtual = "t" ]]; then
-								master_query=$temp_dir/sql-$master_transfer_type_name-$master_transfer_name
-								# Replacing {{master_recordset}} with the multiline contents of the master sql file
-								sed --expression "/{{master_recordset}}/{r \"$master_query\"" --expression 'd}' --in-place $sql_file	
-								
 								psql $connection_string \
 									--file="$sql_file" \
 									--no-align \
 									--field-separator="$exchange_file_delimiter" \
 									> $extraction_result
 							else
+								# {{master_recordset}} substitution
 								master_transfer_result="$temp_dir/$master_transfer_type_name-$master_transfer_name"
 								temp_table_name="tmp_$master_transfer_name"
 								table_header=$(head -n 1 $master_transfer_result)
@@ -172,7 +178,7 @@ else
 					
 				elif [[ $source_type_name = "duckdb" ]]; then
 					if [[ $connection_string = "null" ]]; then # temporary db is used
-						database_file="$temp_dir/$master_transfer_type_name-$master_transfer_name"
+						database_file="$temp_dir/$master_source_name"
 					else
 						database_file="$connection_string"
 					fi
@@ -329,9 +335,7 @@ else
 						if [[ $master_source_type_name = "folder" ]]; then
 							if [[ $table_name = "null" ]]; then # new tables are created
 								if [[ $connection_string = "null" ]]; then # temporary db is generated
-									load_result="$temp_dir/$transfer_type_name-$transfer_name"
-								
-									"transfers/duckdb/load/load-csv-to-duckdb.sh" "$load_result" "$master_transfer_result"
+									"transfers/duckdb/load/load-csv-to-duckdb.sh" "$temp_dir/$source_name" "$master_transfer_result"
 	
 									if [ $? -ne 0 ]; then
 										echo "$transfer_name failure"
