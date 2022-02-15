@@ -7,5 +7,5 @@ immutable
 parallel safe
 as $function$
 select 
-	regexp_replace(regexp_replace(i_name, '[\n\r]|\s{2,}', ' ', 'g' ), '[^[:print:]]', '', 'g')
+	nullif(regexp_replace(regexp_replace(i_name, '[\n\r]|\s{2,}', ' ', 'g' ), '[^[:print:]]', '', 'g'), '');
 $function$;		
