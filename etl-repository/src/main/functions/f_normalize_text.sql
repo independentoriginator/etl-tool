@@ -9,8 +9,8 @@ as $function$
 select 
 	nullif(
 		nullif(
-			btrim(
-				regexp_replace(
+			regexp_replace(
+				btrim(
 					regexp_replace(
 						regexp_replace(
 							i_text
@@ -22,9 +22,9 @@ select
 						, ''
 						, 'g'
 					)
-					, '^([\''\"]+)(.*)([\''\"]+)$'
-					, '\2'
 				)
+				, '^([\''\"]+)(.*)([\''\"]+)$'
+				, '\2'
 			)
 			, '-'
 		)
