@@ -245,4 +245,19 @@
 
 	</changeSet>
 
+	<changeSet id="transfer-deletion-flag" author="${user}">
+
+		<addColumn tableName="transfer">
+			<column 
+				name="is_deletion" 
+				type="boolean"
+				remarks="Признак удаления"
+				defaultValueBoolean="false"	>
+				<constraints nullable="false" />
+			</column>
+		</addColumn> 
+
+	</changeSet>
+
+
 </databaseChangeLog>
