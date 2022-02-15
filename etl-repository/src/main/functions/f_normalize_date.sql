@@ -1,6 +1,7 @@
 create or replace function f_normalize_date(
 	i_raw_value text
 	, i_type "char" -- 's, n, d, b'
+	, i_date1904 boolean = false
 )
 returns date
 language plpgsql
@@ -13,8 +14,12 @@ begin
 		then 
 			return to_date(i_raw_value, 'yyyy-mm-dd');
 		elseif i_type = 'n' then 
-			-- Internal Excel date value, 1900 system for dates is assumed (not 1904 system)
-			return to_date('1900-03-01', 'yyyy-mm-dd') - interval '61 day' + floor(i_raw_value::numeric) * interval '1 day';
+			-- Internal Excel date value, 1900 system for dates is assumed by default (not 1904 system)
+			if not coalesce(i_date1904, false) then
+				return to_date('1900-03-01', 'yyyy-mm-dd') - interval '61 day' + floor(i_raw_value::numeric) * interval '1 day';
+			else
+				return to_date('1904-01-01', 'yyyy-mm-dd') + floor(i_raw_value::numeric) * interval '1 day';
+			end if;
 		elsif regexp_replace(i_raw_value, '\s', '', 'g') ~ '^\d{1,2}\.\d{1,2}\.\d{4}' then 
 			return to_date(substring(regexp_replace(i_raw_value, '\s', '', 'g'), 1, 10), 'dd.mm.yyyy');
 		elsif regexp_replace(i_raw_value, '\s', '', 'g') ~ '^\d{1,2}\.\d{4}' then 
