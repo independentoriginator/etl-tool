@@ -10,7 +10,7 @@ select
 	nullif(
 		nullif(
 			btrim(
-				btrim(
+				regexp_replace(
 					regexp_replace(
 						regexp_replace(
 							i_text
@@ -22,7 +22,8 @@ select
 						, ''
 						, 'g'
 					)
-					, '"'
+					, '^([\''\"]+)(.*)([\''\"]+)$'
+					, '\2'
 				)
 			)
 			, '-'
