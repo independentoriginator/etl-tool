@@ -1,6 +1,6 @@
 create or replace function f_normalize_date(
 	i_raw_value text
-	, i_type "char" -- 's, n, d, b'
+	, i_type text -- 's, n, d, b'
 	, i_date1904 boolean = false
 )
 returns date

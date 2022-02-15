@@ -1,6 +1,6 @@
 create or replace function f_normalize_number(
 	i_raw_value text
-	, i_type "char" -- 's, n, d, b'
+	, i_type text -- 's, n, d, b'
 	, i_format text default null::text
 	, i_fix_num_percent_as_text_expected boolean default false
 )
