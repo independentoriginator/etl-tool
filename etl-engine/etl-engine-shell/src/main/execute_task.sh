@@ -162,11 +162,9 @@ else
 									--file="$export_script"
 							fi
 						else
+							singleline_sql=$(tr '\n' ' ' < $sql_file)
 							psql $connection_string \
-								--file="$sql_file" \
-								--no-align \
-								--field-separator="$exchange_file_delimiter" \
-								> $extraction_result
+								--command="\copy ($singleline_sql) to '$extraction_result' with (format $exchange_file_format, header, delimiter '$exchange_file_delimiter')"
 						fi
 						
 						if [ $? -ne 0 ]; then
