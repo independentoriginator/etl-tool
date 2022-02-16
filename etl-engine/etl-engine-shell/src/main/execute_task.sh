@@ -1,9 +1,10 @@
 #!/bin/bash
 
 task_name="$1"
+project_name="$2"
 
-if [ -z "$task_name" ]; then
-	echo "Usage: $0 \"data-transfer-task-name\""
+if [ -z "$task_name" ] || [ -z "$project_name" ]; then
+	echo "Usage: $0 \"data-transfer-task-name\" \"data-transfer-project-name\""
 	exit 1
 fi
 
@@ -53,7 +54,8 @@ echo "
 	from
 		v_task_stage ts
 	where 
-		ts.task_name = '$task_name'
+		ts.project_name = '$project_name'
+		and ts.task_name = '$task_name'
 	order by 
 		sort_order
 " | \
