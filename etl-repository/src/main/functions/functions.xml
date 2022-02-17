@@ -54,6 +54,15 @@
 		<rollback/>
 	</changeSet>
 
+	<changeSet id="f_number_value_limit-function" author="${user}" runOnChange="true">
+		<createProcedure 
+			procedureName="f_number_value_limit" 
+			dbms="postgresql" 
+			path="f_number_value_limit.sql" 
+			relativeToChangelogFile="true"/>
+		<rollback/>
+	</changeSet>
+
 	<changeSet id="f_normalize_number-function" author="${user}" runOnChange="true">
 		<createProcedure 
 			procedureName="f_normalize_number" 
@@ -80,5 +89,5 @@
 			relativeToChangelogFile="true"/>
 		<rollback/>
 	</changeSet>
-	
+
 </databaseChangeLog>

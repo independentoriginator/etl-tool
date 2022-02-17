@@ -10,6 +10,7 @@ immutable
 parallel safe
 as $function$
 declare 
+	l_result numeric;
 	l_str_components text[];
 begin
 	if length(coalesce(i_raw_value, '')) > 0
@@ -18,9 +19,9 @@ begin
 		then 
 			if i_fix_num_percent_as_text_expected and i_format ~ '.*\%$'
 			then 
-				return (i_raw_value::numeric) * 100.0;
+				l_result := (i_raw_value::numeric) * 100.0;
 			else 
-				return i_raw_value::numeric;
+				l_result := i_raw_value::numeric;
 			end if;
 		else
 			l_str_components := 
@@ -32,9 +33,9 @@ begin
 				-- null if number is inside a sentence 
 				if length(coalesce(l_str_components[1], '')) > 0 and length(coalesce(l_str_components[3], '')) > 0
 				then 
-					return null::numeric;
+					l_result := null::numeric;
 				else
-					return 
+					l_result :=
 						replace(					
 							regexp_replace(
 								regexp_replace(
@@ -53,7 +54,14 @@ begin
 			end if;
 		end if;
 	end if;
-	return null::numeric;
+	
+	if l_result > 0 and l_result > ${database.defaultSchemaName}.f_number_value_limit() then
+		l_result := null::numeric;
+	elsif l_result < 0 and l_result > ${database.defaultSchemaName}.f_number_value_limit(i_is_negative => true) then 
+		l_result := null::numeric;
+	end if; 
+	
+	return l_result;
 exception
 	when others then
 		return null::numeric;
