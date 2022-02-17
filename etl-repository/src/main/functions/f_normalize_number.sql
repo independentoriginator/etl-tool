@@ -1,6 +1,7 @@
 create or replace function f_normalize_number(
 	i_raw_value text
 	, i_type text -- 's, n, d, b'
+	, i_round_using_predef_scale boolean default true
 	, i_format text default null::text
 	, i_fix_num_percent_as_text_expected boolean default false
 )
@@ -60,6 +61,10 @@ begin
 	elsif l_result < 0 and l_result > ${database.defaultSchemaName}.f_number_value_limit(i_is_negative => true) then 
 		l_result := null::numeric;
 	end if; 
+	
+	if i_round_using_predef_scale then
+		l_result := round(l_result, ${type.scale.numeric});
+	end if;
 	
 	return l_result;
 exception
