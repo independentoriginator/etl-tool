@@ -149,7 +149,7 @@ else
 								temp_table_name="tmp_$master_transfer_name"
 								table_header=$(head -n 1 $master_transfer_result)
 								export_script=$temp_dir/script
-								echo "create temporary table \"$temp_table_name\"("${table_header//$exchange_file_delimiter/' text,'}" text);" > $export_script
+								echo "create temporary table \"$temp_table_name\"("${table_header//$exchange_file_delimiter/' text,'}" text) on commit drop;" > $export_script
 								echo "\copy \"$temp_table_name\" from '$master_transfer_result' with (format $exchange_file_format, header, delimiter '$exchange_file_delimiter')" >> $export_script
 								# Replacing {{master_recordset}} with the temporary table name of the master extraction
 								sed --in-place "s/{{master_recordset}}/\"$temp_table_name\"/g" $sql_file
