@@ -1,4 +1,4 @@
-create or replace function f_number_extract(
+create or replace function f_extract_number(
 	i_str_as_prefix_number_suffix text
 )
 returns text[]
