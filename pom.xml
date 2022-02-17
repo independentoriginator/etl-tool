@@ -84,6 +84,14 @@
 							<name>type.description</name>
 							<value>varchar(4000)</value>
 						</property>
+						<property>
+							<name>type.precision.numeric</name>
+							<value>20</value>
+						</property>
+						<property>
+							<name>type.scale.numeric</name>
+							<value>6</value>
+						</property>
 					</systemProperties>
 				</configuration>
 				<executions>
