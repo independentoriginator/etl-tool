@@ -18,11 +18,11 @@
 		<rollback/>
 	</changeSet>
 	
-	<changeSet id="f_string_are_the_same-function" author="${user}" runOnChange="true">
+	<changeSet id="f_strings_similarity-function" author="${user}" runOnChange="true">
 		<createProcedure 
-			procedureName="f_string_are_the_same" 
+			procedureName="f_strings_similarity" 
 			dbms="postgresql" 
-			path="f_string_are_the_same.sql" 
+			path="f_strings_similarity.sql" 
 			relativeToChangelogFile="true"/>
 		<rollback/>
 	</changeSet>
