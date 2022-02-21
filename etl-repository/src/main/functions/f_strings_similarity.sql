@@ -16,8 +16,8 @@ begin
 	end if;
 	
 	-- Conditionally less then 1.0 for incomplete matching
-	if coalesce(${database.defaultSchemaName}.f_string_significant_pomace(i_left), '') = 
-		coalesce(${database.defaultSchemaName}.f_string_significant_pomace(i_right), '') then 
+	if coalesce(${mainSchemaName}.f_string_significant_pomace(i_left), '') = 
+		coalesce(${mainSchemaName}.f_string_significant_pomace(i_right), '') then 
 		return 0.99;
 	end if;
 	

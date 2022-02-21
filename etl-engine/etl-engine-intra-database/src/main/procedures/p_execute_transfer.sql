@@ -1,5 +1,5 @@
 create or replace procedure p_execute_transfer(
-	i_transfer_id ${database.defaultSchemaName}.transfer.id%type
+	i_transfer_id ${mainSchemaName}.transfer.id%type
 )
 language plpgsql
 as $procedure$
@@ -7,8 +7,8 @@ declare
 	l_data_package_id ${stagingSchemaName}.data_package.id%type;
 	l_check_date ${stagingSchemaName}.data_package.state_change_date%type;
 	l_stage_rec record;
-	l_extraction_command ${database.defaultSchemaName}.source.container%type;
-	l_load_command ${database.defaultSchemaName}.source.container%type;
+	l_extraction_command ${mainSchemaName}.source.container%type;
+	l_load_command ${mainSchemaName}.source.container%type;
 	l_temp_table_name name;
 	l_column_list text;
 begin
@@ -16,7 +16,7 @@ begin
 		select
 			ts.*
 		from 
-			${database.defaultSchemaName}.v_transfer_stage ts
+			${mainSchemaName}.v_transfer_stage ts
 		where
 			ts.transfer_id = i_transfer_id
 		order by 
@@ -64,7 +64,7 @@ begin
 							when l_stage_rec.is_master_source_virtual = true then
 								l_stage_rec.master_container
 							else
-								${database.defaultSchemaName}.f_extraction_temp_table_name(
+								${mainSchemaName}.f_extraction_temp_table_name(
 									i_transfer_id => i_transfer_id
 									, i_extraction_name => l_stage_rec.master_source_name
 								)::text
@@ -85,7 +85,7 @@ begin
 			end if;
 
 			l_temp_table_name := 
-				${database.defaultSchemaName}.f_extraction_temp_table_name(
+				${mainSchemaName}.f_extraction_temp_table_name(
 					i_transfer_id => i_transfer_id
 					, i_extraction_name => l_stage_rec.source_name
 				);
@@ -109,7 +109,7 @@ begin
 			end if;
 			
 			l_temp_table_name := 
-				${database.defaultSchemaName}.f_extraction_temp_table_name(
+				${mainSchemaName}.f_extraction_temp_table_name(
 					i_transfer_id => i_transfer_id
 					, i_extraction_name => l_stage_rec.master_source_name
 				);

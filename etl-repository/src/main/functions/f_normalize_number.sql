@@ -26,7 +26,7 @@ begin
 			end if;
 		else
 			l_str_components := 
-				${database.defaultSchemaName}.f_extract_number(
+				${mainSchemaName}.f_extract_number(
 					i_str_as_prefix_number_suffix => i_raw_value
 				);
 			if l_str_components is not null 
@@ -56,9 +56,9 @@ begin
 		end if;
 	end if;
 	
-	if l_result > 0 and l_result > ${database.defaultSchemaName}.f_number_value_limit() then
+	if l_result > 0 and l_result > ${mainSchemaName}.f_number_value_limit() then
 		l_result := null::numeric;
-	elsif l_result < 0 and l_result > ${database.defaultSchemaName}.f_number_value_limit(i_is_negative => true) then 
+	elsif l_result < 0 and l_result > ${mainSchemaName}.f_number_value_limit(i_is_negative => true) then 
 		l_result := null::numeric;
 	end if; 
 	

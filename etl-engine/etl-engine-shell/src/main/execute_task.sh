@@ -379,7 +379,7 @@ else
 	fi
 fi
 
-#rm -r "$temp_dir"
+rm -r "$temp_dir"
 
 exit $exit_code
 

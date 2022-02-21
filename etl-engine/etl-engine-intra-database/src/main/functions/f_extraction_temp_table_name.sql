@@ -1,6 +1,6 @@
 create or replace function f_extraction_temp_table_name(
-	i_transfer_id ${database.defaultSchemaName}.transfer.id%type
-	, i_extraction_name ${database.defaultSchemaName}.source.internal_name%type
+	i_transfer_id ${mainSchemaName}.transfer.id%type
+	, i_extraction_name ${mainSchemaName}.source.internal_name%type
 )
 returns name
 language sql

@@ -7,5 +7,5 @@ immutable
 parallel safe
 as $function$
 select 
-	md5(${database.defaultSchemaName}.f_string_significant_pomace(i_str => i_name))
+	md5(${mainSchemaName}.f_string_significant_pomace(i_str => i_name))
 $function$;		

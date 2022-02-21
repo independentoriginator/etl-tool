@@ -10,9 +10,9 @@ with
 			, coalesce(ts.ordinal_position, 0) as ordinal_position
 			, coalesce(ts.ordinal_position, 0) as stage_ordinal_position
 		from 
-			${database.defaultSchemaName}.task t
-		join ${database.defaultSchemaName}.task_stage ts on ts.task_id = t.id and ts.is_disabled = false
-		join ${database.defaultSchemaName}.transfer tr on tr.id = ts.transfer_id
+			${mainSchemaName}.task t
+		join ${mainSchemaName}.task_stage ts on ts.task_id = t.id and ts.is_disabled = false
+		join ${mainSchemaName}.transfer tr on tr.id = ts.transfer_id
 		union all
 		select
 			ts.task_id
@@ -23,7 +23,7 @@ with
 	        , ts.stage_ordinal_position
 		from 
 			task_stage ts
-		join ${database.defaultSchemaName}.transfer preceding_transfer
+		join ${mainSchemaName}.transfer preceding_transfer
 			on preceding_transfer.id = ts.preceding_transfer_id
 	)
 	, task_transfers as ( 
@@ -63,35 +63,35 @@ with
 			, ptr.is_virtual as is_master_transfer_virtual
 		from 
 			task_stage ts
-		join ${database.defaultSchemaName}.task t 
+		join ${mainSchemaName}.task t 
 			on t.id = ts.task_id
-		join ${database.defaultSchemaName}.project p 
+		join ${mainSchemaName}.project p 
 			on p.id = t.project_id
-		join ${database.defaultSchemaName}.transfer tr 
+		join ${mainSchemaName}.transfer tr 
 			on tr.id = ts.transfer_id
-		join ${database.defaultSchemaName}.transfer_type trt 
+		join ${mainSchemaName}.transfer_type trt 
 			on trt.id = tr.type_id
-		join ${database.defaultSchemaName}.source s 
+		join ${mainSchemaName}.source s 
 			on s.id = tr.source_id
-		join ${database.defaultSchemaName}.source_type st 
+		join ${mainSchemaName}.source_type st 
 			on st.id = s.source_type_id
-		left join ${database.defaultSchemaName}.container_type ct 
+		left join ${mainSchemaName}.container_type ct 
 			on ct.id = tr.container_type_id
-		left join ${database.defaultSchemaName}.transfer ptr 
+		left join ${mainSchemaName}.transfer ptr 
 			on ptr.id = ts.preceding_transfer_id
-		left join ${database.defaultSchemaName}.transfer_type ptrt 
+		left join ${mainSchemaName}.transfer_type ptrt 
 			on ptrt.id = ptr.type_id
-		left join ${database.defaultSchemaName}.source ps 
+		left join ${mainSchemaName}.source ps 
 			on ps.id = ptr.source_id
-		left join ${database.defaultSchemaName}.source_type pst 
+		left join ${mainSchemaName}.source_type pst 
 			on pst.id = ps.source_type_id
-		left join ${database.defaultSchemaName}.container_type pct 
+		left join ${mainSchemaName}.container_type pct 
 			on pct.id = ptr.container_type_id
 		left join lateral (
 			select 
 				string_agg(tp.param_value, ', ' order by tp.ordinal_position) as positional_arguments
 			from 
-				${database.defaultSchemaName}.transfer_param tp
+				${mainSchemaName}.transfer_param tp
 			where 
 				tp.transfer_id = ts.transfer_id
 				and tp.is_disabled = false

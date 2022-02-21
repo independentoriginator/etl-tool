@@ -13,6 +13,12 @@
         
 	<property name="stagingSchemaName" value="${stagingSchemaName}"/>        
 
+	<changeSet id="default schema" author="${user}" runAlways="true">
+		<sql dbms="postgresql">
+			SET search_path = ${mainSchemaName}
+		</sql>
+	</changeSet>
+
 	<includeAll path="releases" relativeToChangelogFile="true" />
 	<include file="functions/functions.xml" relativeToChangelogFile="true" />
 	<include file="views/views.xml" relativeToChangelogFile="true" />
