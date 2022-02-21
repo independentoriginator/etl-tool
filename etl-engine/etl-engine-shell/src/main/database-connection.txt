@@ -1,3 +1,3 @@
-postgresql://ng_etl@localhost:5432/ng_primary_data
+postgresql://ng_subsystem@localhost:5432/ng_primary_data
 # postgresql://postgres@localhost:5432/etl_repository
 # password is in ~/.pgpass file

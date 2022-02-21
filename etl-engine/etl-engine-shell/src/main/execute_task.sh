@@ -2,9 +2,11 @@
 
 task_name="$1"
 project_name="$2"
+etl_schema_name="$3"
+staging_schema_name="$4"
 
-if [ -z "$task_name" ] || [ -z "$project_name" ]; then
-	echo "Usage: $0 \"data-transfer-task-name\" \"data-transfer-project-name\""
+if [ -z "$task_name" ] || [ -z "$project_name" ] || [ -z "$etl_schema_name" ] || [ -z "$staging_schema_name" ]; then
+	echo "Usage: $0 \"data-transfer-task-name\" \"data-transfer-project-name\" \"etl_schema_name\" \"staging_schema_name\""
 	exit 1
 fi
 
@@ -52,7 +54,7 @@ echo "
 		, coalesce(ts.master_source_type_name, 'null') as master_source_type_name
 		, coalesce(ts.is_master_transfer_virtual, false) as is_master_transfer_virtual
 	from
-		v_task_stage ts
+		$etl_schema_name.v_task_stage ts
 	where 
 		ts.project_name = '$project_name'
 		and ts.task_name = '$task_name'
@@ -100,7 +102,7 @@ else
 				psql $pg_connection_string \
 					--tuples-only \
 					--no-align \
-					--command="select container from v_task_stage where transfer_id = $transfer_id" \
+					--command="select container from $etl_schema_name.v_task_stage where transfer_id = $transfer_id" \
 				> $sql_file
 			fi
 			
@@ -239,8 +241,8 @@ else
 										--command="
 											do \$target_data_import\$
 											declare 
-												l_data_package_id ng_staging.data_package.id%type; 
-												l_check_date ng_staging.data_package.state_change_date%type;
+												l_data_package_id $staging_schema_name.data_package.id%type; 
+												l_check_date $staging_schema_name.data_package.state_change_date%type;
 												l_insert_columns text;
 												l_select_columns text;
 											begin
@@ -251,7 +253,7 @@ else
 													l_data_package_id
 													, l_check_date
 												from 
-													ng_staging.f_insert_data_package(
+													$staging_schema_name.f_insert_data_package(
 														i_type_name => '$table_name'
 														, i_source_name => '$project_name'
 														, i_is_deletion => '$is_deletion'::boolean
@@ -287,7 +289,7 @@ else
 													from
 														information_schema.columns c
 													where 
-														c.table_schema = 'ng_staging'
+														c.table_schema = '$staging_schema_name'
 														and c.table_name = '$table_name'			
 												) dest_col
 												on dest_col.column_name = src_col.column_name								
@@ -295,7 +297,7 @@ else
 												
 												execute format('
 													insert into 
-														ng_staging.$table_name(
+														$staging_schema_name.$table_name(
 															data_package_id 
 															, data_package_rn
 															, %s
@@ -313,7 +315,7 @@ else
 													, l_select_columns
 												);
 												
-												call ng_staging.p_process_data_package(
+												call $staging_schema_name.p_process_data_package(
 													i_data_package_id => l_data_package_id
 													, i_entity_name => '$table_name'
 													, io_check_date => l_check_date
