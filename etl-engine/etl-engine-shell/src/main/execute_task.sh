@@ -47,7 +47,9 @@ echo "
 		, coalesce(ts.container_type_name, 'null') as container_type_name
 		, coalesce(case when ts.container_type_name = 'table' then ts.container end, 'null') as table_name
 		, ts.reexec_results
+		, ts.is_reexecution
 		, ts.is_deletion
+		, coalesce(ts.transfer_positional_arguments, 'null') as transfer_positional_arguments 
 		, coalesce(ts.master_transfer_name, 'null') as master_transfer_name
 		, coalesce(ts.master_transfer_type_name, 'null') as master_transfer_type_name
 		, coalesce(ts.master_source_name, 'null') as master_source_name
@@ -87,7 +89,9 @@ else
 			container_type_name \
 			table_name \
 			reexec_results \
+			is_reexecution \
 			is_deletion \
+			transfer_positional_arguments \
 			master_transfer_name \
 			master_transfer_type_name \
 			master_source_name \
@@ -102,22 +106,31 @@ else
 				psql $pg_connection_string \
 					--tuples-only \
 					--no-align \
-					--command="select container from $etl_schema_name.v_task_stage where transfer_id = $transfer_id" \
+					--command="select container from $etl_schema_name.v_task_stage where transfer_id = $transfer_id and is_reexecution = false" \
 				> $sql_file
 			fi
 			
-			if [[ $transfer_type_name = "extraction" ]] && \
-				[[ ! -z $master_transfer_name ]] && \
-				[[ $master_transfer_name != "null" ]] && \
-				[[ $is_master_transfer_virtual = "t" ]]; then
+			if [[ $transfer_type_name = "extraction" ]] \
+				&& [[ ! -z $master_transfer_name ]] \
+				&& [[ $master_transfer_name != "null" ]] \
+				&& [[ $is_master_transfer_virtual = "t" ]]; then
 					master_query=$temp_dir/sql-$master_transfer_type_name-$master_transfer_name
 					singleline_sql=$(tr '\n' ' ' < $master_query)
 					# Replacing {{master_recordset}} with the master sql file contents
-					sed --in-place "s/{{master_recordset}}/$singleline_sql/" $sql_file	
+					sed --in-place "s/{{master_recordset}}/$singleline_sql/" $sql_file
 			fi
 			
-			if [[ "$is_virtual" = "t" ]]; then
+			if [[ $is_virtual = "t" ]]; then
 				continue
+			fi
+
+			if [[ ! -z $transfer_positional_arguments ]] && [[ $transfer_positional_arguments != "null" ]]; then
+				IFS="," read -r -a arg_arr <<< $transfer_positional_arguments 
+				arg_pos=0
+				for arg_value in "${arg_arr[@]}"; do
+					(( arg_pos++ ))
+					sed --in-place "s/\$$arg_pos/'$arg_value'/" $sql_file
+				done				
 			fi
 			
 			if [[ $source_name = "this database" ]]; then
@@ -126,6 +139,10 @@ else
 			
 			if [[ $transfer_type_name = "extraction" ]]; then
 				extraction_result="$temp_dir/$transfer_type_name-$transfer_name"
+				
+				if [[ $reexec_results = "t" ]] && [[ $is_reexecution = "f" ]]; then
+					extraction_result=$extraction_result"-for-reexec"
+				fi
 				
 				if [[ $source_type_name = "postgresql" ]]; then
 					if [[ $container_type_name = "table" ]]; then
@@ -138,35 +155,42 @@ else
 							break
 						fi						
 					elif [[ $container_type_name = "sql" ]]; then
-						if [[ ! -z $master_transfer_name ]] && [[ $master_transfer_name != "null" ]]; then
-							if [[ $is_master_transfer_virtual = "t" ]]; then
-								psql $connection_string \
-									--file="$sql_file" \
-									--no-align \
-									--field-separator="$exchange_file_delimiter" \
-									> $extraction_result
+						if [[ ! -z $master_transfer_name ]] \
+							&& [[ $master_transfer_name != "null" ]] \
+							&& [[ $is_master_transfer_virtual = "f" ]]; then
+							# {{master_recordset}} substitution
+							master_transfer_result="$temp_dir/$master_transfer_type_name-$master_transfer_name"
+							export_script=$temp_dir/script
+							if [[ $reexec_results = "t" ]] && [[ $is_reexecution = "t" ]]; then
+								singleline_sql=$(tr '\n' ' ' < $master_transfer_result"-for-reexec")
+								echo "\copy ($singleline_sql) to '$extraction_result' with (format $exchange_file_format, header, delimiter '$exchange_file_delimiter')" > $export_script
 							else
-								# {{master_recordset}} substitution
-								master_transfer_result="$temp_dir/$master_transfer_type_name-$master_transfer_name"
 								temp_table_name="tmp_$master_transfer_name"
 								table_header=$(head -n 1 $master_transfer_result)
-								export_script=$temp_dir/script
-								echo "create temporary table \"$temp_table_name\"("${table_header//$exchange_file_delimiter/' text,'}" text) on commit drop;" > $export_script
+								echo "create temporary table \"$temp_table_name\"(\""${table_header//$exchange_file_delimiter/'" text,"'}"\" text) on commit drop;" > $export_script
 								echo "\copy \"$temp_table_name\" from '$master_transfer_result' with (format $exchange_file_format, header, delimiter '$exchange_file_delimiter')" >> $export_script
 								# Replacing {{master_recordset}} with the temporary table name of the master extraction
 								sed --in-place "s/{{master_recordset}}/\"$temp_table_name\"/g" $sql_file
 								singleline_sql=$(tr '\n' ' ' < $sql_file)
 								echo "\copy ($singleline_sql) to '$extraction_result' with (format $exchange_file_format, header, delimiter '$exchange_file_delimiter')" >> $export_script
-
-								psql $connection_string \
-									--single-transaction \
-									--command="\set ON_ERROR_STOP true" \
-									--file="$export_script"
 							fi
-						else
-							singleline_sql=$(tr '\n' ' ' < $sql_file)
+
 							psql $connection_string \
-								--command="\copy ($singleline_sql) to '$extraction_result' with (format $exchange_file_format, header, delimiter '$exchange_file_delimiter')"
+								--single-transaction \
+								--command="\set ON_ERROR_STOP true" \
+								--file="$export_script"
+						else
+							if [[ $reexec_results = "t" ]] && [[ $is_reexecution = "f" ]]; then
+								psql $connection_string \
+									--file=$sql_file \
+									--tuples-only \
+									--no-align \
+								> $extraction_result
+							else
+								singleline_sql=$(tr '\n' ' ' < $sql_file)
+								psql $connection_string \
+									--command="\copy ($singleline_sql) to '$extraction_result' with (format $exchange_file_format, header, delimiter '$exchange_file_delimiter')"
+							fi
 						fi
 						
 						if [ $? -ne 0 ]; then
@@ -381,7 +405,7 @@ else
 	fi
 fi
 
-rm -r "$temp_dir"
+#rm -r "$temp_dir"
 
 exit $exit_code
 
