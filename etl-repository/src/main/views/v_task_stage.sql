@@ -52,7 +52,7 @@ with
 			, ts.ordinal_position
 			, ts.target_transfer_id
 			, ts.stage_ordinal_position
-			, params.positional_arguments as source_positional_arguments
+			, params.positional_arguments as transfer_positional_arguments
 		    , ts.preceding_transfer_id
 			, ptr.internal_name as master_transfer_name
 			, ptrt.internal_name as master_transfer_type_name
