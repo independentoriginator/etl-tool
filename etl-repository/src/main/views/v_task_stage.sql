@@ -31,7 +31,11 @@ with
 			row_number() 
 				over(
 					partition by ts.task_id 
-					order by ts.stage_ordinal_position, ts.target_transfer_id, ts.ordinal_position
+					order by 
+						ts.stage_ordinal_position
+						, ts.target_transfer_id
+						, ts.ordinal_position
+						, case when tr.is_deletion then 0 else 1 end
 				) * 10 as sort_order
 			, ts.task_id
 			, t.internal_name as task_name
