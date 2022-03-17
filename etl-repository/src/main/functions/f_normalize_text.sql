@@ -18,7 +18,7 @@ select
 							, ' '
 							, 'g' 
 						)
-						, '[^[:print:]]'
+						, '[^[:print:]]|_x0002_'
 						, ''
 						, 'g'
 					)
@@ -30,4 +30,5 @@ select
 		)
 		, ''
 	)
+-- _x0002_ - unexpected "START OF TEXT" unicode control charater sequence
 $function$;		
