@@ -30,5 +30,5 @@ select
 		)
 		, ''
 	)
--- _x0002_ - unexpected "START OF TEXT" unicode control charater sequence
+-- _x0002_ - unexpected "START OF TEXT" unicode control charaсter sequence
 $function$;		
