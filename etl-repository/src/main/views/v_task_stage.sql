@@ -7,6 +7,8 @@ with
 	        , ts.transfer_id
 	        , tr.master_id as preceding_transfer_id
 	        , ts.transfer_id as target_transfer_id
+	        , tr.container as target_container
+	        , tr.is_deletion as is_target_transfer_deletion 
 			, coalesce(ts.ordinal_position, 0) as ordinal_position
 			, coalesce(ts.ordinal_position, 0) as stage_ordinal_position
 		from 
@@ -19,6 +21,8 @@ with
 			, preceding_transfer.id as transfer_id
 	        , preceding_transfer.master_id as preceding_transfer_id
 	        , ts.target_transfer_id
+	        , ts.target_container
+	        , ts.is_target_transfer_deletion
 	        , ts.ordinal_position - 1 as ordinal_position
 	        , ts.stage_ordinal_position
 		from 
@@ -33,9 +37,10 @@ with
 					partition by ts.task_id 
 					order by 
 						ts.stage_ordinal_position
+						, ts.target_container
+						, case when ts.is_target_transfer_deletion then 0 else 1 end
 						, ts.target_transfer_id
 						, ts.ordinal_position
-						, case when tr.is_deletion then 0 else 1 end
 				) * 10 as sort_order
 			, ts.task_id
 			, t.internal_name as task_name
