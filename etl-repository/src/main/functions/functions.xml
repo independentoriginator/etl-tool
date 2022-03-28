@@ -90,4 +90,13 @@
 		<rollback/>
 	</changeSet>
 
+	<changeSet id="f_values_are_different-function" author="${user}" runOnChange="true">
+		<createProcedure 
+			procedureName="f_values_are_different" 
+			dbms="postgresql" 
+			path="f_values_are_different.sql" 
+			relativeToChangelogFile="true"/>
+		<rollback/>
+	</changeSet>
+
 </databaseChangeLog>
