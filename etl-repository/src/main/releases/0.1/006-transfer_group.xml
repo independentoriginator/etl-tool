@@ -1,0 +1,75 @@
+<?xml version="1.1" encoding="UTF-8"?>
+<databaseChangeLog 
+    xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+    xmlns:ext="http://www.liquibase.org/xml/ns/dbchangelog-ext"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog-ext 
+        http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-ext.xsd 
+        http://www.liquibase.org/xml/ns/dbchangelog 
+        http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.1.xsd">
+
+	<changeSet id="transfer_group" author="${user}">
+
+		<createTable tableName="transfer_group" remarks="Data transfer groups">
+			<column name="id" type="${type.id}" autoIncrement="true" remarks="Identifier">
+				<constraints nullable="false" />
+			</column>
+			<column name="internal_name" type="${type.internal_name}" remarks="Internal name">
+				<constraints nullable="false" />
+			</column>
+			<column name="name" type="${type.name}" remarks="Name">
+				<constraints nullable="false" />
+			</column>
+			<column name="description" type="${type.description}" remarks="Description">
+				<constraints nullable="true" />
+			</column>
+		</createTable>
+
+		<addPrimaryKey 
+			constraintName="pk_transfer_group" 
+			tableName="transfer_group"
+			columnNames="id" />
+			
+		<addUniqueConstraint 
+			constraintName="uc_transfer_group" 
+			tableName="transfer_group"
+			columnNames="internal_name" />
+			
+	</changeSet>
+
+	<changeSet id="transfer_group_ref" author="${user}">
+
+		<addColumn tableName="transfer">
+			<column 
+				name="group_id" 
+				type="${type.id}"
+				remarks="Transfer group identifier"	>
+				<constraints nullable="true" />
+			</column>
+		</addColumn> 
+
+		<createIndex 
+			indexName="i_transfer$group_id" 
+			tableName="transfer">
+			<column name="group_id" />
+		</createIndex>
+
+		<addForeignKeyConstraint 
+			constraintName="fk_transfer$group_id"
+			baseTableName="transfer" 
+			baseColumnNames="group_id" 
+			referencedTableName="transfer_group" 
+			referencedColumnNames="id" />
+
+		<dropUniqueConstraint 
+			constraintName="uc_transfer" 
+			tableName="transfer" />
+
+		<addUniqueConstraint 
+			constraintName="uc_transfer" 
+			tableName="transfer"
+			columnNames="project_id, type_id, internal_name, group_id" />
+
+	</changeSet>
+
+</databaseChangeLog>
