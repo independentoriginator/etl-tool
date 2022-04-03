@@ -72,4 +72,39 @@
 
 	</changeSet>
 
+	<changeSet id="transfer_group_project" author="${user}">
+
+		<addColumn tableName="transfer_group">
+			<column 
+				name="project_id" 
+				type="${type.id}"
+				remarks="Project identifier"	>
+				<constraints nullable="false" />
+			</column>
+		</addColumn> 
+
+		<createIndex 
+			indexName="i_transfer_group$project_id" 
+			tableName="transfer_group">
+			<column name="project_id" />
+		</createIndex>
+
+		<addForeignKeyConstraint 
+			constraintName="fk_transfer_group$project_id"
+			baseTableName="transfer_group" 
+			baseColumnNames="project_id" 
+			referencedTableName="project" 
+			referencedColumnNames="id" />
+
+		<dropUniqueConstraint 
+			constraintName="uc_transfer_group" 
+			tableName="transfer_group" />
+
+		<addUniqueConstraint 
+			constraintName="uc_transfer_group" 
+			tableName="transfer_group"
+			columnNames="internal_name, project_id" />
+
+	</changeSet>
+
 </databaseChangeLog>
