@@ -22,6 +22,8 @@ begin
 			end if;
 		elsif regexp_replace(i_raw_value, '\s', '', 'g') ~ '^\d{1,2}\.\d{1,2}\.\d{4}' then 
 			return to_date(substring(regexp_replace(i_raw_value, '\s', '', 'g'), 1, 10), 'dd.mm.yyyy');
+		elsif regexp_replace(i_raw_value, '\s', '', 'g') ~ '^\d{1,2}\.\d{1,2}\.\d{2}' then 
+			return to_date(substring(regexp_replace(i_raw_value, '\s', '', 'g'), 1, 8), 'dd.mm.yy');
 		elsif regexp_replace(i_raw_value, '\s', '', 'g') ~ '^\d{1,2}\.\d{4}' then 
 			return to_date('01.' || substring(regexp_replace(i_raw_value, '\s', '', 'g'), 1, 7), 'dd.mm.yyyy');
 		elsif i_raw_value ~ '^\d{4}\s*г{0,1}.*' then 
