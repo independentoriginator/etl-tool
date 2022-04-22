@@ -217,6 +217,16 @@
 		
 	</changeSet>
 
+	<changeSet id="built-in-transfer-type-execution" author="${user}">
+
+		<insert tableName="transfer_type">
+			<column name="internal_name" value="execution"/>
+			<column name="name" value="Execution"/>
+			<column name="description" value="Command execution"/>
+		</insert>
+		
+	</changeSet>
+
 	<changeSet id="built-in-container-types" author="${user}">
 
 		<insert tableName="container_type">

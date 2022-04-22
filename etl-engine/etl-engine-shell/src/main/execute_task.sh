@@ -381,6 +381,23 @@ else
 					break
 				fi
 				
+			elif [[ $transfer_type_name = "execution" ]]; then
+				
+				if [[ $source_type_name = "postgresql" ]]; then
+					psql $connection_string \
+						--file=$sql_file 
+						
+					if [ $? -ne 0 ]; then
+						echo "$transfer_name failure"
+						exit_code=1
+						break
+					fi						
+				else
+					echo "$source_name. $transfer_type_name: unsupported source type specified: $source_type_name"
+					exit_code=1
+					break
+				fi
+				
 			elif [[ $transfer_type_name = "xlsx to csv" ]]; then
 				if [[ $master_transfer_type_name = "extraction" ]]; then
 					extraction_result="$temp_dir/$master_transfer_type_name-$master_transfer_name"
