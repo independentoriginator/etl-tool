@@ -106,5 +106,35 @@
 			columnNames="internal_name, project_id" />
 
 	</changeSet>
+	
+	<changeSet id="xlsx as database project main transfer_group" author="${user}">
 
+		<insert tableName="transfer_group">
+			<column name="internal_name" value="main"/>
+			<column name="name" value="Main group"/>
+			<column name="project_id" valueComputed="(select id from project where internal_name = 'xlsx as database')"/>
+		</insert>
+		
+		<update tableName="transfer">
+			<column name="group_id" valueComputed="(
+				select 
+					transfer_group.id 
+				from 
+					transfer_group  	
+				join project on project.id = transfer_group.project_id and project.internal_name = 'xlsx as database'
+				where 
+					transfer_group.internal_name = 'main'
+			)"/>
+			<where>
+				project_id = (select id from project where internal_name = 'xlsx as database')
+				and group_id is null
+			</where>
+		</update>
+		
+		<addNotNullConstraint
+		 	tableName="transfer"
+			columnName="group_id"/> 		
+		
+	</changeSet>
+		
 </databaseChangeLog>
