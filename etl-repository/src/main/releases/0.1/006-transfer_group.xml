@@ -107,6 +107,16 @@
 
 	</changeSet>
 	
+	<changeSet id="general project main transfer_group" author="${user}">
+
+		<insert tableName="transfer_group">
+			<column name="internal_name" value="main"/>
+			<column name="name" value="Main group"/>
+			<column name="project_id" valueComputed="(select id from project where internal_name = 'general')"/>
+		</insert>
+		
+	</changeSet>
+	
 	<changeSet id="xlsx as database project main transfer_group" author="${user}">
 
 		<insert tableName="transfer_group">
