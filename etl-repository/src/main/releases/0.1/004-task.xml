@@ -10,6 +10,7 @@
 
 	<changeSet id="task" author="${user}">
 
+		<!-- task -->
 		<createTable tableName="task" remarks="Data transfer task">
 			<column name="id" type="${type.id}" autoIncrement="true" remarks="Identifier">
 				<constraints nullable="false" />
@@ -57,6 +58,7 @@
 			referencedTableName="project" 
 			referencedColumnNames="id" />
 			
+		<!-- task_stage -->
 		<createTable tableName="task_stage" remarks="Data task stage">
 			<column name="id" type="${type.id}" autoIncrement="true" remarks="Identifier">
 				<constraints nullable="false" />

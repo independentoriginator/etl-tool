@@ -10,6 +10,7 @@
 
 	<changeSet id="transfer" author="${user}">
 
+		<!-- transfer_type -->
 		<createTable tableName="transfer_type" remarks="Data transfer types">
 			<column name="id" type="${type.id}" autoIncrement="true" remarks="Identifier">
 				<constraints nullable="false" />
@@ -51,6 +52,7 @@
 			referencedTableName="transfer_type" 
 			referencedColumnNames="id" />
 
+		<!-- container_type -->
 		<createTable tableName="container_type" remarks="Data container types">
 			<column name="id" type="${type.id}" autoIncrement="true" remarks="Identifier">
 				<constraints nullable="false" />
@@ -79,6 +81,7 @@
 			tableName="container_type"
 			columnNames="internal_name" />
 
+		<!-- transfer -->
 		<createTable tableName="transfer" remarks="Data transfer">
 			<column name="id" type="${type.id}" autoIncrement="true" remarks="Identifier">
 				<constraints nullable="false" />
