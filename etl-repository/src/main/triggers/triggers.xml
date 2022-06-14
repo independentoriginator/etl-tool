@@ -1,0 +1,59 @@
+<?xml version="1.1" encoding="UTF-8"?>
+<databaseChangeLog 
+    xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+    xmlns:ext="http://www.liquibase.org/xml/ns/dbchangelog-ext"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog-ext 
+        http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-ext.xsd 
+        http://www.liquibase.org/xml/ns/dbchangelog 
+        http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.1.xsd">
+
+	<changeSet id="trf_scheduled_task_before_update-function" author="${user}" runOnChange="true">
+		<createProcedure 
+			procedureName="trf_scheduled_task_before_update" 
+			dbms="postgresql" 
+			path="trf_scheduled_task_before_update.sql" 
+			relativeToChangelogFile="true"/>
+		<rollback/>
+	</changeSet>
+
+	<changeSet id="tr_scheduled_task_invalidate_built_flag-trigger" author="${user}" runOnChange="true">
+
+		<sqlFile 
+			dbms="postgresql"
+			path="tr_scheduled_task_invalidate_built_flag.sql"
+	        relativeToChangelogFile="true"
+	        splitStatements="false"
+	        stripComments="false"/>
+
+		<rollback>
+			drop trigger if exists tr_scheduled_task_invalidate_built_flag on scheduled_task;
+		</rollback>
+
+	</changeSet>
+
+	<changeSet id="trf_scheduled_task_stage_after_update-function" author="${user}" runOnChange="true">
+		<createProcedure 
+			procedureName="trf_scheduled_task_stage_after_update" 
+			dbms="postgresql" 
+			path="trf_scheduled_task_stage_after_update.sql" 
+			relativeToChangelogFile="true"/>
+		<rollback/>
+	</changeSet>
+
+	<changeSet id="tr_scheduled_task_stage_invalidate_task_built_flag-trigger" author="${user}" runOnChange="true">
+
+		<sqlFile 
+			dbms="postgresql"
+			path="tr_scheduled_task_stage_invalidate_task_built_flag.sql"
+	        relativeToChangelogFile="true"
+	        splitStatements="false"
+	        stripComments="false"/>
+
+		<rollback>
+			drop trigger if exists tr_scheduled_task_stage_invalidate_task_built_flag on scheduled_task_stage;
+		</rollback>
+
+	</changeSet>
+
+</databaseChangeLog>

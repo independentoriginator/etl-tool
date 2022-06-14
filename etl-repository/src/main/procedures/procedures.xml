@@ -8,26 +8,22 @@
         http://www.liquibase.org/xml/ns/dbchangelog 
         http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.1.xsd">
 
-	<changeSet id="v_task_stage-view" author="${user}" runOnChange="true">
-		<createView 
-			viewName="v_task_stage" 
-			path="v_task_stage.sql"
-			remarks="Data transfer task stages full list, including dependences"
-			fullDefinition="true"
-			replaceIfExists="false"   
+	<changeSet id="p_build_target_pgpro_scheduler_job-procedure" author="${user}" runOnChange="true">
+		<createProcedure 
+			procedureName="p_build_target_pgpro_scheduler_job" 
+			dbms="postgresql" 
+			path="p_build_target_pgpro_scheduler_job.sql" 
 			relativeToChangelogFile="true"/>
 		<rollback/>
 	</changeSet>
-	
-	<changeSet id="v_scheduled_task-view" author="${user}" runOnChange="true">
-		<createView 
-			viewName="v_scheduled_task" 
-			path="v_scheduled_task.sql"
-			remarks="Scheduled tasks"
-			fullDefinition="true"
-			replaceIfExists="false"   
+        	        	
+	<changeSet id="p_build_target_scheduled_tasks-procedure" author="${user}" runOnChange="true">
+		<createProcedure 
+			procedureName="p_build_target_scheduled_tasks" 
+			dbms="postgresql" 
+			path="p_build_target_scheduled_tasks.sql" 
 			relativeToChangelogFile="true"/>
 		<rollback/>
 	</changeSet>
-		
+
 </databaseChangeLog>
