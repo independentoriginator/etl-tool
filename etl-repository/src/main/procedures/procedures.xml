@@ -9,11 +9,12 @@
         http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.1.xsd">
 
 	<changeSet id="p_build_target_pgpro_scheduler_job-procedure" author="${user}" runOnChange="true">
-		<createProcedure 
-			procedureName="p_build_target_pgpro_scheduler_job" 
-			dbms="postgresql" 
-			path="p_build_target_pgpro_scheduler_job.sql" 
-			relativeToChangelogFile="true"/>
+		<sqlFile 
+			dbms="postgresql"
+			path="p_build_target_pgpro_scheduler_job.sql"
+	        relativeToChangelogFile="true"
+	        splitStatements="false"
+	        stripComments="false"/>
 		<rollback/>
 	</changeSet>
         	        	
