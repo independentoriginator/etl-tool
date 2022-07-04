@@ -58,7 +58,7 @@ begin
 	
 	if l_result > 0 and l_result > ${mainSchemaName}.f_number_value_limit() then
 		l_result := null::numeric;
-	elsif l_result < 0 and l_result > ${mainSchemaName}.f_number_value_limit(i_is_negative => true) then 
+	elsif l_result < 0 and l_result < ${mainSchemaName}.f_number_value_limit(i_is_negative => true) then 
 		l_result := null::numeric;
 	end if; 
 	
