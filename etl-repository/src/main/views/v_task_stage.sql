@@ -137,6 +137,7 @@ select
 	, t.master_container_type_name
 	, t.master_container    
 	, t.is_master_transfer_virtual
+	, t.chain_id
 from (
 	select
 		t.sort_order
@@ -155,7 +156,7 @@ from (
 		, t.container
 		, t.is_virtual
 		, t.reexec_results
-		, false as is_reexecution
+		, t.is_reexecution
 		, t.is_deletion			
 		, t.ordinal_position
 		, t.target_transfer_id
@@ -169,45 +170,85 @@ from (
 		, t.master_container_type_name
 		, t.master_container    
 		, t.is_master_transfer_virtual
-	from 
-		task_transfers t
-	union all
-	select
-		t.sort_order + 1 as sort_order
-		, t.task_id
-		, t.task_name
-		, t.project_name
-	    , t.transfer_id
-		, t.transfer_name
-		, t.transfer_type_name
-		, t.source_type_name
-		, t.source_name
-		, t.connection_string
-		, t.user_name
-		, t.user_password
-		, t.container_type_name
-		, t.container
-		, t.is_virtual
-		, t.reexec_results
-		, true as is_reexecution
-		, t.is_deletion			
-		, t.ordinal_position
-		, t.target_transfer_id
-		, t.stage_ordinal_position
-		, null as transfer_positional_arguments
-	    , t.preceding_transfer_id
-		, t.transfer_name as master_transfer_name
-		, t.transfer_type_name as master_transfer_type_name
-	    , t.source_name as master_source_name
-		, t.source_type_name as master_source_type_name
-		, t.container_type_name as master_container_type_name
-		, t.container as master_container    
-		, t.is_virtual as is_master_transfer_virtual
-	from 
-		task_transfers t
-	where
-		t.reexec_results = true
-		and t.is_virtual = false
+		, first_value(t.transfer_id) 
+			over(
+				partition by 
+					t.target_transfer_id 
+				order by 
+					t.sort_order
+			) as chain_id
+	from (
+		select
+			t.sort_order
+			, t.task_id
+			, t.task_name
+			, t.project_name
+		    , t.transfer_id
+			, t.transfer_name
+			, t.transfer_type_name
+			, t.source_type_name
+			, t.source_name
+			, t.connection_string
+			, t.user_name
+			, t.user_password
+			, t.container_type_name
+			, t.container
+			, t.is_virtual
+			, t.reexec_results
+			, false as is_reexecution
+			, t.is_deletion			
+			, t.ordinal_position
+			, t.target_transfer_id
+			, t.stage_ordinal_position
+			, t.transfer_positional_arguments
+		    , t.preceding_transfer_id
+			, t.master_transfer_name
+			, t.master_transfer_type_name
+		    , t.master_source_name
+			, t.master_source_type_name
+			, t.master_container_type_name
+			, t.master_container    
+			, t.is_master_transfer_virtual
+		from 
+			task_transfers t
+		union all
+		select
+			t.sort_order + 1 as sort_order
+			, t.task_id
+			, t.task_name
+			, t.project_name
+		    , t.transfer_id
+			, t.transfer_name
+			, t.transfer_type_name
+			, t.source_type_name
+			, t.source_name
+			, t.connection_string
+			, t.user_name
+			, t.user_password
+			, t.container_type_name
+			, t.container
+			, t.is_virtual
+			, t.reexec_results
+			, true as is_reexecution
+			, t.is_deletion			
+			, t.ordinal_position
+			, t.target_transfer_id
+			, t.stage_ordinal_position
+			, null as transfer_positional_arguments
+		    , t.preceding_transfer_id
+			, t.transfer_name as master_transfer_name
+			, t.transfer_type_name as master_transfer_type_name
+		    , t.source_name as master_source_name
+			, t.source_type_name as master_source_type_name
+			, t.container_type_name as master_container_type_name
+			, t.container as master_container    
+			, t.is_virtual as is_master_transfer_virtual
+		from 
+			task_transfers t
+		where
+			t.reexec_results = true
+			and t.is_virtual = false
+	) t
 ) t
 where 
 	not exists (
