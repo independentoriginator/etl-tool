@@ -137,7 +137,15 @@ select
 	, t.master_container_type_name
 	, t.master_container    
 	, t.is_master_transfer_virtual
-	, t.chain_id
+	, t.transfer_chain_id
+	, first_value(t.sort_order) 
+		over(
+			partition by 
+				t.task_id
+				, t.transfer_chain_id
+			order by 
+				t.sort_order
+		) as chain_order_num
 from (
 	select
 		t.sort_order
@@ -173,10 +181,11 @@ from (
 		, first_value(t.transfer_id) 
 			over(
 				partition by 
-					t.target_transfer_id 
+					t.task_id 
+					, t.target_transfer_id 
 				order by 
 					t.sort_order
-			) as chain_id
+			) as transfer_chain_id
 	from (
 		select
 			t.sort_order
