@@ -32,6 +32,8 @@ $proc$
 		l_pgpro_job_rec  
 	from 
 		schedule.get_owned_cron() t
+	where
+		t.name = i_job_rec.job_name
 	;
 
 	if l_pgpro_job_rec.id is null then
