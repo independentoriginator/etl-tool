@@ -17,7 +17,7 @@ if [ -z "$pg_connection_string" ]; then
 	exit 1
 fi
 
-echo "Connecting to ETL repository: $pg_connection_string..."
+echo "Connecting to the ETL repository: $pg_connection_string..."
 
 # pg_password is in .pgpass file
 PGPASSFILE='~/.pgpass'
@@ -98,7 +98,10 @@ else
 			master_source_type_name \
 			is_master_transfer_virtual \
 			; do
-			echo "Executing transfer: transfer_name=$transfer_name, transfer_type_name=$transfer_type_name, source_name=$source_name, source_type_name=$source_type_name, is_virtual=$is_virtual"
+			
+			if [[ $is_reexecution = "f" ]]; then			
+				echo "Executing transfer: transfer_name=$transfer_name, transfer_type_name=$transfer_type_name, source_name=$source_name, source_type_name=$source_type_name, is_virtual=$is_virtual"
+			fi
 
 			sql_file=
 			if [[ $container_type_name = "sql" ]]; then
@@ -123,7 +126,7 @@ else
 			if [[ $is_virtual = "t" ]]; then
 				continue
 			fi
-
+			
 			if [[ ! -z $transfer_positional_arguments ]] && [[ $transfer_positional_arguments != "null" ]]; then
 				IFS="," read -r -a arg_arr <<< $transfer_positional_arguments 
 				arg_pos=0
