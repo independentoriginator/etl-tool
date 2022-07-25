@@ -4,6 +4,8 @@ create or replace function f_normalize_number(
 	, i_round_using_predef_scale boolean default true
 	, i_format text default null::text
 	, i_fix_num_percent_as_text_expected boolean default false
+	, i_max_precision integer default ${type.precision.numeric}
+	, i_max_scale integer default ${type.scale.numeric}
 )
 returns numeric
 language plpgsql
@@ -56,15 +58,25 @@ begin
 		end if;
 	end if;
 	
-	if l_result > 0 and l_result > ${mainSchemaName}.f_number_value_limit() then
+	if i_round_using_predef_scale then
+		l_result := round(l_result, i_max_scale);
+	end if;
+	
+	if l_result > 0 
+		and l_result > ${mainSchemaName}.f_number_value_limit(
+			i_is_negative => false
+			, i_max_precision => i_max_precision
+			, i_max_scale => i_max_scale
+		) then
 		l_result := null::numeric;
-	elsif l_result < 0 and l_result < ${mainSchemaName}.f_number_value_limit(i_is_negative => true) then 
+	elsif l_result < 0 
+		and l_result < ${mainSchemaName}.f_number_value_limit(
+			i_is_negative => true
+			, i_max_precision => i_max_precision
+			, i_max_scale => i_max_scale
+		) then 
 		l_result := null::numeric;
 	end if; 
-	
-	if i_round_using_predef_scale then
-		l_result := round(l_result, ${type.scale.numeric});
-	end if;
 	
 	return l_result;
 exception
