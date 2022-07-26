@@ -65,15 +65,15 @@ begin
 	if l_result > 0 
 		and l_result > ${mainSchemaName}.f_number_value_limit(
 			i_is_negative => false
-			, i_max_precision => i_max_precision
-			, i_max_scale => i_max_scale
+			, i_precision => i_max_precision
+			, i_scale => i_max_scale
 		) then
 		l_result := null::numeric;
 	elsif l_result < 0 
 		and l_result < ${mainSchemaName}.f_number_value_limit(
 			i_is_negative => true
-			, i_max_precision => i_max_precision
-			, i_max_scale => i_max_scale
+			, i_precision => i_max_precision
+			, i_scale => i_max_scale
 		) then 
 		l_result := null::numeric;
 	end if; 
