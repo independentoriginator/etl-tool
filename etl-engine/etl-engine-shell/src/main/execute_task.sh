@@ -100,7 +100,7 @@ else
 			; do
 			
 			if [[ $is_reexecution = "f" ]]; then			
-				echo "Executing transfer: transfer_name=$transfer_name, transfer_type_name=$transfer_type_name, source_name=$source_name, source_type_name=$source_type_name, is_virtual=$is_virtual"
+				echo "Executing the transfer: transfer_name=$transfer_name, transfer_type_name=$transfer_type_name, source_name=$source_name, source_type_name=$source_type_name, is_virtual=$is_virtual"
 			fi
 
 			sql_file=

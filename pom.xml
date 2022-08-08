@@ -78,19 +78,47 @@
 						</property>
 						<property>
 							<name>type.id</name>
-							<value>integer</value>
+							<value>bigint</value>
+						</property>
+						<property>
+							<name>type.s</name>
+							<value>varchar</value>
+						</property>
+						<property>
+							<name>type.length.internal_name</name>
+							<value>63</value>
 						</property>
 						<property>
 							<name>type.internal_name</name>
 							<value>varchar(63)</value>
 						</property>
 						<property>
+							<name>type.length.name</name>
+							<value>255</value>
+						</property>
+						<property>
 							<name>type.name</name>
 							<value>varchar(255)</value>
 						</property>
 						<property>
+							<name>type.length.description</name>
+							<value>4000</value>
+						</property>
+						<property>
 							<name>type.description</name>
 							<value>varchar(4000)</value>
+						</property>
+						<property>
+							<name>type.length.code</name>
+							<value>63</value>
+						</property>
+						<property>
+							<name>type.code</name>
+							<value>varchar(63)</value>
+						</property>
+						<property>
+							<name>type.date.undefined_value</name>
+							<value>1900-01-01</value>
 						</property>
 						<property>
 							<name>type.precision.numeric</name>
