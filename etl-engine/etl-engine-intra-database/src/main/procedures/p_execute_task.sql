@@ -1,7 +1,7 @@
 create or replace procedure p_execute_task(
 	i_task_name ${mainSchemaName}.task.internal_name%type
 	, i_project_name ${mainSchemaName}.project.internal_name%type
-	, i_thread_max_count integer = 10
+	, i_thread_max_count integer = 1
 )
 language plpgsql
 as $procedure$
