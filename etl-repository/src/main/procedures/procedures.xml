@@ -26,5 +26,15 @@
 			relativeToChangelogFile="true"/>
 		<rollback/>
 	</changeSet>
-
+	
+	<changeSet id="p_clean_pgpro_scheduler_log-procedure" author="${user}" runOnChange="true">
+		<sqlFile 
+			dbms="postgresql"
+			path="p_clean_pgpro_scheduler_log.sql"
+	        relativeToChangelogFile="true"
+	        splitStatements="false"
+	        stripComments="false"/>
+		<rollback/>
+	</changeSet>
+	
 </databaseChangeLog>
