@@ -14,13 +14,8 @@ end
 $procedure$;			
 $proc$
 , case 
-	when exists (
-		select 
-			1
-		from 
-			pg_catalog.pg_extension e
-		where 
-			e.extname = 'pgpro_scheduler'
+	when ${mainSchemaName}.f_is_scheduler_type_available(
+		i_scheduler_type_name => 'pgpro_scheduler'
 	) then 
 	$proc_body$
 	select 
@@ -43,6 +38,7 @@ $proc$
 					'name', i_job_rec.job_name
 					, 'comments', i_job_rec.job_description
 					, 'commands', i_job_rec.command_string
+					, 'use_same_transaction', false
 					, 'cron', i_job_rec.cron_expr
 				)
 			);
