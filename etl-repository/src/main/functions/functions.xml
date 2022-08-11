@@ -107,5 +107,23 @@
 			relativeToChangelogFile="true"/>
 		<rollback/>
 	</changeSet>
-	
+
+	<changeSet id="f_last_day-function" author="${user}" runOnChange="true">
+		<createProcedure 
+			procedureName="f_last_day" 
+			dbms="postgresql" 
+			path="f_last_day.sql" 
+			relativeToChangelogFile="true"/>
+		<rollback/>
+	</changeSet>
+
+	<changeSet id="f_months_between-function" author="${user}" runOnChange="true">
+		<createProcedure 
+			procedureName="f_months_between" 
+			dbms="postgresql" 
+			path="f_months_between.sql" 
+			relativeToChangelogFile="true"/>
+		<rollback/>
+	</changeSet>
+					
 </databaseChangeLog>
