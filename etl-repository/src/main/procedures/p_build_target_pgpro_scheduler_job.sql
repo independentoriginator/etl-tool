@@ -1,4 +1,4 @@
-do $q$
+do $plpgsql$
 begin
 execute format($proc$
 create or replace procedure p_build_target_pgpro_scheduler_job(
@@ -7,7 +7,7 @@ create or replace procedure p_build_target_pgpro_scheduler_job(
 language plpgsql
 as $procedure$
 declare 
-	l_pgpro_job_rec record;
+	l_job_id ${mainSchemaName}.v_pgpro_scheduler_job.id%%type;
 begin
 	%s
 end
@@ -18,21 +18,8 @@ $proc$
 		i_scheduler_type_name => 'pgpro_scheduler'
 	) then 
 	$proc_body$
-	select 
-		t.id
-		, t.name
-		, t.comments as description
-		, case when t.active then false else true end as is_disabled
-	into 
-		l_pgpro_job_rec  
-	from 
-		schedule.get_owned_cron() t
-	where
-		t.name = i_job_rec.job_name
-	;
-
-	if l_pgpro_job_rec.id is null then
-		l_pgpro_job_rec.id := 
+	if i_job_rec.target_job_id is null then
+		l_job_id := 
 			schedule.create_job(
 				jsonb_build_object(
 					'name', i_job_rec.job_name
@@ -43,25 +30,54 @@ $proc$
 				)
 			);
 	else
-		if nullif(i_job_rec.job_description, l_pgpro_job_rec.description) is not null then
+		l_job_id := i_job_rec.target_job_id;
+		
+		if ${mainSchemaName}.f_values_are_different(
+			i_left => i_job_rec.job_description
+			, i_right => i_job_rec.target_job_description
+		) then
 			perform 
 				schedule.set_job_attribute(
-					jobid => l_pgpro_job_rec.id
+					jobid => l_job_id
 					, name => 'comments'::text
 					, value => i_job_rec.job_description
 				);
 		end if;	
+
+		if ${mainSchemaName}.f_values_are_different(
+			i_left => i_job_rec.cron_expr
+			, i_right => i_job_rec.target_cron_expr
+		) then
+			perform 
+				schedule.set_job_attribute(
+					jobid => l_job_id
+					, name => 'cron'::text
+					, value => i_job_rec.cron_expr
+				);
+		end if;	
+
+		if ${mainSchemaName}.f_values_are_different(
+			i_left => i_job_rec.command_string
+			, i_right => i_job_rec.target_command_string
+		) then
+			perform 
+				schedule.set_job_attribute(
+					jobid => l_job_id
+					, name => 'commands'::text
+					, value => string_to_array(i_job_rec.target_command_string, '; ')
+				);
+		end if;	
 	end if;
 			
-	if i_job_rec.is_disabled = true and coalesce(l_pgpro_job_rec.is_disabled, false) = false then
+	if i_job_rec.is_disabled = true and coalesce(i_job_rec.is_target_job_disabled, false) = false then
 		perform 
 			schedule.deactivate_job(
-				job_id => l_pgpro_job_rec.id
+				job_id => l_job_id
 			);
-	elsif i_job_rec.is_disabled = false and coalesce(l_pgpro_job_rec.is_disabled, false) = true then
+	elsif i_job_rec.is_disabled = false and coalesce(i_job_rec.is_target_job_disabled, false) = true then
 		perform 
 			schedule.activate_job(
-				job_id => l_pgpro_job_rec.id
+				job_id => l_job_id
 			);
 	end if;	
 	$proc_body$
@@ -72,5 +88,5 @@ else
 end
 );
 end
-$q$;						
+$plpgsql$;						
 			
