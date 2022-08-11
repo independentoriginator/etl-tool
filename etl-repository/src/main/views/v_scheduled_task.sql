@@ -28,22 +28,23 @@ join ${mainSchemaName}.project p
 	on p.id = st.project_id
 left join lateral (
 	select 
-		string_agg(tr.container, '; ' order by s.ordinal_position) as command_string
+		string_agg(
+			format(
+				$$call ${mainSchemaName}.p_execute_task(i_task_name => '%s', i_project_name => '%s')$$
+				, task.internal_name
+				, task_project.internal_name
+			)
+			, '; ' order by task_stage.ordinal_position
+		) as command_string			
 	from 
-		${mainSchemaName}.scheduled_task_stage s
-	join ${mainSchemaName}.task t 
-		on t.id = s.task_id
-		and t.is_disabled = false
-	join ${mainSchemaName}.task_stage ts 
-		on ts.task_id = t.id
-		and ts.is_disabled = false
-	join ${mainSchemaName}.transfer tr 
-		on tr.id = ts.transfer_id
-	join ${mainSchemaName}.container_type ct 
-		on ct.id = tr.container_type_id
-		and ct.internal_name = 'sql'
+		${mainSchemaName}.scheduled_task_stage task_stage
+	join ${mainSchemaName}.task task 
+		on task.id = task_stage.task_id
+		and task.is_disabled = false
+	join ${mainSchemaName}.project task_project 
+		on task_project.id = task.project_id
 	where 
-		s.scheduled_task_id = st.id
-		and s.is_disabled = false
+		task_stage.scheduled_task_id = st.id
+		and task_stage.is_disabled = false
 ) commands on true
 ;
