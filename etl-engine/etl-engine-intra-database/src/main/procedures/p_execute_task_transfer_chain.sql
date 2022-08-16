@@ -113,7 +113,7 @@ begin
 						
 						raise notice 'Extraction command: %', l_command;
 						
-						execute l_command ;
+						execute l_command;
 						
 					else
 						raise warning 'Unsupported source type specified: %', l_stage_rec.source_type_name;
@@ -217,6 +217,16 @@ begin
 				end if;
 				
 			when 'execution' then
+			
+				if l_stage_rec.source_name = 'this database' then
+					l_command := l_stage_rec.container;
+					
+					raise notice 'Execution command: %', l_command;
+					
+					execute l_command;
+				else
+					raise warning 'Unsupported source type specified: %', l_stage_rec.source_type_name;
+				end if;
 		
 			else
 				raise warning 'Unsupported transfer type specified: %', l_stage_rec.transfer_type_name;
