@@ -72,12 +72,12 @@ $proc$
 	if i_job_rec.is_disabled = true and coalesce(i_job_rec.is_target_job_disabled, false) = false then
 		perform 
 			schedule.deactivate_job(
-				job_id => l_job_id
+				jobid => l_job_id
 			);
 	elsif i_job_rec.is_disabled = false and coalesce(i_job_rec.is_target_job_disabled, false) = true then
 		perform 
 			schedule.activate_job(
-				job_id => l_job_id
+				jobid => l_job_id
 			);
 	end if;	
 	$proc_body$

@@ -8,7 +8,6 @@
         http://www.liquibase.org/xml/ns/dbchangelog 
         http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.1.xsd">
 
-
 	<changeSet id="f_string_significant_pomace-function" author="${user}" runOnChange="true">
 		<createProcedure 
 			procedureName="f_string_significant_pomace" 
@@ -125,5 +124,32 @@
 			relativeToChangelogFile="true"/>
 		<rollback/>
 	</changeSet>
+
+	<changeSet id="f_generate_pgpro_scheduler_subjobs-function" author="${user}" runOnChange="true">
+		<createProcedure 
+			procedureName="f_generate_pgpro_scheduler_subjobs" 
+			dbms="postgresql" 
+			path="f_generate_pgpro_scheduler_subjobs.sql" 
+			relativeToChangelogFile="true"/>
+		<rollback/>
+	</changeSet>
+
+	<changeSet id="f_wait_for_pgpro_scheduler_subjobs_completion-function" author="${user}" runOnChange="true">
+		<createProcedure 
+			procedureName="f_wait_for_pgpro_scheduler_subjobs_completion" 
+			dbms="postgresql" 
+			path="f_wait_for_pgpro_scheduler_subjobs_completion.sql" 
+			relativeToChangelogFile="true"/>
+		<rollback/>
+	</changeSet>
 					
+	<changeSet id="f_execute_in_parallel_context_specific-function" author="${user}" runOnChange="true">
+		<createProcedure 
+			procedureName="f_execute_in_parallel_context_specific" 
+			dbms="postgresql" 
+			path="f_execute_in_parallel_context_specific.sql" 
+			relativeToChangelogFile="true"/>
+		<rollback/>
+	</changeSet>
+	
 </databaseChangeLog>
