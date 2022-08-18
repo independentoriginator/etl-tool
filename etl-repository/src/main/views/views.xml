@@ -39,7 +39,28 @@
 			relativeToChangelogFile="true"/>
 		<rollback/>
 	</changeSet>
+
+	<changeSet id="v_pgpro_scheduler_subjob-view" author="${user}" runOnChange="true">
+		<sqlFile 
+			dbms="postgresql"
+			path="v_pgpro_scheduler_subjob.sql"
+	        relativeToChangelogFile="true"
+	        splitStatements="false"
+	        stripComments="false"/>
+		<rollback/>
+	</changeSet>
 	
+	<changeSet id="v_scheduled_task_subjob-view" author="${user}" runOnChange="true">
+		<createView 
+			viewName="v_scheduled_task_subjob" 
+			path="v_scheduled_task_subjob.sql"
+			remarks="Scheduled task subjobs"
+			fullDefinition="true"
+			replaceIfExists="false"   
+			relativeToChangelogFile="true"/>
+		<rollback/>
+	</changeSet>
+			
 	<changeSet id="v_pgpro_scheduler_job_log-view" author="${user}" runOnChange="true">
 		<sqlFile 
 			dbms="postgresql"

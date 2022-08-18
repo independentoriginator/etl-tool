@@ -1,30 +1,17 @@
-do $plpgsql$
-begin
-execute format($func$
-create or replace function f_wait_for_pgpro_scheduler_subjobs_completion(
-	i_scheduled_task_name ${mainSchemaName}.scheduled_task.internal_name%%type -- 'project_internal_name.scheduled_task_internal_name'
+create or replace procedure p_wait_for_scheduled_task_subjobs_completion(
+	i_scheduled_task_name text -- 'project_internal_name.scheduled_task_internal_name'
 	, i_timeout_in_hours integer = 8
 	, i_wait_for_delay_in_seconds integer = 5	
 )
-returns void
 language plpgsql
-as $function$
+as $procedure$
 declare 
-	l_scheduled_task_id ${mainSchemaName}.scheduled_task.id%%type;
+	l_scheduled_task_id ${mainSchemaName}.scheduled_task.id%type;
 	l_subjob_count integer;
 	l_completed_count integer;
-	l_error_count integer;
+	l_failed_count integer;
 	l_start_timestamp timestamp := clock_timestamp();
 begin
-	%s
-end
-$function$;			
-$func$
-, case 
-	when ${mainSchemaName}.f_is_scheduler_type_available(
-		i_scheduler_type_name => 'pgpro_scheduler'
-	) then 
-	$func_body$
 	select 
 		t.id
 	into 
@@ -47,29 +34,28 @@ $func$
 		select
 			count(*)::integer as subjob_count
 			, count(
-				case when job_status.status = 'done' then 1 end
+				case when subjob.is_completed then 1 end
 			)::integer as completed_count
 			, count(
-				case when not job_status.is_success then 1 end
-			)::integer as error_count
+				case when subjob.is_failed then 1 end
+			)::integer as failed_count
 		into 
 			l_subjob_count
 			, l_completed_count
-			, l_error_count
+			, l_failed_count
 		from 
-			${stagingSchemaName}.scheduled_task_subjob subjob
-		join schedule.job_status job_status
-			on job_status.id = subjob.id
+			${stagingSchemaName}.v_scheduled_task_subjob subjob
 		where 
 			subjob.scheduled_task_id = l_scheduled_task_id
 		;
 		
 		if l_subjob_count = 0 then
-			raise exception 'Neither subjob found for the scheduled task specified: %', i_scheduled_task_name;
+			raise notice 'Neither subjob found for the scheduled task specified: %', i_scheduled_task_name;
+			exit;
 		end if;
 
-		if l_error_count > 0 then
-			raise exception 'Scheduled task % subjob error count: %', i_scheduled_task_name, l_error_count;
+		if l_failed_count > 0 then
+			raise exception 'Scheduled task % failed subjob count: %', i_scheduled_task_name, l_failed_count;
 		end if;
 		
 		if l_subjob_count - l_completed_count = 0 then 
@@ -82,13 +68,7 @@ $func$
 			
 		perform pg_sleep(i_wait_for_delay_in_seconds);
 	end loop wait_for_completion;
-	$func_body$
-else
-	$func_body$
-	raise notice 'pgpro_scheduler extension is not installed';
-	$func_body$
 end
-);
-end
-$plpgsql$;						
+$procedure$;
+				
 			

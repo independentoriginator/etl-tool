@@ -169,6 +169,34 @@
 		</insert>
 
 	</changeSet>
+	
+	<changeSet id="scheduled_task execution parameters" author="${user}">
+
+		<addColumn tableName="scheduled_task">
+			<column 
+				name="thread_max_count" 
+				type="integer"
+				remarks="Thread maximum count for parallel execution"
+				defaultValue="1">
+				<constraints nullable="false" />
+			</column>
+			<column 
+				name="wait_for_delay_in_seconds" 
+				type="integer"
+				remarks="Wait for delay in seconds"
+				defaultValue="1">
+				<constraints nullable="false" />
+			</column>
+			<column 
+				name="timeout_in_hours" 
+				type="integer"
+				remarks="Timeout in hours"
+				defaultValue="8">
+				<constraints nullable="false" />
+			</column>
+		</addColumn> 
+
+	</changeSet>
 
 	<changeSet id="scheduled_task_subjob" author="${user}">
 			

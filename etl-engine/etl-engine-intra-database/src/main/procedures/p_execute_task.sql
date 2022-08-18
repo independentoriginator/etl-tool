@@ -1,7 +1,9 @@
 create or replace procedure p_execute_task(
 	i_task_name ${mainSchemaName}.task.internal_name%type
 	, i_project_name ${mainSchemaName}.project.internal_name%type
+	, i_scheduled_task_name text = null -- 'project_internal_name.scheduled_task_internal_name'
 	, i_thread_max_count integer = 1
+	, i_wait_for_delay_in_seconds integer = 1
 )
 language plpgsql
 as $procedure$
@@ -35,10 +37,17 @@ begin
 			and ts.task_name = i_task_name
 	) ts
 	;
+	
+	if l_task_commands is null then
+		raise exception 'Unknown task specified or task have not commands: %.%', i_project_name, i_task_name;
+	end if;
 		
 	call ${stagingSchemaName}.p_execute_in_parallel(
 		i_commands => l_task_commands
 		, i_thread_max_count => i_thread_max_count
+		, i_scheduled_task_name => i_scheduled_task_name
+		, i_iteration_number => -1
+		, i_wait_for_delay_in_seconds => i_wait_for_delay_in_seconds
 	);	
 end
 $procedure$;			

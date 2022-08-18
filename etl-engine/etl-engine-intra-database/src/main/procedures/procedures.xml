@@ -26,4 +26,13 @@
 		<rollback/>
 	</changeSet>
 
+	<changeSet id="p_wait_for_scheduled_task_subjobs_completion-procedure" author="${user}" runOnChange="true">
+		<createProcedure 
+			procedureName="p_wait_for_scheduled_task_subjobs_completion" 
+			dbms="postgresql" 
+			path="p_wait_for_scheduled_task_subjobs_completion.sql" 
+			relativeToChangelogFile="true"/>
+		<rollback/>
+	</changeSet>
+		
 </databaseChangeLog>

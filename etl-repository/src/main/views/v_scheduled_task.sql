@@ -63,10 +63,36 @@ from (
 		select 
 			string_agg(
 				format(
-					$$call ${mainSchemaName}.p_execute_task(i_task_name => '%s', i_project_name => '%s')$$
+					$$call ${mainSchemaName}.p_execute_task(
+						i_task_name => '%s'
+						, i_project_name => '%s'
+						, i_scheduled_task_name => '%s.%s'
+						, i_thread_max_count => %s
+						, i_wait_for_delay_in_seconds => %s
+					)$$
 					, task.internal_name
 					, task_project.internal_name
-				)
+					, p.internal_name
+					, st.internal_name
+					, st.thread_max_count
+					, st.wait_for_delay_in_seconds
+				) 
+				|| case 
+					when st.thread_max_count > 1 then 
+						format(
+							$$; 
+							call ${mainSchemaName}.p_wait_for_scheduled_task_subjobs_completion(
+								i_scheduled_task_name => '%s.%s'
+								, i_timeout_in_hours => %s
+								, i_wait_for_delay_in_seconds => %s	
+							);$$
+							, p.internal_name
+							, st.internal_name
+							, st.timeout_in_hours
+							, st.wait_for_delay_in_seconds
+						)
+					else ''
+				end
 				, '; ' order by task_stage.ordinal_position
 			) as command_string			
 		from 

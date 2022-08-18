@@ -64,7 +64,7 @@ $proc$
 				schedule.set_job_attribute(
 					jobid => l_job_id
 					, name => 'commands'::text
-					, value => string_to_array(i_job_rec.target_command_string, '; ')
+					, value => string_to_array(i_job_rec.command_string, '; ')
 				);
 		end if;	
 	end if;
