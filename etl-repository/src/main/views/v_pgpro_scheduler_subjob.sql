@@ -22,6 +22,7 @@ $view$
 			when t.status = 'done' and not t.is_success then true 
 			else false 
 		end as is_failed
+		, t.error as err_descr
 	from 
 		schedule.job_status t
 	$view_query$
@@ -35,6 +36,7 @@ else
 		, null::timestamptz as run_duration 
 		, null::boolean as is_completed
 		, null::boolean as is_failed
+		, null::text as err_descr
 	where 
 		false
 	$view_query$

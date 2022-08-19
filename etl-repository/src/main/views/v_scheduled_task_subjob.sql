@@ -11,6 +11,7 @@ with
 			, t.run_duration 
 			, t.is_completed
 			, t.is_failed
+			, t.err_descr
 		from 
 			${stagingSchemaName}.v_pgpro_scheduler_subjob t
 	)
@@ -24,6 +25,7 @@ select
 	, target_subjob.run_duration 
 	, target_subjob.is_completed
 	, target_subjob.is_failed
+	, target_subjob.err_descr
 from 
 	${stagingSchemaName}.scheduled_task_subjob subjob
 join ${mainSchemaName}.scheduled_task scheduled_task

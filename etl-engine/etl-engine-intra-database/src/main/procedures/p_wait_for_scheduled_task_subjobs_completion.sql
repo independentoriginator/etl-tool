@@ -55,7 +55,11 @@ begin
 		end if;
 
 		if l_failed_count > 0 then
-			raise exception 'Scheduled task % failed subjob count: %', i_scheduled_task_name, l_failed_count;
+			call ${mainSchemaName}.p_cancel_pgpro_scheduler_subjobs(
+				i_scheduled_task_id => l_scheduled_task_id
+			);
+			raise warning 'Scheduled task % failed subjob count: %', i_scheduled_task_name, l_failed_count;
+			exit;
 		end if;
 		
 		if l_subjob_count - l_completed_count = 0 then 
@@ -63,7 +67,11 @@ begin
 		end if;
 		
 		if extract(hours from clock_timestamp() - l_start_timestamp) >= i_timeout_in_hours then
-			raise exception 'Timeout occured while waiting for the scheduled task completion: %', i_scheduled_task_name;
+			call ${mainSchemaName}.p_cancel_pgpro_scheduler_subjobs(
+				i_scheduled_task_id => l_scheduled_task_id
+			);
+			raise warning 'Timeout occured while waiting for the scheduled task completion: %', i_scheduled_task_name;
+			exit;
 		end if;
 			
 		perform pg_sleep(i_wait_for_delay_in_seconds);

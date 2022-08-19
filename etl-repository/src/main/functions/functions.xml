@@ -134,11 +134,11 @@
 		<rollback/>
 	</changeSet>
 
-	<changeSet id="f_execute_in_parallel_context_specific-function" author="${user}" runOnChange="true">
+	<changeSet id="f_execute_in_parallel_with_pgpro_scheduler-function" author="${user}" runOnChange="true">
 		<createProcedure 
-			procedureName="f_execute_in_parallel_context_specific" 
+			procedureName="f_execute_in_parallel_with_pgpro_scheduler" 
 			dbms="postgresql" 
-			path="f_execute_in_parallel_context_specific.sql" 
+			path="f_execute_in_parallel_with_pgpro_scheduler.sql" 
 			relativeToChangelogFile="true"/>
 		<rollback/>
 	</changeSet>
