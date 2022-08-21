@@ -72,10 +72,10 @@ from (
 					, st.thread_max_count
 					, st.wait_for_delay_in_seconds
 				) 
-				|| E';\n' || case 
+				|| case 
 					when st.thread_max_count > 1 then 
 						format(
-							$$call ${mainSchemaName}.p_wait_for_scheduled_task_subjobs_completion(i_scheduled_task_name => '%s.%s', i_timeout_in_hours => %s, i_wait_for_delay_in_seconds => %s)$$
+							$$; call ${mainSchemaName}.p_wait_for_scheduled_task_subjobs_completion(i_scheduled_task_name => '%s.%s', i_timeout_in_hours => %s, i_wait_for_delay_in_seconds => %s)$$
 							, p.internal_name
 							, st.internal_name
 							, st.timeout_in_hours
