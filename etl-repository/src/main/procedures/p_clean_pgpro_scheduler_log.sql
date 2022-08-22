@@ -2,7 +2,7 @@ do $plpgsql$
 begin
 execute format($proc$
 create or replace procedure p_clean_pgpro_scheduler_log(
-	i_record_expiration_age_in_months integer
+	i_record_expiration_age_in_months integer = 1
 )
 language plpgsql
 as $procedure$
@@ -26,6 +26,16 @@ $proc$
 			, start_at::date
 		)::integer >= i_record_expiration_age_in_months
 	;
+	
+	delete from 
+		schedule.at_jobs_done
+	where 
+		${mainSchemaName}.f_months_between(
+			current_date
+			, submit_time::date
+		)::integer >= i_record_expiration_age_in_months
+	;
+	
 	$proc_body$
 else
 	$proc_body$
