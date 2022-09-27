@@ -8,7 +8,7 @@
         http://www.liquibase.org/xml/ns/dbchangelog 
         http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.1.xsd">
 	
-	<changeSet id="p_execute_task_transfer_chain-procedure" author="${user}" runOnChange="true">
+	<changeSet id="p_execute_task_transfer_chain-procedure" author="${default_author}" runOnChange="true">
 		<createProcedure 
 			procedureName="p_execute_task_transfer_chain" 
 			dbms="postgresql" 
@@ -17,7 +17,7 @@
 		<rollback/>
 	</changeSet>
         	
-	<changeSet id="p_execute_task-procedure" author="${user}" runOnChange="true">
+	<changeSet id="p_execute_task-procedure" author="${default_author}" runOnChange="true">
 		<createProcedure 
 			procedureName="p_execute_task" 
 			dbms="postgresql" 
@@ -26,7 +26,7 @@
 		<rollback/>
 	</changeSet>
 
-	<changeSet id="p_wait_for_scheduled_task_subjobs_completion-procedure" author="${user}" runOnChange="true">
+	<changeSet id="p_wait_for_scheduled_task_subjobs_completion-procedure" author="${default_author}" runOnChange="true">
 		<createProcedure 
 			procedureName="p_wait_for_scheduled_task_subjobs_completion" 
 			dbms="postgresql" 

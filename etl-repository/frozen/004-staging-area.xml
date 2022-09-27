@@ -8,7 +8,7 @@
         http://www.liquibase.org/xml/ns/dbchangelog 
         http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.1.xsd">
 
-	<changeSet id="staging-schema" author="${user}">
+	<changeSet id="staging-schema" author="${default_author}">
 	
 		<preConditions onFail="HALT">
 		    <changeLogPropertyDefined property="stagingSchemaName"/>

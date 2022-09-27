@@ -8,7 +8,7 @@
         http://www.liquibase.org/xml/ns/dbchangelog 
         http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.1.xsd">
 
-	<changeSet id="xlsx as database" author="${user}">
+	<changeSet id="xlsx as database" author="${default_author}">
 
 		<insert tableName="project">
 			<column name="internal_name" value="xlsx as database"/>

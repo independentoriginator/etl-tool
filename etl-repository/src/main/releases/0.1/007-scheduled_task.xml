@@ -8,7 +8,7 @@
         http://www.liquibase.org/xml/ns/dbchangelog 
         http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.1.xsd">
 
-	<changeSet id="scheduled_task" author="${user}">
+	<changeSet id="scheduled_task" author="${default_author}">
 		
 		<!-- scheduler_type -->
 		<createTable tableName="scheduler_type" remarks="Job scheduler types">
@@ -160,7 +160,7 @@
 			
 	</changeSet>
 	
-	<changeSet id="pgpro_scheduler scheduler type" author="${user}">
+	<changeSet id="pgpro_scheduler scheduler type" author="${default_author}">
 
 		<insert tableName="scheduler_type">
 			<column name="internal_name" value="pgpro_scheduler"/>
@@ -170,7 +170,7 @@
 
 	</changeSet>
 	
-	<changeSet id="scheduled_task execution parameters" author="${user}">
+	<changeSet id="scheduled_task execution parameters" author="${default_author}">
 
 		<addColumn tableName="scheduled_task">
 			<column 
@@ -198,7 +198,7 @@
 
 	</changeSet>
 
-	<changeSet id="scheduled_task_subjob" author="${user}">
+	<changeSet id="scheduled_task_subjob" author="${default_author}">
 			
 		<createTable tableName="scheduled_task_subjob" schemaName="${stagingSchemaName}" remarks="Scheduled task subjob">
 			<column name="id" type="${type.id}" remarks="Identifier">

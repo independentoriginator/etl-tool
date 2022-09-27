@@ -8,7 +8,7 @@
         http://www.liquibase.org/xml/ns/dbchangelog 
         http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.1.xsd">
 
-	<changeSet id="f_string_significant_pomace-function" author="${user}" runOnChange="true">
+	<changeSet id="f_string_significant_pomace-function" author="${default_author}" runOnChange="true">
 		<createProcedure 
 			procedureName="f_string_significant_pomace" 
 			dbms="postgresql" 
@@ -17,7 +17,7 @@
 		<rollback/>
 	</changeSet>
 	
-	<changeSet id="f_strings_similarity-function" author="${user}" runOnChange="true">
+	<changeSet id="f_strings_similarity-function" author="${default_author}" runOnChange="true">
 		<createProcedure 
 			procedureName="f_strings_similarity" 
 			dbms="postgresql" 
@@ -26,7 +26,7 @@
 		<rollback/>
 	</changeSet>
 
-	<changeSet id="f_generate_record_id_from_name-function" author="${user}" runOnChange="true">
+	<changeSet id="f_generate_record_id_from_name-function" author="${default_author}" runOnChange="true">
 		<createProcedure 
 			procedureName="f_generate_record_id_from_name" 
 			dbms="postgresql" 
@@ -35,7 +35,7 @@
 		<rollback/>
 	</changeSet>
 
-	<changeSet id="f_normalize_text-function" author="${user}" runOnChange="true">
+	<changeSet id="f_normalize_text-function" author="${default_author}" runOnChange="true">
 		<createProcedure 
 			procedureName="f_normalize_text" 
 			dbms="postgresql" 
@@ -44,7 +44,7 @@
 		<rollback/>
 	</changeSet>
 
-	<changeSet id="f_extract_number-function" author="${user}" runOnChange="true">
+	<changeSet id="f_extract_number-function" author="${default_author}" runOnChange="true">
 		<createProcedure 
 			procedureName="f_extract_number" 
 			dbms="postgresql" 
@@ -53,7 +53,7 @@
 		<rollback/>
 	</changeSet>
 
-	<changeSet id="f_number_value_limit-function" author="${user}" runOnChange="true">
+	<changeSet id="f_number_value_limit-function" author="${default_author}" runOnChange="true">
 		<createProcedure 
 			procedureName="f_number_value_limit" 
 			dbms="postgresql" 
@@ -62,7 +62,7 @@
 		<rollback/>
 	</changeSet>
 
-	<changeSet id="f_normalize_number-function" author="${user}" runOnChange="true">
+	<changeSet id="f_normalize_number-function" author="${default_author}" runOnChange="true">
 		<createProcedure 
 			procedureName="f_normalize_number" 
 			dbms="postgresql" 
@@ -71,7 +71,7 @@
 		<rollback/>
 	</changeSet>
 
-	<changeSet id="f_normalize_date-function" author="${user}" runOnChange="true">
+	<changeSet id="f_normalize_date-function" author="${default_author}" runOnChange="true">
 		<createProcedure 
 			procedureName="f_normalize_date" 
 			dbms="postgresql" 
@@ -80,7 +80,7 @@
 		<rollback/>
 	</changeSet>
 
-	<changeSet id="f_normalize_bool-function" author="${user}" runOnChange="true">
+	<changeSet id="f_normalize_bool-function" author="${default_author}" runOnChange="true">
 		<createProcedure 
 			procedureName="f_normalize_bool" 
 			dbms="postgresql" 
@@ -89,7 +89,7 @@
 		<rollback/>
 	</changeSet>
 
-	<changeSet id="f_values_are_different-function" author="${user}" runOnChange="true">
+	<changeSet id="f_values_are_different-function" author="${default_author}" runOnChange="true">
 		<createProcedure 
 			procedureName="f_values_are_different" 
 			dbms="postgresql" 
@@ -98,7 +98,7 @@
 		<rollback/>
 	</changeSet>
 	
-	<changeSet id="f_is_scheduler_type_available-function" author="${user}" runOnChange="true">
+	<changeSet id="f_is_scheduler_type_available-function" author="${default_author}" runOnChange="true">
 		<createProcedure 
 			procedureName="f_is_scheduler_type_available" 
 			dbms="postgresql" 
@@ -107,7 +107,7 @@
 		<rollback/>
 	</changeSet>
 
-	<changeSet id="f_last_day-function" author="${user}" runOnChange="true">
+	<changeSet id="f_last_day-function" author="${default_author}" runOnChange="true">
 		<createProcedure 
 			procedureName="f_last_day" 
 			dbms="postgresql" 
@@ -116,7 +116,7 @@
 		<rollback/>
 	</changeSet>
 
-	<changeSet id="f_months_between-function" author="${user}" runOnChange="true">
+	<changeSet id="f_months_between-function" author="${default_author}" runOnChange="true">
 		<createProcedure 
 			procedureName="f_months_between" 
 			dbms="postgresql" 
@@ -125,7 +125,7 @@
 		<rollback/>
 	</changeSet>
 
-	<changeSet id="f_generate_pgpro_scheduler_subjobs-function" author="${user}" runOnChange="true">
+	<changeSet id="f_generate_pgpro_scheduler_subjobs-function" author="${default_author}" runOnChange="true">
 		<createProcedure 
 			procedureName="f_generate_pgpro_scheduler_subjobs" 
 			dbms="postgresql" 
@@ -134,7 +134,7 @@
 		<rollback/>
 	</changeSet>
 
-	<changeSet id="f_execute_in_parallel_with_pgpro_scheduler-function" author="${user}" runOnChange="true">
+	<changeSet id="f_execute_in_parallel_with_pgpro_scheduler-function" author="${default_author}" runOnChange="true">
 		<createProcedure 
 			procedureName="f_execute_in_parallel_with_pgpro_scheduler" 
 			dbms="postgresql" 

@@ -8,7 +8,7 @@
         http://www.liquibase.org/xml/ns/dbchangelog 
         http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.1.xsd">
 
-	<changeSet id="source" author="${user}">
+	<changeSet id="source" author="${default_author}">
 
 		<createTable tableName="source_type" remarks="Data source types">
 			<column name="id" type="${type.id}" autoIncrement="true" remarks="Identifier">
@@ -106,7 +106,7 @@
 
 	</changeSet>
 	
-	<changeSet id="built-in-source-types" author="${user}">
+	<changeSet id="built-in-source-types" author="${default_author}">
 
 		<insert tableName="source_type">
 			<column name="internal_name" value="postgresql"/>

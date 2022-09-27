@@ -8,7 +8,7 @@
         http://www.liquibase.org/xml/ns/dbchangelog 
         http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.1.xsd">
 
-	<changeSet id="transfer_group" author="${user}">
+	<changeSet id="transfer_group" author="${default_author}">
 
 		<createTable tableName="transfer_group" remarks="Data transfer groups">
 			<column name="id" type="${type.id}" autoIncrement="true" remarks="Identifier">
@@ -37,7 +37,7 @@
 			
 	</changeSet>
 
-	<changeSet id="transfer_group_ref" author="${user}">
+	<changeSet id="transfer_group_ref" author="${default_author}">
 
 		<addColumn tableName="transfer">
 			<column 
@@ -72,7 +72,7 @@
 
 	</changeSet>
 
-	<changeSet id="transfer_group_project" author="${user}">
+	<changeSet id="transfer_group_project" author="${default_author}">
 
 		<addColumn tableName="transfer_group">
 			<column 
@@ -107,7 +107,7 @@
 
 	</changeSet>
 	
-	<changeSet id="general project main transfer_group" author="${user}">
+	<changeSet id="general project main transfer_group" author="${default_author}">
 
 		<insert tableName="transfer_group">
 			<column name="internal_name" value="main"/>
@@ -117,7 +117,7 @@
 		
 	</changeSet>
 	
-	<changeSet id="xlsx as database project main transfer_group" author="${user}">
+	<changeSet id="xlsx as database project main transfer_group" author="${default_author}">
 
 		<insert tableName="transfer_group">
 			<column name="internal_name" value="main"/>

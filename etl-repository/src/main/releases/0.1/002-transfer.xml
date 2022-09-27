@@ -8,7 +8,7 @@
         http://www.liquibase.org/xml/ns/dbchangelog 
         http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.1.xsd">
 
-	<changeSet id="transfer" author="${user}">
+	<changeSet id="transfer" author="${default_author}">
 
 		<!-- transfer_type -->
 		<createTable tableName="transfer_type" remarks="Data transfer types">
@@ -198,7 +198,7 @@
 			
 	</changeSet>
 
-	<changeSet id="built-in-transfer-types" author="${user}">
+	<changeSet id="built-in-transfer-types" author="${default_author}">
 
 		<insert tableName="transfer_type">
 			<column name="internal_name" value="extraction"/>
@@ -220,7 +220,7 @@
 		
 	</changeSet>
 
-	<changeSet id="built-in-transfer-type-execution" author="${user}">
+	<changeSet id="built-in-transfer-type-execution" author="${default_author}">
 
 		<insert tableName="transfer_type">
 			<column name="internal_name" value="execution"/>
@@ -230,7 +230,7 @@
 		
 	</changeSet>
 
-	<changeSet id="built-in-container-types" author="${user}">
+	<changeSet id="built-in-container-types" author="${default_author}">
 
 		<insert tableName="container_type">
 			<column name="internal_name" value="sql"/>
@@ -258,7 +258,7 @@
 
 	</changeSet>
 
-	<changeSet id="transfer-deletion-flag" author="${user}">
+	<changeSet id="transfer-deletion-flag" author="${default_author}">
 
 		<addColumn tableName="transfer">
 			<column 

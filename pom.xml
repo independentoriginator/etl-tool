@@ -57,6 +57,10 @@
 					<!-- custom properties  -->
 					<systemProperties>
 						<property>
+							<name>default_author</name>
+							<value>developer</value>
+						</property>
+						<property>
 							<name>project.name</name>
 							<value>${project.name}</value>
 						</property>
