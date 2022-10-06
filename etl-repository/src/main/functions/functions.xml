@@ -142,5 +142,23 @@
 			relativeToChangelogFile="true"/>
 		<rollback/>
 	</changeSet>
-	
+
+	<changeSet id="f_integer_min_value-function" author="${default_author}" runOnChange="true">
+		<createProcedure 
+			procedureName="f_integer_min_value" 
+			dbms="postgresql" 
+			path="f_integer_min_value.sql" 
+			relativeToChangelogFile="true"/>
+		<rollback/>
+	</changeSet>
+
+	<changeSet id="f_integer_max_value-function" author="${default_author}" runOnChange="true">
+		<createProcedure 
+			procedureName="f_integer_max_value" 
+			dbms="postgresql" 
+			path="f_integer_max_value.sql" 
+			relativeToChangelogFile="true"/>
+		<rollback/>
+	</changeSet>
+					
 </databaseChangeLog>
