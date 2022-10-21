@@ -18,7 +18,7 @@ select
 							, ' '
 							, 'g' 
 						)
-						, '[^[:print:]]|_x0002_|\@page( \{.*\})*( p( p\.western)*( p\.cjk)*( p\.ctl)*)*'
+						, '[^[:print:]]|<\/?\w[^>]*>|&\w+|_x0002_|\@page( \{.*\})*( p( p\.western)*( p\.cjk)*( p\.ctl)*)*'
 						, ''
 						, 'g'
 					)
@@ -30,6 +30,7 @@ select
 		)
 		, ''
 	)
+-- <\/?\w[^>]*>|&\w+ - html tags and codes
 -- _x0002_ - unexpected "START OF TEXT" unicode control charaсter sequence
 -- @page { ... } p p.western p.cjk p.ctl - CSS style tags scraps
 $function$;		
