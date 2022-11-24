@@ -48,7 +48,7 @@ begin
 		, i_thread_max_count => i_thread_max_count
 		, i_scheduler_type_name => i_scheduler_type_name
 		, i_scheduled_task_name => i_scheduled_task_name
-		, i_iteration_number => -1
+		, i_iteration_number => 0
 		, i_wait_for_delay_in_seconds => i_wait_for_delay_in_seconds
 	);	
 end
