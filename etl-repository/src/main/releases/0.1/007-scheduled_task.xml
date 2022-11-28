@@ -296,5 +296,5 @@
 			referencedColumnNames="id" />
 		
 	</changeSet>
-
+	
 </databaseChangeLog>

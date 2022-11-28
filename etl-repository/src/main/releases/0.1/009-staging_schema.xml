@@ -12,7 +12,7 @@
 		
 		<sql dbms="postgresql">
 			grant usage on schema ${stagingSchemaName} to ${etlServiceAccount};
-			grant select, insert on all tables in schema ${stagingSchemaName} to ${etlServiceAccount}; 
+			grant select, insert, update, delete on all tables in schema ${stagingSchemaName} to ${etlServiceAccount}; 
 		</sql>
 
 	</changeSet>
