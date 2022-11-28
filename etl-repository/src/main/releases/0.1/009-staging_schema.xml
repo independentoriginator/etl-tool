@@ -1,0 +1,20 @@
+<?xml version="1.1" encoding="UTF-8"?>
+<databaseChangeLog 
+    xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+    xmlns:ext="http://www.liquibase.org/xml/ns/dbchangelog-ext"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog-ext 
+        http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-ext.xsd 
+        http://www.liquibase.org/xml/ns/dbchangelog 
+        http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.1.xsd">
+
+	<changeSet id="staging schema permissions" author="${default_author}">
+		
+		<sql dbms="postgresql">
+			grant usage on schema ${stagingSchemaName} to ${etlServiceAccount};
+			grant select, insert on all tables in schema ${stagingSchemaName} to ${etlServiceAccount}; 
+		</sql>
+
+	</changeSet>
+	
+</databaseChangeLog>

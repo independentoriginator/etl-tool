@@ -1,32 +1,42 @@
+drop procedure if exists p_wait_for_scheduled_task_subjobs_completion(
+	text
+	, integer
+	, integer
+);
+
 create or replace procedure p_wait_for_scheduled_task_subjobs_completion(
 	i_scheduled_task_name text -- 'project_internal_name.scheduled_task_internal_name'
+	, i_scheduled_task_stage_ord_pos integer
 	, i_timeout_in_hours integer = 8
 	, i_wait_for_delay_in_seconds integer = 5	
 )
 language plpgsql
 as $procedure$
 declare 
-	l_scheduled_task_id ${mainSchemaName}.scheduled_task.id%type;
+	l_scheduled_task_stage_id ${mainSchemaName}.scheduled_task_stage.id%type;
 	l_subjob_count integer;
 	l_completed_count integer;
 	l_failed_count integer;
 	l_start_timestamp timestamp := clock_timestamp();
 begin
 	select 
-		t.id
+		s.id
 	into 
-		l_scheduled_task_id
+		l_scheduled_task_stage_id
 	from 
 		${mainSchemaName}.scheduled_task t
 	join ${mainSchemaName}.project p
 		on p.id = t.project_id
+		and p.internal_name = regexp_replace(i_scheduled_task_name, '(.+)\.(.+)', '\1')
+	join ${mainSchemaName}.scheduled_task_stage s
+		on s.scheduled_task_id = t.id
+		and s.ordinal_position = i_scheduled_task_stage_ord_pos
 	where
-		p.internal_name = regexp_replace(i_scheduled_task_name, '(.+)\.(.+)', '\1')
-		and t.internal_name = regexp_replace(i_scheduled_task_name, '(.+)\.(.+)', '\2')
+		t.internal_name = regexp_replace(i_scheduled_task_name, '(.+)\.(.+)', '\2')
 	;
 	
-	if l_scheduled_task_id is null then
-		raise exception 'Unknown scheduled task specified: %', i_scheduled_task_name;
+	if l_scheduled_task_stage_id is null then
+		raise exception 'Unknown scheduled task stage specified: %.%', i_scheduled_task_name, i_scheduled_task_stage_ord_pos;
 	end if;
 	
 	<<wait_for_completion>>
@@ -46,7 +56,7 @@ begin
 		from 
 			${stagingSchemaName}.v_scheduled_task_subjob subjob
 		where 
-			subjob.scheduled_task_id = l_scheduled_task_id
+			subjob.scheduled_task_stage_id = l_scheduled_task_stage_id
 		;
 		
 		if l_subjob_count = 0 then

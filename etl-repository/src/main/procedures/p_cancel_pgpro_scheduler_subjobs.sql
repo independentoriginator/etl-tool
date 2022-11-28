@@ -39,5 +39,4 @@ else
 end
 );
 end
-$plpgsql$;						
-			
+$plpgsql$;							

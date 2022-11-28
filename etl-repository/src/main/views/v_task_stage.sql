@@ -274,3 +274,5 @@ where
 			and tt.is_reexecution = t.is_reexecution
 	)
 ;
+
+grant select on v_task_stage to ${etlServiceAccount};

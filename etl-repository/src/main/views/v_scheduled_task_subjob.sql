@@ -1,4 +1,6 @@
-create or replace view ${stagingSchemaName}.v_scheduled_task_subjob
+drop view if exists ${stagingSchemaName}.v_scheduled_task_subjob;
+
+create view ${stagingSchemaName}.v_scheduled_task_subjob
 as
 with 
 	target_subjob as (
@@ -16,7 +18,8 @@ with
 			${stagingSchemaName}.v_pgpro_scheduler_subjob t
 	)
 select
-	subjob.scheduled_task_id
+	scheduled_task_stage.scheduled_task_id
+	, scheduled_task_stage.id as scheduled_task_stage_id
 	, target_subjob.scheduler_type_name
 	, target_subjob.id
 	, target_subjob.command
@@ -28,8 +31,10 @@ select
 	, target_subjob.err_descr
 from 
 	${stagingSchemaName}.scheduled_task_subjob subjob
+join ${mainSchemaName}.scheduled_task_stage scheduled_task_stage
+	on scheduled_task_stage.id = subjob.scheduled_task_stage_id
 join ${mainSchemaName}.scheduled_task scheduled_task
-	on scheduled_task.id = subjob.scheduled_task_id
+	on scheduled_task.id = scheduled_task_stage.scheduled_task_id
 join ${mainSchemaName}.scheduler_type scheduler_type
 	on scheduler_type.id = scheduled_task.scheduler_type_id
 join target_subjob

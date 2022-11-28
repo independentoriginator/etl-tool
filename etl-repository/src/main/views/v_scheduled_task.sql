@@ -63,21 +63,23 @@ from (
 		select 
 			string_agg(
 				format(
-					$$call ${mainSchemaName}.p_execute_task(i_task_name => '%s', i_project_name => '%s', i_scheduler_type_name => '%s', i_scheduled_task_name => '%s.%s', i_thread_max_count => %s, i_wait_for_delay_in_seconds => %s)$$
+					$$call ${mainSchemaName}.p_execute_task(i_task_name => '%s', i_project_name => '%s', i_scheduler_type_name => '%s', i_scheduled_task_name => '%s.%s', i_scheduled_task_stage_ord_pos => %s, i_thread_max_count => %s, i_wait_for_delay_in_seconds => %s)$$
 					, task.internal_name
 					, task_project.internal_name
 					, sch_type.internal_name
 					, p.internal_name
 					, st.internal_name
+					, task_stage.ordinal_position
 					, st.thread_max_count
 					, st.wait_for_delay_in_seconds
 				) 
 				|| case 
 					when st.thread_max_count > 1 then 
 						format(
-							$$; call ${mainSchemaName}.p_wait_for_scheduled_task_subjobs_completion(i_scheduled_task_name => '%s.%s', i_timeout_in_hours => %s, i_wait_for_delay_in_seconds => %s)$$
+							$$; call ${mainSchemaName}.p_wait_for_scheduled_task_subjobs_completion(i_scheduled_task_name => '%s.%s', i_scheduled_task_stage_ord_pos => %s, i_timeout_in_hours => %s, i_wait_for_delay_in_seconds => %s)$$
 							, p.internal_name
 							, st.internal_name
+							, task_stage.ordinal_position
 							, st.timeout_in_hours
 							, st.wait_for_delay_in_seconds
 						)

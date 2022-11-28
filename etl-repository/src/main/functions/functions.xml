@@ -126,11 +126,42 @@
 	</changeSet>
 
 	<changeSet id="f_generate_pgpro_scheduler_subjobs-function" author="${default_author}" runOnChange="true">
-		<createProcedure 
-			procedureName="f_generate_pgpro_scheduler_subjobs" 
-			dbms="postgresql" 
-			path="f_generate_pgpro_scheduler_subjobs.sql" 
-			relativeToChangelogFile="true"/>
+		<sqlFile 
+			dbms="postgresql"
+			path="f_generate_pgpro_scheduler_subjobs.sql"
+	        relativeToChangelogFile="true"
+	        splitStatements="false"
+	        stripComments="false"/>
+		<rollback/>
+	</changeSet>
+	
+	<changeSet id="f_pgpro_scheduler_job-function" author="${default_author}" runOnChange="true">
+		<sqlFile 
+			dbms="postgresql"
+			path="f_pgpro_scheduler_job.sql"
+	        relativeToChangelogFile="true"
+	        splitStatements="false"
+	        stripComments="false"/>
+		<rollback/>
+	</changeSet>
+
+	<changeSet id="f_pgpro_scheduler_subjob-function" author="${default_author}" runOnChange="true">
+		<sqlFile 
+			dbms="postgresql"
+			path="f_pgpro_scheduler_subjob.sql"
+	        relativeToChangelogFile="true"
+	        splitStatements="false"
+	        stripComments="false"/>
+		<rollback/>
+	</changeSet>
+
+	<changeSet id="f_pgpro_scheduler_job_log-function" author="${default_author}" runOnChange="true">
+		<sqlFile 
+			dbms="postgresql"
+			path="f_pgpro_scheduler_job_log.sql"
+	        relativeToChangelogFile="true"
+	        splitStatements="false"
+	        stripComments="false"/>
 		<rollback/>
 	</changeSet>
 

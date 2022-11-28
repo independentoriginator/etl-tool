@@ -16,8 +16,6 @@ $proc$
 		i_scheduler_type_name => 'pgpro_scheduler'
 	) then 
 	$proc_body$
-	perform schedule.onlysuperuser();
-	
 	delete from 
 		schedule.log
 	where 
@@ -44,5 +42,4 @@ else
 end
 );
 end
-$plpgsql$;						
-			
+$plpgsql$;							

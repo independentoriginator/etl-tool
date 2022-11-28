@@ -159,6 +159,29 @@
 			referencedColumnNames="id" />
 			
 	</changeSet>
+
+	<changeSet id="scheduled_task_stage ordinal_position nullability" author="${default_author}">
+
+		<addNotNullConstraint
+			tableName="scheduled_task_stage"
+			columnName="ordinal_position"  
+			columnDataType="integer"  
+			defaultNullValue="0"  
+			validate="true"/> 
+
+		<addDefaultValue
+			tableName="scheduled_task_stage"
+			columnName="ordinal_position"
+			columnDataType="integer"  
+			defaultValue="0"/> 
+			
+		<addUniqueConstraint
+			tableName="scheduled_task_stage"
+			columnNames="scheduled_task_id, ordinal_position"  
+            constraintName="uc_scheduled_task_stage$ordinal_position"  
+            validate="true"/>  			
+
+	</changeSet>
 	
 	<changeSet id="pgpro_scheduler scheduler type" author="${default_author}">
 
@@ -231,6 +254,45 @@
 		 	baseTableSchemaName="${stagingSchemaName}" 
 			baseColumnNames="scheduled_task_id" 
 			referencedTableName="scheduled_task" 
+			referencedColumnNames="id" />
+		
+	</changeSet>
+
+	<changeSet id="scheduled_task_subjob scheduled_task_stage reference" author="${default_author}">
+
+		<dropTable tableName="scheduled_task_subjob" schemaName="${stagingSchemaName}" cascadeConstraints="true"/>
+			
+		<createTable tableName="scheduled_task_subjob" schemaName="${stagingSchemaName}" remarks="Scheduled task subjob">
+			<column name="id" type="${type.id}" remarks="Identifier">
+				<constraints nullable="false" />
+			</column>
+			<column name="scheduled_task_stage_id" type="${type.id}" remarks="Scheduled task stage identifier">
+				<constraints nullable="false" />
+			</column>
+			<column name="iteration_number" type="integer" remarks="Iteration number">
+				<constraints nullable="false" />
+			</column>
+		</createTable>
+			
+		<addPrimaryKey 
+			constraintName="pk_scheduled_task_subjob" 
+			tableName="scheduled_task_subjob"
+			schemaName="${stagingSchemaName}" 
+			columnNames="id, scheduled_task_stage_id" />
+			
+		<createIndex 
+			indexName="i_scheduled_task_subjob$scheduled_task_stage_id" 
+			tableName="scheduled_task_subjob"
+			schemaName="${stagingSchemaName}" >
+			<column name="scheduled_task_stage_id" />
+		</createIndex>
+
+		<addForeignKeyConstraint 
+			constraintName="fk_scheduled_task_subjob$scheduled_task_stage_id"
+			baseTableName="scheduled_task_subjob"
+		 	baseTableSchemaName="${stagingSchemaName}" 
+			baseColumnNames="scheduled_task_stage_id" 
+			referencedTableName="scheduled_task_stage" 
 			referencedColumnNames="id" />
 		
 	</changeSet>

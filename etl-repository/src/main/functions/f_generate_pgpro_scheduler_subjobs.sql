@@ -1,8 +1,14 @@
 do $plpgsql$
 begin
+drop function if exists f_generate_pgpro_scheduler_subjobs(
+	${mainSchemaName}.scheduled_task_stage.id%type 
+	, ${stagingSchemaName}.scheduled_task_subjob.iteration_number%type
+	, text[]
+);
+
 execute format($func$
 create or replace function f_generate_pgpro_scheduler_subjobs(
-	i_scheduled_task_id ${mainSchemaName}.scheduled_task.id%%type 
+	i_scheduled_task_stage_id ${mainSchemaName}.scheduled_task_stage.id%%type 
 	, i_iteration_number ${stagingSchemaName}.scheduled_task_subjob.iteration_number%%type
 	, i_commands text[]
 )
@@ -27,22 +33,42 @@ $func$
 		delete from 
 			${stagingSchemaName}.scheduled_task_subjob
 		where 
-			scheduled_task_id = i_scheduled_task_id
+			scheduled_task_stage_id = i_scheduled_task_stage_id
 		;
-	elsif i_iteration_number > 0 then 
-		select 
-			array_agg(id)
-		into
-			l_prev_iteration_subjobs
-		from 
-			${stagingSchemaName}.scheduled_task_subjob
-		where 
-			scheduled_task_id = i_scheduled_task_id
-			and iteration_number = i_iteration_number - 1
-		;
-	else
+	elsif i_iteration_number < 0 then
 		raise exception 'Invalid iteration number specified: %', i_iteration_number;
 	end if;
+
+	select 
+		array_agg(subjob.id)
+	into
+		l_prev_iteration_subjobs
+	from (	
+		select 
+			subjob.id
+		from 
+			${mainSchemaName}.scheduled_task_stage task_stage
+		join ${stagingSchemaName}.scheduled_task_subjob subjob
+			on subjob.scheduled_task_stage_id = task_stage.id
+			and i_iteration_number > 0
+			and subjob.iteration_number = i_iteration_number - 1 
+		where
+			task_stage.id = i_scheduled_task_stage_id
+		union all
+		select 
+			subjob.id
+		from 
+			${mainSchemaName}.scheduled_task_stage task_stage
+		join ${mainSchemaName}.scheduled_task_stage prev_task_stage
+			on prev_task_stage.scheduled_task_id = task_stage.scheduled_task_id
+			and prev_task_stage.ordinal_position < task_stage.ordinal_position
+			and prev_task_stage.is_disabled = false
+		join ${stagingSchemaName}.scheduled_task_subjob subjob
+			on subjob.scheduled_task_stage_id = prev_task_stage.id 
+		where
+			task_stage.id = i_scheduled_task_stage_id
+	) subjob
+	;
 	
 	foreach l_command in array i_commands loop
 		l_subjob_id := 
@@ -57,12 +83,12 @@ $func$
 		
 		insert into ${stagingSchemaName}.scheduled_task_subjob(
 			id
-			, scheduled_task_id
+			, scheduled_task_stage_id
 			, iteration_number
 		)
 		values(
 			l_subjob_id
-			, i_scheduled_task_id
+			, i_scheduled_task_stage_id
 			, i_iteration_number
 		);
 	end loop;	
@@ -74,5 +100,4 @@ else
 end
 );
 end
-$plpgsql$;						
-			
+$plpgsql$;		

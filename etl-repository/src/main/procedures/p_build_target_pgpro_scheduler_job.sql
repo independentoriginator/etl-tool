@@ -27,6 +27,7 @@ $proc$
 					, 'commands', i_job_rec.command_string
 					, 'use_same_transaction', false
 					, 'cron', i_job_rec.cron_expr
+					, 'run_as', '${mainSchemaName}'
 				)
 			);
 	else
@@ -88,5 +89,4 @@ else
 end
 );
 end
-$plpgsql$;						
-			
+$plpgsql$;		
