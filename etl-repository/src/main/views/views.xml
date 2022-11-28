@@ -20,12 +20,13 @@
 	</changeSet>
 	
 	<changeSet id="v_pgpro_scheduler_job-view" author="${default_author}" runOnChange="true">
-		<sqlFile 
-			dbms="postgresql"
+		<createView 
+			viewName="v_pgpro_scheduler_job" 
 			path="v_pgpro_scheduler_job.sql"
-	        relativeToChangelogFile="true"
-	        splitStatements="false"
-	        stripComments="false"/>
+			remarks="pgpro_scheduler jobs"
+			fullDefinition="true"
+			replaceIfExists="false"   
+			relativeToChangelogFile="true"/>
 		<rollback/>
 	</changeSet>
 	
@@ -41,12 +42,13 @@
 	</changeSet>
 
 	<changeSet id="v_pgpro_scheduler_subjob-view" author="${default_author}" runOnChange="true">
-		<sqlFile 
-			dbms="postgresql"
+		<createView 
+			viewName="v_pgpro_scheduler_subjob" 
 			path="v_pgpro_scheduler_subjob.sql"
-	        relativeToChangelogFile="true"
-	        splitStatements="false"
-	        stripComments="false"/>
+			remarks="pgpro_scheduler subjobs"
+			fullDefinition="true"
+			replaceIfExists="false"   
+			relativeToChangelogFile="true"/>
 		<rollback/>
 	</changeSet>
 	
@@ -62,12 +64,24 @@
 	</changeSet>
 			
 	<changeSet id="v_pgpro_scheduler_job_log-view" author="${default_author}" runOnChange="true">
-		<sqlFile 
-			dbms="postgresql"
+		<createView 
+			viewName="v_pgpro_scheduler_job_log" 
 			path="v_pgpro_scheduler_job_log.sql"
-	        relativeToChangelogFile="true"
-	        splitStatements="false"
-	        stripComments="false"/>
+			remarks="pgpro_scheduler job log"
+			fullDefinition="true"
+			replaceIfExists="false"   
+			relativeToChangelogFile="true"/>
+		<rollback/>
+	</changeSet>
+
+	<changeSet id="v_xsd_transformation-view" author="${default_author}" runOnChange="true">
+		<createView 
+			viewName="v_xsd_transformation" 
+			path="v_xsd_transformation.sql"
+			remarks="XSD transformation"
+			fullDefinition="true"
+			replaceIfExists="false"   
+			relativeToChangelogFile="true"/>
 		<rollback/>
 	</changeSet>
 			
