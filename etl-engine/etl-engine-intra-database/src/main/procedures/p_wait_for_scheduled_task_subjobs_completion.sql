@@ -13,6 +13,7 @@ create or replace procedure p_wait_for_scheduled_task_subjobs_completion(
 language plpgsql
 as $procedure$
 declare 
+	l_scheduled_task_id ${mainSchemaName}.scheduled_task.id%type;
 	l_scheduled_task_stage_id ${mainSchemaName}.scheduled_task_stage.id%type;
 	l_subjob_count integer;
 	l_completed_count integer;
@@ -20,9 +21,11 @@ declare
 	l_start_timestamp timestamp := clock_timestamp();
 begin
 	select 
-		s.id
+		t.id
+		, s.id
 	into 
-		l_scheduled_task_stage_id
+		l_scheduled_task_id
+		, l_scheduled_task_stage_id
 	from 
 		${mainSchemaName}.scheduled_task t
 	join ${mainSchemaName}.project p

@@ -38,7 +38,7 @@ begin
 		t.internal_name = regexp_replace(i_scheduled_task_name, '(.+)\.(.+)', '\2')
 	;
 	
-	if l_scheduled_task_id is null then
+	if l_scheduled_task_stage_id is null then
 		raise exception 'Unknown scheduled task stage specified: %.%', i_scheduled_task_name, i_scheduled_task_stage_ord_pos;
 	end if;
 
