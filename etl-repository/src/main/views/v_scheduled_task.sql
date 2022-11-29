@@ -70,18 +70,18 @@ from (
 					, p.internal_name
 					, st.internal_name
 					, task_stage.ordinal_position
-					, st.thread_max_count
-					, st.wait_for_delay_in_seconds
+					, coalesce(task_stage.thread_max_count, st.thread_max_count)
+					, coalesce(task_stage.wait_for_delay_in_seconds, st.wait_for_delay_in_seconds)
 				) 
 				|| case 
-					when st.thread_max_count > 1 then 
+					when coalesce(task_stage.thread_max_count, st.thread_max_count) > 1 then 
 						format(
 							$$; call ${mainSchemaName}.p_wait_for_scheduled_task_subjobs_completion(i_scheduled_task_name => '%s.%s', i_scheduled_task_stage_ord_pos => %s, i_timeout_in_hours => %s, i_wait_for_delay_in_seconds => %s)$$
 							, p.internal_name
 							, st.internal_name
 							, task_stage.ordinal_position
-							, st.timeout_in_hours
-							, st.wait_for_delay_in_seconds
+							, coalesce(task_stage.timeout_in_hours, st.timeout_in_hours)
+							, coalesce(task_stage.wait_for_delay_in_seconds, st.wait_for_delay_in_seconds)
 						)
 					else ''
 				end
