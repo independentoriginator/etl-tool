@@ -249,6 +249,25 @@
 
 	</changeSet>
 
+	<changeSet id="scheduled_task_stage execution parameters schould not have default values" author="${default_author}">
+
+		<dropDefaultValue
+			tableName="scheduled_task_stage"  
+			columnName="thread_max_count"  
+			columnDataType="integer" />  
+
+		<dropDefaultValue
+			tableName="scheduled_task_stage"  
+			columnName="wait_for_delay_in_seconds"  
+			columnDataType="integer" />  
+
+		<dropDefaultValue
+			tableName="scheduled_task_stage"  
+			columnName="timeout_in_hours"  
+			columnDataType="integer" /> 
+			
+	</changeSet>
+	
 	<changeSet id="scheduled_task_subjob" author="${default_author}">
 			
 		<createTable tableName="scheduled_task_subjob" schemaName="${stagingSchemaName}" remarks="Scheduled task subjob">
