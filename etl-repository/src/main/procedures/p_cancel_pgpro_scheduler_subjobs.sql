@@ -8,6 +8,7 @@ language plpgsql
 as $procedure$
 declare 
 	l_job_id ${stagingSchemaName}.v_scheduled_task_subjob.id%%type;
+	l_command text := '';
 begin
 	%s
 end
@@ -27,10 +28,18 @@ $proc$
 			subjob.scheduled_task_id = i_scheduled_task_id
 			and subjob.is_completed = false
 	) loop
-		if not schedule.cancel_job(job_id => l_job_id) then
-			raise exception 'Cannot cancel the pgpro_scheduler one-time job %', l_job_id;		
-		end if;
+		l_command := 
+			l_command 
+			|| case when length(l_command) > 0 then '; ' else '' end
+			|| format('schedule.cancel_job(job_id => %s)', l_job_id)
+		;
 	end loop;
+
+	if length(l_command) > 0 then
+		if schedule.submit_job(l_command) is null then
+			raise exception 'Cannot create one-time pgpro_scheduler job';		
+		end if;
+	end if;
 	$proc_body$
 else
 	$proc_body$

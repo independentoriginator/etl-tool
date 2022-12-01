@@ -18,6 +18,7 @@ declare
 	l_subjob_count integer;
 	l_completed_count integer;
 	l_failed_count integer;
+	l_err_descr text;
 	l_start_timestamp timestamp := clock_timestamp();
 begin
 	select 
@@ -52,10 +53,12 @@ begin
 			, count(
 				case when subjob.is_failed then 1 end
 			)::integer as failed_count
+			, string_agg(subjob.err_descr, E'\n') as err_descr 
 		into 
 			l_subjob_count
 			, l_completed_count
 			, l_failed_count
+			, l_err_descr
 		from 
 			${stagingSchemaName}.v_scheduled_task_subjob subjob
 		where 
@@ -63,7 +66,7 @@ begin
 		;
 		
 		if l_subjob_count = 0 then
-			raise notice 'Neither subjob found for the scheduled task specified: %', i_scheduled_task_name;
+			raise warning 'Neither subjob found for the scheduled task specified: %', i_scheduled_task_name;
 			exit;
 		end if;
 
@@ -71,7 +74,7 @@ begin
 			call ${mainSchemaName}.p_cancel_pgpro_scheduler_subjobs(
 				i_scheduled_task_id => l_scheduled_task_id
 			);
-			raise warning 'Scheduled task % failed subjob count: %', i_scheduled_task_name, l_failed_count;
+			raise exception E'Scheduled task % failed subjob count: %\n%', i_scheduled_task_name, l_failed_count, l_err_descr;
 			exit;
 		end if;
 		
@@ -83,7 +86,7 @@ begin
 			call ${mainSchemaName}.p_cancel_pgpro_scheduler_subjobs(
 				i_scheduled_task_id => l_scheduled_task_id
 			);
-			raise warning 'Timeout occured while waiting for the scheduled task completion: %', i_scheduled_task_name;
+			raise exception 'Timeout occured while waiting for the scheduled task completion: %', i_scheduled_task_name;
 			exit;
 		end if;
 			
