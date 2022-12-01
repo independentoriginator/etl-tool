@@ -75,7 +75,6 @@ begin
 				i_scheduled_task_id => l_scheduled_task_id
 			);
 			raise exception E'Scheduled task % failed subjob count: %\n%', i_scheduled_task_name, l_failed_count, l_err_descr;
-			exit;
 		end if;
 		
 		if l_subjob_count - l_completed_count = 0 then 
@@ -87,7 +86,6 @@ begin
 				i_scheduled_task_id => l_scheduled_task_id
 			);
 			raise exception 'Timeout occured while waiting for the scheduled task completion: %', i_scheduled_task_name;
-			exit;
 		end if;
 			
 		perform pg_sleep(i_wait_for_delay_in_seconds);
