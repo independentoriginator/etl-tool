@@ -8,6 +8,7 @@ language plpgsql
 as $procedure$
 declare 
 	l_job_id ${mainSchemaName}.v_pgpro_scheduler_job.id%%type;
+	l_commands text[] := string_to_array(i_job_rec.command_string, '; ');
 begin
 	%s
 end
@@ -24,7 +25,7 @@ $proc$
 				jsonb_build_object(
 					'name', i_job_rec.job_name
 					, 'comments', i_job_rec.job_description
-					, 'commands', i_job_rec.command_string
+					, 'commands', l_commands
 					, 'use_same_transaction', false
 					, 'cron', i_job_rec.cron_expr
 				)
@@ -64,7 +65,7 @@ $proc$
 				schedule.set_job_attribute(
 					jobid => l_job_id
 					, name => 'commands'::text
-					, value => string_to_array(i_job_rec.command_string, '; ')
+					, value => l_commands
 				);
 		end if;	
 	end if;
