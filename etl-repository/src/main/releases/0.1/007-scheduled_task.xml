@@ -249,6 +249,20 @@
 
 	</changeSet>
 
+	<changeSet id="scheduled_task session user" author="${default_author}">
+
+		<addColumn tableName="scheduled_task">
+			<column 
+				name="task_session_user" 
+				type="text"
+				remarks="Task session user"
+				defaultValue="${mainSchemaName}">
+				<constraints nullable="true" />
+			</column>
+		</addColumn> 
+
+	</changeSet>
+
 	<changeSet id="scheduled_task_stage execution parameters schould not have default values" author="${default_author}">
 
 		<dropDefaultValue
