@@ -28,6 +28,7 @@ $proc$
 					, 'commands', l_commands
 					, 'use_same_transaction', false
 					, 'cron', i_job_rec.cron_expr
+					, 'run_as', '${mainSchemaName}'
 				)
 			);
 	else
