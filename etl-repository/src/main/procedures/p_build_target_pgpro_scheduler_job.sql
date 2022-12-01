@@ -26,9 +26,9 @@ $proc$
 					'name', i_job_rec.job_name
 					, 'comments', i_job_rec.job_description
 					, 'commands', l_commands
-					, 'use_same_transaction', false
+					, 'use_same_transaction', i_job_rec.is_task_used_single_transaction
 					, 'cron', i_job_rec.cron_expr
-					, 'run_as', '${mainSchemaName}'
+					, 'run_as', i_job_rec.task_session_user
 				)
 			);
 	else
@@ -67,6 +67,30 @@ $proc$
 					jobid => l_job_id
 					, name => 'commands'::text
 					, value => l_commands
+				);
+		end if;	
+
+		if ${mainSchemaName}.f_values_are_different(
+			i_left => i_job_rec.is_task_used_single_transaction
+			, i_right => i_job_rec.is_target_task_used_single_transaction
+		) then
+			perform 
+				schedule.set_job_attribute(
+					jobid => l_job_id
+					, name => 'use_same_transaction'::text
+					, value => i_job_rec.is_task_used_single_transaction
+				);
+		end if;	
+
+		if ${mainSchemaName}.f_values_are_different(
+			i_left => i_job_rec.task_session_user
+			, i_right => i_job_rec.target_task_session_user
+		) then
+			perform 
+				schedule.set_job_attribute(
+					jobid => l_job_id
+					, name => 'run_as'::text
+					, value => i_job_rec.task_session_user
 				);
 		end if;	
 	end if;

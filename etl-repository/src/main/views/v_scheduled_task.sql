@@ -9,6 +9,8 @@ with
 			, t.description
 			, t.cron_expr
 			, t.commands
+			, t.use_same_transaction
+			, t.run_as
 			, t.is_disabled
 		from 
 			${mainSchemaName}.v_pgpro_scheduler_job t
@@ -31,7 +33,11 @@ select
 	, t.project_name
 	, t.is_disabled
 	, target_task.is_disabled as is_target_job_disabled
-	, case when t.is_built and target_task.id is not null then true else false end as is_built 
+	, case when t.is_built and target_task.id is not null then true else false end as is_built
+	, false as is_task_used_single_transaction
+	, target_task.use_same_transaction as is_target_task_used_single_transaction
+	, '${mainSchemaName}' as task_session_user
+	, target_task.run_as as target_task_session_user
 from (
 	select 
 		st.id

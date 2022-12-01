@@ -8,6 +8,8 @@ returns table(
 	, description text
 	, cron_expr text
 	, commands text
+	, use_same_transaction boolean
+	, run_as text
 	, is_disabled boolean
 )
 language sql
@@ -26,6 +28,8 @@ $func$
 		, t.comments as description
 		, t.rule->>'crontab' as cron_expr
 		, array_to_string(t.commands, '; ') as commands
+		, t.use_same_transaction
+		, t.run_as
 		, case when t.active then false else true end as is_disabled
 	from 
 		schedule.get_owned_cron() t
@@ -40,6 +44,8 @@ else
 		, null::text as description
 		, null::text as cron_expr
 		, null::text as commands
+		, null::boolean as use_same_transaction
+		, null::text as run_as
 		, null::boolean as is_disabled
 	where 
 		false
