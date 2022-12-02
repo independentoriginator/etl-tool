@@ -29,6 +29,7 @@ $proc$
 					, 'use_same_transaction', i_job_rec.is_task_used_single_transaction
 					, 'cron', i_job_rec.cron_expr
 					, 'run_as', i_job_rec.task_session_user
+					, 'onrollback', i_job_rec.on_err_cmd
 				)
 			);
 	else
@@ -91,6 +92,18 @@ $proc$
 					jobid => l_job_id
 					, name => 'run_as'::text
 					, value => i_job_rec.task_session_user
+				);
+		end if;	
+
+		if ${mainSchemaName}.f_values_are_different(
+			i_left => i_job_rec.on_err_cmd
+			, i_right => i_job_rec.target_on_err_cmd
+		) then
+			perform 
+				schedule.set_job_attribute(
+					jobid => l_job_id
+					, name => 'onrollback'::text
+					, value => i_job_rec.on_err_cmd
 				);
 		end if;	
 	end if;

@@ -10,6 +10,7 @@ select
 	, t.commands
 	, t.use_same_transaction
 	, t.run_as
+	, t.onrollback
 	, t.is_disabled
 from 
 	${mainSchemaName}.f_pgpro_scheduler_job() t

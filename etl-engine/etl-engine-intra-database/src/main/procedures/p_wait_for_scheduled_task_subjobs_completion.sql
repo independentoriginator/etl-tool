@@ -13,7 +13,6 @@ create or replace procedure p_wait_for_scheduled_task_subjobs_completion(
 language plpgsql
 as $procedure$
 declare 
-	l_scheduled_task_id ${mainSchemaName}.scheduled_task.id%type;
 	l_scheduled_task_stage_id ${mainSchemaName}.scheduled_task_stage.id%type;
 	l_subjob_count integer;
 	l_completed_count integer;
@@ -22,11 +21,9 @@ declare
 	l_start_timestamp timestamp := clock_timestamp();
 begin
 	select 
-		t.id
-		, s.id
+		s.id
 	into 
-		l_scheduled_task_id
-		, l_scheduled_task_stage_id
+		l_scheduled_task_stage_id
 	from 
 		${mainSchemaName}.scheduled_task t
 	join ${mainSchemaName}.project p
@@ -71,9 +68,6 @@ begin
 		end if;
 
 		if l_failed_count > 0 then
-			call ${mainSchemaName}.p_cancel_pgpro_scheduler_subjobs(
-				i_scheduled_task_id => l_scheduled_task_id
-			);
 			raise exception E'Scheduled task % failed subjob count: %\n%', i_scheduled_task_name, l_failed_count, l_err_descr;
 		end if;
 		
@@ -82,9 +76,6 @@ begin
 		end if;
 		
 		if extract(hours from clock_timestamp() - l_start_timestamp) >= i_timeout_in_hours then
-			call ${mainSchemaName}.p_cancel_pgpro_scheduler_subjobs(
-				i_scheduled_task_id => l_scheduled_task_id
-			);
 			raise exception 'Timeout occured while waiting for the scheduled task completion: %', i_scheduled_task_name;
 		end if;
 			

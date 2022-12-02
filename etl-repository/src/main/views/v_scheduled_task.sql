@@ -11,6 +11,7 @@ with
 			, t.commands
 			, t.use_same_transaction
 			, t.run_as
+			, t.onrollback
 			, t.is_disabled
 		from 
 			${mainSchemaName}.v_pgpro_scheduler_job t
@@ -31,13 +32,19 @@ select
 	, target_task.commands as target_command_string
 	, t.scheduler_type_name
 	, t.project_name
-	, t.is_disabled
-	, target_task.is_disabled as is_target_job_disabled
-	, case when t.is_built and target_task.id is not null then true else false end as is_built
+	, t.scheduled_task_name as scheduled_task_name
 	, false as is_task_used_single_transaction
 	, target_task.use_same_transaction as is_target_task_used_single_transaction
 	, t.task_session_user
 	, target_task.run_as as target_task_session_user
+	, format(
+		'call ${mainSchemaName}.p_cancel_pgpro_scheduler_subjobs(i_scheduled_task_name => %s)'
+		, t.scheduled_task_name
+	) as on_err_cmd
+	, target_task.onrollback as target_on_err_cmd
+	, t.is_disabled
+	, target_task.is_disabled as is_target_job_disabled
+	, case when t.is_built and target_task.id is not null then true else false end as is_built
 from (
 	select 
 		st.id
@@ -58,6 +65,7 @@ from (
 		, st.task_session_user
 		, sch_type.internal_name as scheduler_type_name
 		, p.internal_name as project_name
+		, p.internal_name || '.' || st.internal_name as scheduled_task_name
 		, st.is_disabled
 		, st.is_built
 	from 
