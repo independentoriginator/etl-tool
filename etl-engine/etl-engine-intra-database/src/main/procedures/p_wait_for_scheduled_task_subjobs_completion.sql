@@ -50,7 +50,7 @@ begin
 			, count(
 				case when subjob.is_failed then 1 end
 			)::integer as failed_count
-			, string_agg(subjob.err_descr, E'\n') as err_descr 
+			, string_agg(distinct subjob.err_descr, E'\n') as err_descr 
 		into 
 			l_subjob_count
 			, l_completed_count
