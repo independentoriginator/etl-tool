@@ -11,8 +11,8 @@
 	<changeSet id="staging schema permissions" author="${default_author}">
 		
 		<sql dbms="postgresql">
-			grant usage on schema ${stagingSchemaName} to ${etlServiceAccount};
-			grant select, insert, update, delete on all tables in schema ${stagingSchemaName} to ${etlServiceAccount}; 
+			grant usage on schema ${stagingSchemaName} to ${etlUserRole};
+			grant select, insert, update, delete on all tables in schema ${stagingSchemaName} to ${etlUserRole}; 
 		</sql>
 
 	</changeSet>

@@ -23,7 +23,7 @@
 		<databaseMainSchemaName>etl_schema</databaseMainSchemaName>
 		<databaseStagingSchemaName>etl_staging</databaseStagingSchemaName>
 		<databaseStagingTableSpace></databaseStagingTableSpace>
-		<databaseEtlServiceAccount>etl_schema</databaseEtlServiceAccount>
+		<databaseEtlUserRole>etl_schema</databaseEtlUserRole>
 	</properties>
 
 	<dependencies>
@@ -78,8 +78,8 @@
 							<value>${databaseStagingTableSpace}</value>
 						</property>
 						<property>
-							<name>etlServiceAccount</name>
-							<value>${databaseEtlServiceAccount}</value>
+							<name>etlUserRole</name>
+							<value>${databaseEtlUserRole}</value>
 						</property>
 						<property>
 							<name>dataExchangeFolder</name>

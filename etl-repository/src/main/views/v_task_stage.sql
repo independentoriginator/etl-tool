@@ -275,4 +275,4 @@ where
 	)
 ;
 
-grant select on v_task_stage to ${etlServiceAccount};
+grant select on v_task_stage to ${etlUserRole};
