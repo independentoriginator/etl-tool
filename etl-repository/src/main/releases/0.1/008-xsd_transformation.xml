@@ -65,4 +65,58 @@
 
 	</changeSet>
 	
+	<changeSet id="xsd_transformation_entity" author="${default_author}">
+		
+		<createTable tableName="xsd_transformation_entity" remarks="XSD entity">
+			<column name="xsd_transformation_id" type="${type.id}" remarks="XSD transformation identifier">
+				<constraints nullable="false" />
+			</column>
+			<column name="path" type="clob" remarks="Path">
+				<constraints nullable="false" />
+			</column>
+			<column name="name" type="${type.name}" remarks="Name">
+				<constraints nullable="false" />
+			</column>
+			<column name="target_name" type="${type.internal_name}" remarks="Target name">
+				<constraints nullable="false" />
+			</column>
+			<column name="description" type="${type.description}" remarks="Description">
+				<constraints nullable="true" />
+			</column>
+			<column name="pkey" type="${type.name}" remarks="Primary key">
+				<constraints nullable="true" />
+			</column>
+			<column name="master_entity" type="clob" remarks="Master entity">
+				<constraints nullable="true" />
+			</column>
+			<column name="master_entity_pkey" type="${type.name}" remarks="Master entity primary key">
+				<constraints nullable="true" />
+			</column>
+		</createTable>
+
+		<addPrimaryKey 
+			constraintName="pk_xsd_transformation_entity" 
+			tableName="xsd_transformation_entity"
+			columnNames="xsd_transformation_id, path" />
+			
+		<addUniqueConstraint 
+			constraintName="uc_xsd_transformation_entity" 
+			tableName="xsd_transformation_entity"
+			columnNames="xsd_transformation_id, target_name" />
+
+		<createIndex 
+			indexName="i_xsd_transformation_entity$xsd_transformation_id" 
+			tableName="xsd_transformation_entity">
+			<column name="xsd_transformation_id" />
+		</createIndex>
+
+		<addForeignKeyConstraint 
+			constraintName="fk_xsd_transformation_entity$xsd_transformation_id"
+			baseTableName="xsd_transformation_entity" 
+			baseColumnNames="xsd_transformation_id" 
+			referencedTableName="xsd_transformation" 
+			referencedColumnNames="id" />
+
+	</changeSet>
+	
 </databaseChangeLog>
