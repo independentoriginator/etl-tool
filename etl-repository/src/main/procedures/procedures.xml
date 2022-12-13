@@ -57,6 +57,46 @@
 		<rollback/>
 	</changeSet>
 
+	<changeSet id="p_extract_xsd_entities-procedure" author="${default_author}" runOnChange="true">
+		<sqlFile 
+			dbms="postgresql"
+			path="p_extract_xsd_entities.sql"
+	        relativeToChangelogFile="true"
+	        splitStatements="false"
+	        stripComments="false"/>
+		<rollback/>
+	</changeSet>
+
+	<changeSet id="p_extract_xsd_entity_attributes-procedure" author="${default_author}" runOnChange="true">
+		<sqlFile 
+			dbms="postgresql"
+			path="p_extract_xsd_entity_attributes.sql"
+	        relativeToChangelogFile="true"
+	        splitStatements="false"
+	        stripComments="false"/>
+		<rollback/>
+	</changeSet>
+
+	<changeSet id="p_generate_xsd_target_staging_table_columns-procedure" author="${default_author}" runOnChange="true">
+		<sqlFile 
+			dbms="postgresql"
+			path="p_generate_xsd_target_staging_table_columns.sql"
+	        relativeToChangelogFile="true"
+	        splitStatements="false"
+	        stripComments="false"/>
+		<rollback/>
+	</changeSet>
+
+	<changeSet id="p_generate_xsd_target_staging_tables-procedure" author="${default_author}" runOnChange="true">
+		<sqlFile 
+			dbms="postgresql"
+			path="p_generate_xsd_target_staging_tables.sql"
+	        relativeToChangelogFile="true"
+	        splitStatements="false"
+	        stripComments="false"/>
+		<rollback/>
+	</changeSet>
+
 	<changeSet id="p_generate_xsd_target_staging_schemas-procedure" author="${default_author}" runOnChange="true">
 		<sqlFile 
 			dbms="postgresql"

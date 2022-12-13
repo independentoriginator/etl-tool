@@ -65,9 +65,12 @@
 
 	</changeSet>
 	
-	<changeSet id="xsd_transformation_entity" author="${default_author}">
+	<changeSet id="xsd_entity" author="${default_author}">
 		
-		<createTable tableName="xsd_transformation_entity" remarks="XSD entity">
+		<createTable tableName="xsd_entity" remarks="XSD entity">
+			<column name="id" type="${type.id}" autoIncrement="true" remarks="Identifier">
+				<constraints nullable="false" />
+			</column>
 			<column name="xsd_transformation_id" type="${type.id}" remarks="XSD transformation identifier">
 				<constraints nullable="false" />
 			</column>
@@ -77,7 +80,7 @@
 			<column name="name" type="${type.name}" remarks="Name">
 				<constraints nullable="false" />
 			</column>
-			<column name="target_name" type="${type.internal_name}" remarks="Target name">
+			<column name="table_name" type="${type.internal_name}" remarks="Table name">
 				<constraints nullable="false" />
 			</column>
 			<column name="description" type="${type.description}" remarks="Description">
@@ -89,32 +92,86 @@
 			<column name="master_entity" type="clob" remarks="Master entity">
 				<constraints nullable="true" />
 			</column>
-			<column name="master_entity_pkey" type="${type.name}" remarks="Master entity primary key">
+		</createTable>
+
+		<addPrimaryKey 
+			constraintName="pk_xsd_entity" 
+			tableName="xsd_entity"
+			columnNames="id" />
+			
+		<addUniqueConstraint 
+			constraintName="uc_xsd_entity$table_name" 
+			tableName="xsd_entity"
+			columnNames="xsd_transformation_id, table_name" />
+
+		<createIndex 
+			indexName="i_xsd_entity$xsd_transformation_id" 
+			tableName="xsd_entity">
+			<column name="xsd_transformation_id" />
+		</createIndex>
+
+		<addForeignKeyConstraint 
+			constraintName="fk_xsd_entity$xsd_transformation_id"
+			baseTableName="xsd_entity" 
+			baseColumnNames="xsd_transformation_id" 
+			referencedTableName="xsd_transformation" 
+			referencedColumnNames="id" />
+
+	</changeSet>
+
+	<changeSet id="xsd_entity_attr" author="${default_author}">
+		
+		<createTable tableName="xsd_entity_attr" remarks="XSD entity attribute">
+			<column name="xsd_entity_id" type="${type.id}" remarks="XSD entity identifier">
+				<constraints nullable="false" />
+			</column>
+			<column name="name" type="${type.name}" remarks="Name">
+				<constraints nullable="false" />
+			</column>
+			<column name="column_name" type="${type.internal_name}" remarks="Table column name">
+				<constraints nullable="false" />
+			</column>
+			<column name="description" type="${type.description}" remarks="Description">
+				<constraints nullable="true" />
+			</column>
+			<column name="type" type="${type.name}" remarks="Type">
+				<constraints nullable="true" />
+			</column>
+			<column name="nullable" type="boolean" remarks="Nullable">
+				<constraints nullable="true" />
+			</column>
+			<column name="max_length" type="integer" remarks="Maximum length restriction">
+				<constraints nullable="true" />
+			</column>
+			<column name="total_digits" type="integer" remarks="Total digits restriction">
+				<constraints nullable="true" />
+			</column>
+			<column name="fraction_digits" type="integer" remarks="Fraction digits restriction">
 				<constraints nullable="true" />
 			</column>
 		</createTable>
 
 		<addPrimaryKey 
-			constraintName="pk_xsd_transformation_entity" 
-			tableName="xsd_transformation_entity"
-			columnNames="xsd_transformation_id, path" />
+			constraintName="pk_xsd_entity_attr" 
+			tableName="xsd_entity_attr"
+			columnNames="xsd_entity_id, name" />
 			
 		<addUniqueConstraint 
-			constraintName="uc_xsd_transformation_entity" 
-			tableName="xsd_transformation_entity"
-			columnNames="xsd_transformation_id, target_name" />
+			constraintName="uc_xsd_entity_attr$column_name" 
+			tableName="xsd_entity_attr"
+			columnNames="xsd_entity_id, column_name" />
 
 		<createIndex 
-			indexName="i_xsd_transformation_entity$xsd_transformation_id" 
-			tableName="xsd_transformation_entity">
-			<column name="xsd_transformation_id" />
+			indexName="i_xsd_entity_attr$xsd_entity_id" 
+			tableName="xsd_entity_attr">
+			<column name="xsd_entity_id" />
 		</createIndex>
 
 		<addForeignKeyConstraint 
-			constraintName="fk_xsd_transformation_entity$xsd_transformation_id"
-			baseTableName="xsd_transformation_entity" 
-			baseColumnNames="xsd_transformation_id" 
-			referencedTableName="xsd_transformation" 
+			constraintName="fk_xsd_entity_attr$xsd_entity_id"
+			baseTableName="xsd_entity_attr" 
+			baseColumnNames="xsd_entity_id" 
+			referencedTableName="xsd_entity" 
 			referencedColumnNames="id" />
 
 	</changeSet>
