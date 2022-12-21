@@ -56,7 +56,8 @@ begin
 				from
 					${mainSchemaName}.xsd_transformation t
 					, xmltable(
-						'/relational_schema/table'
+						xmlnamespaces(t.namespace as tns)
+						, '/tns:relational_schema/tns:table'
 						passing transformed_xsd
 						columns 
 							name text path '@name'
@@ -234,7 +235,7 @@ begin
 				, i_adjust_to_max_length => true
 			)
 		) as table_name
-		, t.description
+		, nullif(t.description, '') as description
 		, nullif(t.pkey, '') as pkey
 		, nullif(t.master_entity, '') as master_entity
 	from 

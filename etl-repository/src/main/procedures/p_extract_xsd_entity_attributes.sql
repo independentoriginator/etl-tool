@@ -7,6 +7,7 @@ begin
 	insert into 
 		${mainSchemaName}.xsd_entity_attr(
 			xsd_entity_id
+			, path
 			, name
 			, column_name
 			, description
@@ -18,12 +19,13 @@ begin
 		)
 	select 
 		entity.id as xsd_entity_id
+		, a.path
 		, a.name
 		, ${stagingSchemaName}.f_convert_case_camel2snake(
 			a.name
 		) as column_name
-		, a.description
-		, a.type
+		, nullif(a.description, '') as description
+		, nullif(a.type, '') as type
 		, a.nullable
 		, a.max_length
 		, a.total_digits
@@ -32,6 +34,7 @@ begin
 		select
 			t.id as xsd_transformation_id
 			, x.entity_path
+			, x.path
 			, x.name
 			, x.description
 			, x.type
@@ -42,10 +45,12 @@ begin
 		from
 			${mainSchemaName}.xsd_transformation t
 			, xmltable(
-				'/relational_schema/table/column'
+				xmlnamespaces(t.namespace as tns)
+				, '/tns:relational_schema/tns:table/tns:column'
 				passing transformed_xsd
 				columns 
 					entity_path text path '../@path'
+					, path text path '@path'
 					, name text path '@name'
 					, description text path '@comment'
 					, type text path '@type'

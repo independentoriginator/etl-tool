@@ -1,7 +1,10 @@
 do $plpgsql$
 begin
 execute format($func$
-create or replace function f_pgpro_scheduler_job_log(i_job_id integer = null)
+create or replace function f_pgpro_scheduler_job_log(
+	i_job_id integer = null
+	, i_job_name text = null
+)
 returns table(
 	job_id integer
 	, job_name text
@@ -35,7 +38,8 @@ $func$
 	from 
 		schedule.get_log() t
 	where 
-		t.cron = i_job_id or i_job_id is null
+		(t.cron = i_job_id or i_job_id is null)
+		and (t.name = i_job_name or i_job_name is null)
 	$func_body$
 else
 	$func_body$

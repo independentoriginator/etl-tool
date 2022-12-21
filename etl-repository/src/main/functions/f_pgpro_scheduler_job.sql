@@ -14,6 +14,7 @@ returns table(
 	, is_disabled boolean
 )
 language sql
+security definer
 as $function$
 %s
 $function$;			

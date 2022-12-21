@@ -248,6 +248,19 @@
 		</addColumn> 
 
 	</changeSet>
+	
+	<changeSet id="scheduled_task_stage is_async" author="${default_author}">
+
+		<addColumn tableName="scheduled_task_stage">
+			<column 
+				name="is_async" 
+				type="boolean"
+				remarks="Is asynchronous execution">
+				<constraints nullable="true" />
+			</column>
+		</addColumn> 
+
+	</changeSet>
 
 	<changeSet id="scheduled_task session user" author="${default_author}">
 

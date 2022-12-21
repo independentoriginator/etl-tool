@@ -8,41 +8,20 @@ declare
 begin
 	for l_column_rec in (
 		select 
-			t.target_staging_schema as schema_name
-			, e.table_name
+			a.schema_name
+			, a.table_name
 			, a.column_name
-			, case when target_column.attname is null then false else true end as is_target_column_exists 
+			, a.is_target_column_exists 
 			, a.description
-			, target_column_descr.description target_column_description
-			, ${mainSchemaName}.f_xsd_entity_attr_column_type(a) as column_type	
-			, pg_catalog.format_type(target_column.atttypid, target_column.atttypmod) as target_column_type			
-			, case 
-				when strpos(',' || e.pkey, a.name) > 0 then false
-				else coalesce(a.nullable, true)
-			end as nullable
-			, target_column.attnotnull as is_notnull_constraint_exists
+			, a.target_column_description
+			, a.column_type	
+			, a.target_column_type			
+			, a.nullable
+			, a.is_notnull_constraint_exists
 		from 
-			${mainSchemaName}.xsd_entity e
-		join ${mainSchemaName}.xsd_entity_attr a
-			on a.xsd_entity_id = e.id
-		join ${mainSchemaName}.xsd_transformation t
-			on t.id = e.xsd_transformation_id 
-		join pg_catalog.pg_namespace target_schema
-			on target_schema.nspname = t.target_staging_schema
-		join pg_catalog.pg_class target_table
-			on target_table.relnamespace = target_schema.oid 
-			and target_table.relname = e.table_name
-			and target_table.relkind in ('r'::"char", 'p'::"char")
-		left join pg_catalog.pg_attribute target_column
-			on target_column.attrelid = target_table.oid
-			and target_column.attname = a.column_name
-			and target_column.attisdropped = false
-		left join pg_catalog.pg_description target_column_descr
-			on target_column_descr.objoid = target_table.oid
-			and target_column_descr.classoid = 'pg_class'::regclass
-			and target_column_descr.objsubid = target_column.attnum
+			${mainSchemaName}.v_xsd_entity_attr a
 		where 
-			e.id = i_xsd_entity_id
+			a.xsd_entity_id = i_xsd_entity_id
 	) 
 	loop
 		if not l_column_rec.is_target_column_exists then

@@ -106,5 +106,25 @@
 	        stripComments="false"/>
 		<rollback/>
 	</changeSet>
+	
+	<changeSet id="p_truncate_xsd_target_staging_tables-procedure" author="${default_author}" runOnChange="true">
+		<sqlFile 
+			dbms="postgresql"
+			path="p_truncate_xsd_target_staging_tables.sql"
+	        relativeToChangelogFile="true"
+	        splitStatements="false"
+	        stripComments="false"/>
+		<rollback/>
+	</changeSet>
+
+	<changeSet id="p_load_xml_data-procedure" author="${default_author}" runOnChange="true">
+		<sqlFile 
+			dbms="postgresql"
+			path="p_load_xml_data.sql"
+	        relativeToChangelogFile="true"
+	        splitStatements="false"
+	        stripComments="false"/>
+		<rollback/>
+	</changeSet>
 					
 </databaseChangeLog>

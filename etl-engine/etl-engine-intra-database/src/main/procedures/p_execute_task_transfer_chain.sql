@@ -1,11 +1,40 @@
+drop procedure if exists p_execute_task_transfer_chain(
+	${mainSchemaName}.task.id%type
+	, ${mainSchemaName}.transfer.id%type
+);
+
 create or replace procedure p_execute_task_transfer_chain(
 	i_task_id ${mainSchemaName}.task.id%type
 	, i_transfer_chain_id ${mainSchemaName}.transfer.id%type
+	, i_scheduler_type_name text = null
+	, i_scheduled_task_name text = null -- 'project_internal_name.scheduled_task_internal_name'
+	, i_scheduled_task_stage_ord_pos integer = null
+	, i_thread_max_count integer = 1
+	, i_wait_for_delay_in_seconds integer = 1
+	, i_last_execution_date timestamptz = null
 )
 language plpgsql
 as $procedure$
 declare 
 	l_stage_rec record;
+	l_env_variable_names text[] := 
+		array[
+			'{{scheduler_type_name}}'
+			, '{{scheduled_task_name}}'
+			, '{{scheduled_task_stage_ord_pos}}'
+			, '{{thread_max_count}}'
+			, '{{wait_for_delay_in_seconds}}'
+			, '{{last_execution_date}}'
+		]::text[];
+	l_env_variable_values text[] := 
+		array[
+			i_scheduler_type_name
+			, i_scheduled_task_name
+			, i_scheduled_task_stage_ord_pos::text
+			, i_thread_max_count::text
+			, i_wait_for_delay_in_seconds::text
+			, i_last_execution_date::text
+		]::text[];
 	l_command ${mainSchemaName}.transfer.container%type;
 	l_temp_table_name name;
 	l_positional_arguments text[];
@@ -17,7 +46,41 @@ declare
 begin
 	for l_stage_rec in (
 		select
-			ts.*
+			ts.task_id
+			, ts.task_name
+			, ts.project_name
+		    , ts.transfer_id
+			, ts.transfer_name
+			, ts.transfer_type_name
+			, ts.source_type_name
+			, ts.source_name
+			, ts.connection_string
+			, ts.user_name
+			, ts.user_password
+			, ts.container_type_name
+			, ${mainSchemaName}.f_substitute(
+				i_text => ts.container
+				, i_keys => l_env_variable_names
+				, i_values => l_env_variable_values
+			) as container
+			, ts.is_virtual
+			, ts.reexec_results
+			, ts.is_reexecution
+			, ts.is_deletion			
+			, ts.ordinal_position
+			, ts.target_transfer_id
+			, ts.stage_ordinal_position
+			, ts.transfer_positional_arguments
+		    , ts.preceding_transfer_id
+			, ts.master_transfer_name
+			, ts.master_transfer_type_name
+		    , ts.master_source_name
+			, ts.master_source_type_name
+			, ts.master_container_type_name
+			, ts.master_container    
+			, ts.is_master_transfer_virtual
+			, ts.transfer_chain_id
+			, ts.chain_order_num
 		from 
 			${mainSchemaName}.v_task_stage ts
 		where 
@@ -158,7 +221,7 @@ begin
 			
 			when 'load' then
 				if l_stage_rec.master_transfer_name is null then
-					raise exception '%. %: have not expected preceding extraction or transformation', l_stage_rec.source_name, l_stage_rec.transfer_type_name;
+					raise exception '%. %: has no expected preceding extraction or transformation', l_stage_rec.source_name, l_stage_rec.transfer_type_name;
 				end if;
 				
 				l_temp_table_name := 

@@ -64,6 +64,33 @@
 		</addColumn> 
 
 	</changeSet>
+
+	<changeSet id="xsd_transformation namespace" author="${default_author}">
+
+		<addColumn tableName="xsd_transformation">
+			<column 
+				name="namespace" 
+				type="${type.name}"
+				remarks="Namespace">
+				<constraints nullable="true" />
+			</column>
+		</addColumn> 
+
+	</changeSet>
+
+	<changeSet id="xsd_transformation is_disabled" author="${default_author}">
+
+		<addColumn tableName="xsd_transformation">
+			<column 
+				name="is_disabled" 
+				type="boolean"
+				remarks="Is disabled"
+				defaultValueBoolean="false">
+				<constraints nullable="false" />
+			</column>
+		</addColumn> 
+
+	</changeSet>
 	
 	<changeSet id="xsd_entity" author="${default_author}">
 		
@@ -125,6 +152,9 @@
 			<column name="xsd_entity_id" type="${type.id}" remarks="XSD entity identifier">
 				<constraints nullable="false" />
 			</column>
+			<column name="path" type="clob" remarks="Path">
+				<constraints nullable="false" />
+			</column>
 			<column name="name" type="${type.name}" remarks="Name">
 				<constraints nullable="false" />
 			</column>
@@ -154,7 +184,7 @@
 		<addPrimaryKey 
 			constraintName="pk_xsd_entity_attr" 
 			tableName="xsd_entity_attr"
-			columnNames="xsd_entity_id, name" />
+			columnNames="xsd_entity_id, path" />
 			
 		<addUniqueConstraint 
 			constraintName="uc_xsd_entity_attr$column_name" 

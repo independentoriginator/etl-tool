@@ -17,7 +17,7 @@ select
 		when 'xs:long' then 'bigint'
 		when 'xs:short' then 'smallint'
 		when 'xs:float' then 'real'
-		when 'xs:double' then 'double precision'
+		when 'xs:double' then 'float8'
 		when 'xs:boolean' then 'boolean'
 		when 'xs:date' then 'date'
 		when 'xs:dateTime' then 'timestamp'
