@@ -91,6 +91,20 @@
 		</addColumn> 
 
 	</changeSet>
+
+	<changeSet id="xsd_transformation is_notnull_constraints_applied" author="${default_author}">
+
+		<addColumn tableName="xsd_transformation">
+			<column 
+				name="is_notnull_constraints_applied" 
+				type="boolean"
+				remarks="Is not-null constraints applied"
+				defaultValueBoolean="false">
+				<constraints nullable="false" />
+			</column>
+		</addColumn> 
+
+	</changeSet>
 	
 	<changeSet id="xsd_entity" author="${default_author}">
 		

@@ -10,10 +10,7 @@ with recursive
 			, a.path as relative_path
 			, ${mainSchemaName}.f_xsd_path_nesting_level(i_path => e.path) as slave_entity_nesting_level
 			, a.column_name::varchar as column_name
-			, case 
-				when strpos(',' || e.pkey, a.name) > 0 then false
-				else coalesce(a.nullable, true)
-			end as nullable
+			, coalesce(a.nullable, true) as nullable
 		from 
 			${mainSchemaName}.xsd_entity_attr a
 		join ${mainSchemaName}.xsd_entity e
@@ -49,10 +46,7 @@ with recursive
 				) as entity_nesting_level
 				, master_entity_attr.path
 				, master_entity_attr.column_name
-				, case 
-					when strpos(',' || master_entity.pkey, master_entity_attr.name) > 0 then false
-					else coalesce(master_entity_attr.nullable, true)
-				end as nullable
+				, coalesce(master_entity_attr.nullable, true) as nullable
 			from (
 					select distinct
 						entity_id
@@ -110,7 +104,10 @@ select
 	, target_column_descr.description target_column_description
 	, ${mainSchemaName}.f_xsd_entity_attr_column_type(a) as column_type	
 	, pg_catalog.format_type(target_column.atttypid, target_column.atttypmod) as target_column_type			
-	, entity_attr.nullable
+	, case 
+		when entity_attr.nullable and t.is_notnull_constraints_applied then true
+		else false
+	end as nullable
 	, target_column.attnotnull as is_notnull_constraint_exists
 	, case 
 		when pk.ord_num is not null then true 

@@ -64,10 +64,6 @@ begin
 			);
 		end if;
 	
-		call ${mainSchemaName}.p_generate_xsd_target_staging_table_columns(
-			i_xsd_entity_id => l_table_rec.entity_id
-		);
-	
 		if l_table_rec.pk_columns is null
 			or ${mainSchemaName}.f_values_are_different(l_table_rec.pk_columns, l_table_rec.pk_constraint_columns)
 		then
@@ -93,6 +89,10 @@ begin
 				l_table_rec.is_pk_index_exists := false;
 			end if;
 		end if;
+
+		call ${mainSchemaName}.p_generate_xsd_target_staging_table_columns(
+			i_xsd_entity_id => l_table_rec.entity_id
+		);
 	
 		if l_table_rec.pk_columns is not null then
 			if not l_table_rec.is_pk_index_exists then

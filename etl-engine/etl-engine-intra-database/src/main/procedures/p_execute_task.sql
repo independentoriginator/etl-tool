@@ -25,13 +25,13 @@ begin
 		array_agg(
 			format($$
 				call ${mainSchemaName}.p_execute_task_transfer_chain(
-					i_task_id => %L
-					, i_transfer_chain_id => %L
+					i_task_id => %s
+					, i_transfer_chain_id => %s
 					, i_scheduler_type_name => %L
 					, i_scheduled_task_name => %L
-					, i_scheduled_task_stage_ord_pos => %L
-					, i_thread_max_count => %L
-					, i_wait_for_delay_in_seconds => %L
+					, i_scheduled_task_stage_ord_pos => %s
+					, i_thread_max_count => %s
+					, i_wait_for_delay_in_seconds => %s
 					, i_last_execution_date => %L
 				)
 				$$
