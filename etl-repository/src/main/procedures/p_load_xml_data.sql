@@ -4,22 +4,25 @@ create or replace procedure p_load_xml_data(
 	, i_load_date timestamp
 	, i_path ${mainSchemaName}.xsd_entity.path%type
 	, i_xml_data xml
+	, i_aggregate_insert_instructions boolean = true 
 )
 language plpgsql
 as $procedure$
 declare
 	l_target_staging_schema ${mainSchemaName}.xsd_transformation.target_staging_schema%type;
-	l_insert_command text;
-	l_delete_command text;
+	l_insert_commands text[];
+	l_delete_commands text;
+	l_command text;
 	l_data_package_id ${type.id};
 	l_last_err_msg text;
 	l_msg_text text;
 	l_exception_detail text;
 	l_exception_hint text;
+	l_exception_context text;
 begin
 	select 
 		t.schema_name
-		, string_agg(
+		, array_agg(
 			format($$
 				insert into %I.%I(
 					_data_package_id, %s
@@ -46,9 +49,8 @@ begin
 				, regexp_replace(t.path, '(/)([^/])', '\1tns:\2', 'g')
 				, t.xml_table_columns
 			)
-			, E';\n'
 			order by t.dependency_level
-		) as insert_command
+		) as insert_commands
 		, string_agg(
 			format($$
 				delete from %I.%I
@@ -59,11 +61,11 @@ begin
 			)
 			, E';\n'
 			order by t.dependency_level desc
-		) as delete_command
+		) as delete_commands
 	into
 		l_target_staging_schema
-		, l_insert_command
-		, l_delete_command
+		, l_insert_commands
+		, l_delete_commands
 	from (
 		select 
 			e.path
@@ -152,19 +154,31 @@ begin
 	else
 		-- Deleting old package data
 		execute 
-			l_delete_command
+			l_delete_commands
 		using 
 			l_data_package_id
 		;
 	end if;
 
 	-- Loading package data
-	execute 
-		l_insert_command 
-	using 
-		l_data_package_id
-		, i_xml_data
-	;
+	if i_aggregate_insert_instructions then
+		execute 
+			array_to_string(l_insert_commands, E';\n')
+		using 
+			l_data_package_id
+			, i_xml_data
+		;
+	else
+		foreach l_command in array l_insert_commands loop
+			raise notice '%', l_command;
+			execute 
+				l_command
+			using 
+				l_data_package_id
+				, i_xml_data
+			;
+		end loop;
+	end if;
 
 exception
 when others then
@@ -172,14 +186,16 @@ when others then
 		l_msg_text = MESSAGE_TEXT
 		, l_exception_detail = PG_EXCEPTION_DETAIL
 		, l_exception_hint = PG_EXCEPTION_HINT
+		, l_exception_context = PG_EXCEPTION_CONTEXT
 		;
 	raise exception 
-		'XML data loading error: %: % (hint: %, xsd_transformation_id = %, data_package_external_id = %)'
+		E'XML data loading error: %:\n%\n(hint: %,\nxsd_transformation_id = %,\ndata_package_external_id = %,\ncontext=%)'
 		, l_msg_text
 		, l_exception_detail
 		, l_exception_hint
 		, i_xsd_transformation_id
 		, i_data_package_external_id
+		, l_exception_context
 		;
 end
 $procedure$;			
