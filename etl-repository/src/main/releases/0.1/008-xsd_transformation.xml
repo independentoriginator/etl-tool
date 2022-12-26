@@ -230,4 +230,18 @@
 
 	</changeSet>
 	
+	<changeSet id="xsd_entity_attr is_multivalued" author="${default_author}">
+
+		<addColumn tableName="xsd_entity_attr">
+			<column 
+				name="is_multivalued" 
+				type="boolean"
+				remarks="Is multivalued"
+				defaultValueBoolean="false">
+				<constraints nullable="false" />
+			</column>
+		</addColumn> 
+
+	</changeSet>
+	
 </databaseChangeLog>

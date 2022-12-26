@@ -16,6 +16,7 @@ begin
 			, max_length
 			, total_digits
 			, fraction_digits
+			, is_multivalued
 		)
 	select 
 		entity.id as xsd_entity_id
@@ -26,10 +27,11 @@ begin
 		) as column_name
 		, nullif(a.description, '') as description
 		, nullif(a.type, '') as type
-		, a.nullable
+		, coalesce(a.nullable, true) as nullable 
 		, a.max_length
 		, a.total_digits
 		, a.fraction_digits
+		, coalesce(a.is_multivalued, false) as is_multivalued
 	from (
 		select
 			t.id as xsd_transformation_id
@@ -42,6 +44,7 @@ begin
 			, x.max_length
 			, x.total_digits
 			, x.fraction_digits
+			, x.is_multivalued
 		from
 			${mainSchemaName}.xsd_transformation t
 			, xmltable(
@@ -58,6 +61,7 @@ begin
 					, max_length integer path '@maxLength'
 					, total_digits integer path '@totalDigits'
 					, fraction_digits integer path '@fractionDigits'
+					, is_multivalued boolean path '@isMultivalued'
 			) x
 		where 
 			t.id = i_xsd_transformation_id
