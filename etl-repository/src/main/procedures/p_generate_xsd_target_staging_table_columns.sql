@@ -39,10 +39,12 @@ begin
 			if l_column_rec.column_type <> l_column_rec.target_column_type then
 				execute format('
 					alter table %I.%I 
-						alter column %I set data type %s
+						alter column %I set data type %s using %I::%s
 					'
 					, l_column_rec.schema_name
 					, l_column_rec.table_name
+					, l_column_rec.column_name
+					, l_column_rec.column_type
 					, l_column_rec.column_name
 					, l_column_rec.column_type
 				);
