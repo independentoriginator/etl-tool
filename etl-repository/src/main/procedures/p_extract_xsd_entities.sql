@@ -58,7 +58,7 @@ begin
 					, xmltable(
 						xmlnamespaces(t.namespace as tns)
 						, '/tns:relational_schema/tns:table'
-						passing transformed_xsd
+						passing relational_schema
 						columns 
 							name text path '@name'
 							, path text path '@path'

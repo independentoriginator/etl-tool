@@ -46,6 +46,16 @@
 
 	</changeSet>
 	
+	<changeSet id="xsd_transformation relational_schema" author="${default_author}">
+
+		<renameColumn 
+			tableName="xsd_transformation"
+			oldColumnName="transformed_xsd" 
+			newColumnName="relational_schema"
+			remarks="Relational schema"	/>
+
+	</changeSet>
+	
 	<changeSet id="xsd_transformation staging schema" author="${default_author}">
 
 		<addColumn tableName="xsd_transformation">

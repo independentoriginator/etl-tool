@@ -1,4 +1,6 @@
-create or replace view v_xsd_transformation
+drop view if exists v_xsd_transformation;
+
+create view v_xsd_transformation
 as
 select 
 	t.id
@@ -7,7 +9,7 @@ select
 	, t.name
 	, t.description
 	, t.source_xsd
-	, t.transformed_xsd
+	, t.relational_schema
 	, t.target_staging_schema
 	, case when t.is_staging_schema_generated and target_schema.oid is not null then true else false end as is_staging_schema_generated  
 from 
