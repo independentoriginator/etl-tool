@@ -93,7 +93,19 @@ begin
 		join lateral (
 			select 
 				string_agg(quote_ident(a.column_name), ', ') as target_columns
-				, string_agg('cast(nullif(t.' || quote_ident(a.column_name) || ', '''') as ' || a.column_type || ') as ' || quote_ident(a.column_name), ', ') as src_columns
+				, string_agg(
+					case 
+						when not a.is_multivalued then
+							'cast(nullif(t.' 
+							|| quote_ident(a.column_name) 
+							|| ', '''') as ' 
+							|| a.column_type 
+							|| ') as ' || quote_ident(a.column_name)
+						else
+							quote_ident(a.column_name)
+					end
+					, ', '
+				) as src_columns
 				, string_agg(
 					quote_ident(a.column_name)
 					|| ' ' || case when not a.is_multivalued then 'text' else 'xml' end
