@@ -95,8 +95,9 @@ begin
 				string_agg(quote_ident(a.column_name), ', ') as target_columns
 				, string_agg('cast(nullif(t.' || quote_ident(a.column_name) || ', '''') as ' || a.column_type || ') as ' || quote_ident(a.column_name), ', ') as src_columns
 				, string_agg(
-					quote_ident(a.column_name) 
-					|| ' text path ''' 
+					quote_ident(a.column_name)
+					|| ' ' || case when not a.is_multivalued then 'text' else 'xml' end
+					|| ' path ''' 
 					|| regexp_replace(regexp_replace(a.relative_path, '(/)([^/\.@])', '\1tns:\2'), '^(\w+)$', 'tns:\1') 
 					|| ''''
 					, ', '
