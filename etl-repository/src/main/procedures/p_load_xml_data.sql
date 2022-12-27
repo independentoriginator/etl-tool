@@ -2,7 +2,7 @@ create or replace procedure p_load_xml_data(
 	i_xsd_transformation_id ${mainSchemaName}.xsd_transformation.id%type
 	, i_data_package_external_id ${type.code}
 	, i_load_date timestamp
-	, i_path ${mainSchemaName}.xsd_entity.path%type
+	, i_path text[]
 	, i_xml_data xml
 	, i_aggregate_insert_instructions boolean = true 
 )
@@ -67,6 +67,13 @@ begin
 		, l_insert_commands
 		, l_delete_commands
 	from (
+		with 
+			path_prefix as (
+				select 
+					path.directory
+				from 
+					unnest(i_path) as path(directory)
+			)
 		select 
 			e.path
 			, t.target_staging_schema as schema_name
@@ -83,7 +90,6 @@ begin
 			${mainSchemaName}.xsd_transformation t
 		join ${mainSchemaName}.xsd_entity e
 			on e.xsd_transformation_id = t.id 
-			and (left(e.path, length(i_path)) = i_path or i_path is null) 
 		join lateral (
 			select 
 				string_agg(quote_ident(a.column_name), ', ') as target_columns
@@ -103,6 +109,17 @@ begin
 			on true
 		where 
 			t.id = i_xsd_transformation_id
+			and (
+				exists (
+					select 
+						1
+					from 
+						path_prefix
+					where
+						path_prefix.directory = left(e.path, length(path_prefix.directory))
+				)
+				or i_path is null
+			)
 	) t
 	group by 
 		t.schema_name
