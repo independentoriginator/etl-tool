@@ -37,17 +37,12 @@ begin
 			);
 		else
 			if l_column_rec.column_type <> l_column_rec.target_column_type then
-				execute format('
-					alter table %I.%I 
-						alter column %I set data type %s using %I::%s
-					'
-					, l_column_rec.schema_name
-					, l_column_rec.table_name
-					, l_column_rec.column_name
-					, l_column_rec.column_type
-					, l_column_rec.column_name
-					, l_column_rec.column_type
-				);
+				call ${stagingSchemaName}.p_alter_table_column_type(
+					i_schema_name => l_column_rec.schema_name
+					, i_table_name => l_column_rec.table_name
+					, i_column_name => l_column_rec.column_name
+					, i_column_type => l_column_rec.column_type
+				);			
 			end if;		
 		
 			if not l_column_rec.nullable and not l_column_rec.is_notnull_constraint_exists then
