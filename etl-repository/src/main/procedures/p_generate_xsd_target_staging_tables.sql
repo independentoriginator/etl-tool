@@ -28,10 +28,46 @@ begin
 			, t.ref_columns
 			, t.fk_constraint_name
 			, t.fk_index_name
+			, t.is_fk_index_exists
+			, t.is_fk_constraint_exists
 		from 
 			${mainSchemaName}.v_xsd_entity t
 		where
 			t.xsd_transformation_id = i_xsd_transformation_id
+			and (
+				not t.is_table_exists
+				or ${mainSchemaName}.f_values_are_different(t.description, t.target_table_description)
+				or (
+					(t.is_pk_constraint_exists or t.is_pk_index_exists) 
+					and (t.pk_columns is null or ${mainSchemaName}.f_values_are_different(t.pk_columns, t.pk_constraint_columns)
+				)
+				or (t.pk_columns is not null 
+					and (not t.is_pk_index_exists or not t.is_pk_constraint_exists)
+				)
+				or (
+					(t.fk_columns is not null)
+					and (not t.is_fk_index_exists or not t.is_fk_constraint_exists)
+				)
+				or (
+					(t.fk_columns is null)
+					and (t.is_fk_index_exists or t.is_fk_constraint_exists)
+				)
+				or exists (
+					select 
+						1 
+					from 
+						${mainSchemaName}.v_xsd_entity_attr a
+					where 
+						a.xsd_entity_id = t.entity_id			
+						and (
+							not a.is_target_column_exists then
+							or ${mainSchemaName}.f_values_are_different(a.column_type, t.target_column_type)
+							or (not a.nullable and not a.is_notnull_constraint_exists)
+							or (a.nullable and a.is_notnull_constraint_exists)
+							or ${mainSchemaName}.f_values_are_different(a.description, t.target_column_description)
+						)
+				)
+			)
 		order by 
 			dependency_level
 	) 
@@ -167,16 +203,7 @@ begin
 				);
 			end if;
 		else 
-			if exists (
-				select 
-					1
-				from 
-					pg_catalog.pg_indexes fk_index	
-				where
-					fk_index.schemaname = l_table_rec.schema_name
-					and fk_index.tablename = l_table_rec.table_name
-					and fk_index.indexname = l_table_rec.fk_index_name			
-			) then
+			if l_table_rec.is_fk_index_exists then
 				execute format('
 					drop index %I.%I
 					'
@@ -185,17 +212,7 @@ begin
 				);
 			end if;
 		
-			if exists (
-				select 
-					1
-				from 
-					information_schema.table_constraints fk_constraint
-				where 
-					fk_constraint.table_schema = l_table_rec.schema_name
-					and fk_constraint.table_name = l_table_rec.table_name
-					and fk_constraint.constraint_name = l_table_rec.fk_constraint_name
-					and fk_constraint.constraint_type = 'FOREIGN KEY'	
-			) then
+			if l_table_rec.is_fk_constraint_exists then
 				execute format('
 					alter table %I.%I
 						drop constraint %I 

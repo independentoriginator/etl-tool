@@ -21,6 +21,8 @@ select
 	, t.fk_constraint_name
 	, t.fk_index_name
 	, t.dependency_level
+	, case when fk_index.indexname is not null then true else false end as is_fk_index_exists
+	, case when fk_constraint.constraint_name is not null then true else false end as is_fk_constraint_exists
 from (
 	select 
 		e.xsd_transformation_id
@@ -109,6 +111,15 @@ left join pg_catalog.pg_indexes pk_index
 	on pk_index.schemaname = t.schema_name
 	and pk_index.tablename = t.table_name
 	and pk_index.indexname = t.pk_index_name
+left join pg_catalog.pg_indexes fk_index
+	on fk_index.schemaname = t.schema_name
+	and fk_index.tablename = t.table_name
+	and fk_index.indexname = t.fk_index_name
+left join information_schema.table_constraints fk_constraint
+	on fk_constraint.table_schema = t.schema_name
+	and fk_constraint.table_name = t.table_name
+	and fk_constraint.constraint_name = t.fk_constraint_name
+	and fk_constraint.constraint_type = 'FOREIGN KEY'	
 ;
 
 grant select on ${mainSchemaName}.v_xsd_entity to ${etlUserRole};
