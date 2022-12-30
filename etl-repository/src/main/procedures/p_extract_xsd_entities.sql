@@ -47,7 +47,7 @@ begin
 			from (
 				select
 					t.id as xsd_transformation_id
-					, coalesce(substring(x.master_entity, '.*/([^/]+)'), '') || x.name as name
+					, coalesce(substring(x.master_entity, '.*/([^/]+)') || '_', '') || x.name as name
 					, x.path
 					, x.description
 					, x.pkey
@@ -120,7 +120,12 @@ begin
 							t.path
 							, t.name
 							, t.master_entity
-							, dir[1] as directory
+							, regexp_replace(
+								dir[1]
+								, '(s)([\_A-Z]+)' -- excluding 
+								, '\2'
+								, 'g'
+							) as directory
 							, ordinality as directory_level
 						from 
 							entity_table t
