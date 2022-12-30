@@ -120,12 +120,7 @@ begin
 							t.path
 							, t.name
 							, t.master_entity
-							, regexp_replace(
-								dir[1]
-								, '(s)([\_A-Z]+)' -- excluding 
-								, '\2'
-								, 'g'
-							) as directory
+							, dir[1] as directory
 							, ordinality as directory_level
 						from 
 							entity_table t
@@ -226,27 +221,73 @@ begin
 			where 
 				t.rn = 1
 		)
-	select
+		, abbreviated_name as (
+			select
+				t.xsd_transformation_id
+				, t.path
+				, t.name
+				, coalesce(
+					ep.essential_path
+					, t.name
+				) as name_candidate
+				, lower(
+					${stagingSchemaName}.f_abbreviate_name(
+						i_name => 
+							coalesce(
+								ep.essential_path
+								, t.name
+							)
+						, i_adjust_to_max_length => true
+					)
+				) as table_name
+				, nullif(t.description, '') as description
+				, nullif(t.pkey, '') as pkey
+				, nullif(t.master_entity, '') as master_entity
+			from 
+				entity_table t
+			left join essential_path ep 
+				on ep.path = t.path
+		)
+	select 
 		t.xsd_transformation_id
 		, t.path
 		, t.name
-		, lower(
-			${stagingSchemaName}.f_abbreviate_name(
-				i_name => 
-					coalesce(
-						ep.essential_path
-						, t.name
+		, case 
+			when duplicate.table_name is not null then
+				lower(
+					${stagingSchemaName}.f_abbreviate_name(
+						i_name => t.name_candidate
+						, i_adjust_to_max_length => true
+						, i_leave_last_characters => 
+							(
+								row_number() 
+									over(
+										partition by
+											t.table_name
+										order by 
+											t.path
+								) - 1
+							)::integer
 					)
-				, i_adjust_to_max_length => true
-			)
-		) as table_name
-		, nullif(t.description, '') as description
-		, nullif(t.pkey, '') as pkey
-		, nullif(t.master_entity, '') as master_entity
+				)
+			else t.table_name
+		end as table_name
+		, t.description
+		, t.pkey
+		, t.master_entity
 	from 
-		entity_table t
-	left join essential_path ep 
-		on ep.path = t.path
+		abbreviated_name t
+	left join (
+		select 
+			table_name
+		from 
+			abbreviated_name
+		group by 
+			table_name
+		having 
+			count(*) > 1
+	) duplicate
+		on duplicate.table_name = t.table_name
 	;
 end
 $procedure$;			
