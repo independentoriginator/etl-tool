@@ -29,6 +29,9 @@ begin
 		) schema_usage_permission on true
 		where 
 			coalesce(t.is_staging_schema_generated, false) = false
+		order by 
+			t.internal_name
+			, t.version
 		for update of xsd_transformation
 	) 
 	loop
