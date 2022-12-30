@@ -39,7 +39,7 @@ begin
 				or ${mainSchemaName}.f_values_are_different(t.description, t.target_table_description)
 				or (
 					(t.is_pk_constraint_exists or t.is_pk_index_exists) 
-					and (t.pk_columns is null or ${mainSchemaName}.f_values_are_different(t.pk_columns, t.pk_constraint_columns)
+					and (t.pk_columns is null or ${mainSchemaName}.f_values_are_different(t.pk_columns, t.pk_constraint_columns))
 				)
 				or (t.pk_columns is not null 
 					and (not t.is_pk_index_exists or not t.is_pk_constraint_exists)
@@ -60,11 +60,11 @@ begin
 					where 
 						a.xsd_entity_id = t.entity_id			
 						and (
-							not a.is_target_column_exists then
-							or ${mainSchemaName}.f_values_are_different(a.column_type, t.target_column_type)
+							not a.is_target_column_exists 
+							or ${mainSchemaName}.f_values_are_different(a.column_type, a.target_column_type)
 							or (not a.nullable and not a.is_notnull_constraint_exists)
 							or (a.nullable and a.is_notnull_constraint_exists)
-							or ${mainSchemaName}.f_values_are_different(a.description, t.target_column_description)
+							or ${mainSchemaName}.f_values_are_different(a.description, a.target_column_description)
 						)
 				)
 			)
