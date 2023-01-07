@@ -63,7 +63,8 @@ begin
 		;
 		
 		if l_subjob_count = 0 then
-			raise exception 'Neither subjob found for the scheduled task specified: %', i_scheduled_task_name;
+			raise warning 'Neither subjob found for the scheduled task specified: %', i_scheduled_task_name;
+			exit;
 		end if;
 
 		if l_failed_count > 0 then

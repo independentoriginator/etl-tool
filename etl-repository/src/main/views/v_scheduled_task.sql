@@ -38,7 +38,7 @@ select
 	, t.task_session_user
 	, target_task.run_as as target_task_session_user
 	, format(
-		$$perform ${mainSchemaName}.f_cancel_pgpro_scheduler_subjobs(i_scheduled_task_name => '%s')$$
+		$$select ${mainSchemaName}.f_cancel_pgpro_scheduler_subjobs(i_scheduled_task_name => '%s')$$
 		, t.scheduled_task_name
 	) as on_err_cmd
 	, target_task.onrollback as target_on_err_cmd

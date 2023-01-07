@@ -413,4 +413,12 @@
 		
 	</changeSet>
 	
+	<changeSet id="scheduled_task_subjob permissions" author="${default_author}">
+		
+		<sql dbms="postgresql">
+			grant select, insert, update, delete on ${stagingSchemaName}.scheduled_task_subjob to ${etlUserRole}; 
+		</sql>
+
+	</changeSet>
+	
 </databaseChangeLog>
