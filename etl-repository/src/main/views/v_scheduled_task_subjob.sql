@@ -43,3 +43,5 @@ join target_subjob
 where 
 	subjob.task_session_user = current_user
 ;
+
+grant select on ${stagingSchemaName}.v_scheduled_task_subjob to ${etlUserRole};
