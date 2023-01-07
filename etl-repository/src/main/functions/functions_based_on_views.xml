@@ -16,5 +16,15 @@
 			relativeToChangelogFile="true"/>
 		<rollback/>
 	</changeSet>
+	
+	<changeSet id="f_cancel_pgpro_scheduler_subjobs-function" author="${default_author}" runOnChange="true">
+		<sqlFile 
+			dbms="postgresql"
+			path="f_cancel_pgpro_scheduler_subjobs.sql"
+	        relativeToChangelogFile="true"
+	        splitStatements="false"
+	        stripComments="false"/>
+		<rollback/>
+	</changeSet>
         	        	
 </databaseChangeLog>

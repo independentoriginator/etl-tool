@@ -10,6 +10,9 @@ select
 	, t.status
 	, t.message
 from 
-	${mainSchemaName}.f_pgpro_scheduler_job_log() t
+	${mainSchemaName}.f_pgpro_scheduler_job_log(
+		i_job_id => null
+		, i_job_name => null
+	) t
 ;
 

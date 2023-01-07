@@ -33,7 +33,25 @@ $proc$
 			, submit_time::date
 		)::integer >= i_record_expiration_age_in_months
 	;
-	
+
+	delete from 
+		schedule.at_jobs_process
+	where 
+		${mainSchemaName}.f_months_between(
+			current_date
+			, submit_time::date
+		)::integer >= i_record_expiration_age_in_months
+	;
+
+	delete from 
+		schedule.at_jobs_submitted
+	where 
+		${mainSchemaName}.f_months_between(
+			current_date
+			, submit_time::date
+		)::integer >= i_record_expiration_age_in_months
+	;
+
 	$proc_body$
 else
 	$proc_body$
