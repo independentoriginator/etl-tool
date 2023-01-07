@@ -53,6 +53,7 @@ $func$
 				${mainSchemaName}.scheduled_task_stage t
 			where 
 				t.id = i_scheduled_task_stage_id
+			;
 		end if;
 	end if;
 		
