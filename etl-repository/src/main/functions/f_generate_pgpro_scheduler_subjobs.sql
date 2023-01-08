@@ -19,7 +19,7 @@ declare
 	l_subjob_id ${type.id};
 	l_prev_iteration_subjobs ${type.id}[];
 	l_command text;
-	l_user name := current_user;
+	l_user name := session_user;
 begin
 	%s
 end
@@ -100,7 +100,7 @@ $func$
 			l_subjob_id
 			, i_scheduled_task_stage_id
 			, i_iteration_number
-			, current_user
+			, l_user
 		);
 	end loop;	
 	$func_body$
