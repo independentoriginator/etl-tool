@@ -412,6 +412,49 @@
 			referencedColumnNames="id" />
 		
 	</changeSet>
+
+	<changeSet id="scheduled_task_subjob differentiate for users: non-successful decision" author="${default_author}">
+
+		<dropTable tableName="scheduled_task_subjob" schemaName="${stagingSchemaName}" cascadeConstraints="true"/>
+			
+		<createTable tableName="scheduled_task_subjob" schemaName="${stagingSchemaName}" remarks="Scheduled task subjob">
+			<column name="id" type="${type.id}" remarks="Identifier">
+				<constraints nullable="false" />
+			</column>
+			<column name="scheduled_task_stage_id" type="${type.id}" remarks="Scheduled task stage identifier">
+				<constraints nullable="false" />
+			</column>
+			<column name="iteration_number" type="integer" remarks="Iteration number">
+				<constraints nullable="false" />
+			</column>
+		</createTable>
+			
+		<addPrimaryKey 
+			constraintName="pk_scheduled_task_subjob" 
+			tableName="scheduled_task_subjob"
+			schemaName="${stagingSchemaName}" 
+			columnNames="id, scheduled_task_stage_id" />
+			
+		<createIndex 
+			indexName="i_scheduled_task_subjob$scheduled_task_stage_id" 
+			tableName="scheduled_task_subjob"
+			schemaName="${stagingSchemaName}" >
+			<column name="scheduled_task_stage_id" />
+		</createIndex>
+
+		<addForeignKeyConstraint 
+			constraintName="fk_scheduled_task_subjob$scheduled_task_stage_id"
+			baseTableName="scheduled_task_subjob"
+		 	baseTableSchemaName="${stagingSchemaName}" 
+			baseColumnNames="scheduled_task_stage_id" 
+			referencedTableName="scheduled_task_stage" 
+			referencedColumnNames="id" />
+			
+		<sql dbms="postgresql">
+			grant select, insert, update, delete on ${stagingSchemaName}.scheduled_task_subjob to ${etlUserRole}; 
+		</sql>
+		
+	</changeSet>
 	
 	<changeSet id="scheduled_task_subjob permissions" author="${default_author}">
 		

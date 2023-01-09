@@ -19,7 +19,6 @@ declare
 	l_subjob_id ${type.id};
 	l_prev_iteration_subjobs ${type.id}[];
 	l_command text;
-	l_user name := session_user;
 begin
 	%s
 end
@@ -40,7 +39,6 @@ $func$
 			${stagingSchemaName}.scheduled_task_subjob
 		where 
 			scheduled_task_stage_id = i_scheduled_task_stage_id
-			and task_session_user = l_user
 		;
 	elsif i_iteration_number < 0 then
 		raise exception 'Invalid iteration number specified: %', i_iteration_number;
@@ -59,7 +57,6 @@ $func$
 			on subjob.scheduled_task_stage_id = task_stage.id
 			and i_iteration_number > 0
 			and subjob.iteration_number = i_iteration_number - 1 
-			and subjob.task_session_user = l_user
 		where
 			task_stage.id = i_scheduled_task_stage_id
 		union all
@@ -73,7 +70,6 @@ $func$
 			and prev_task_stage.is_disabled = false
 		join ${stagingSchemaName}.scheduled_task_subjob subjob
 			on subjob.scheduled_task_stage_id = prev_task_stage.id 
-			and subjob.task_session_user = l_user
 		where
 			task_stage.id = i_scheduled_task_stage_id
 	) subjob
@@ -94,13 +90,11 @@ $func$
 			id
 			, scheduled_task_stage_id
 			, iteration_number
-			, task_session_user
 		)
 		values(
 			l_subjob_id
 			, i_scheduled_task_stage_id
 			, i_iteration_number
-			, l_user
 		);
 	end loop;	
 	$func_body$

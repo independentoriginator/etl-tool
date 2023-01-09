@@ -40,8 +40,6 @@ join ${mainSchemaName}.scheduler_type scheduler_type
 join target_subjob
 	on target_subjob.id = subjob.id
 	and target_subjob.scheduler_type_name = scheduler_type.internal_name 
-where 
-	subjob.task_session_user = session_user
 ;
 
 grant select on ${stagingSchemaName}.v_scheduled_task_subjob to ${etlUserRole};
