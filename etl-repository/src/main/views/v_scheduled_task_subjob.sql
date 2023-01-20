@@ -8,14 +8,16 @@ with
 			'pgpro_scheduler' as scheduler_type_name
 			, t.id
 			, t.command
+			, t.submit_time
 			, t.start_time
 			, t.finish_time
 			, t.run_duration 
 			, t.is_completed
 			, t.is_failed
+			, t.is_canceled
 			, t.err_descr
 		from 
-			${stagingSchemaName}.v_pgpro_scheduler_subjob t
+			${mainSchemaName}.f_pgpro_scheduler_subjob() t
 	)
 select
 	scheduled_task_stage.scheduled_task_id
@@ -23,11 +25,13 @@ select
 	, target_subjob.scheduler_type_name
 	, target_subjob.id
 	, target_subjob.command
+	, target_subjob.submit_time
 	, target_subjob.start_time
 	, target_subjob.finish_time
 	, target_subjob.run_duration 
 	, target_subjob.is_completed
 	, target_subjob.is_failed
+	, target_subjob.is_canceled
 	, target_subjob.err_descr
 from 
 	${stagingSchemaName}.scheduled_task_subjob subjob

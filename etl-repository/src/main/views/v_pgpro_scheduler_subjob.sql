@@ -3,11 +3,13 @@ as
 select 
 	t.id
 	, t.command
+	, t.submit_time
 	, t.start_time
 	, t.finish_time
 	, t.run_duration 
 	, t.is_completed
 	, t.is_failed
+	, t.is_canceled
 	, t.err_descr
 from 
 	${mainSchemaName}.f_pgpro_scheduler_subjob() t
