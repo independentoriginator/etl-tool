@@ -16,6 +16,8 @@ with
 			, t.is_failed
 			, t.is_canceled
 			, t.err_descr
+			, t.executor
+			, t.owner
 		from 
 			${mainSchemaName}.f_pgpro_scheduler_subjob() t
 	)
@@ -33,6 +35,8 @@ select
 	, target_subjob.is_failed
 	, target_subjob.is_canceled
 	, target_subjob.err_descr
+	, target_subjob.executor
+	, target_subjob.owner
 from 
 	${stagingSchemaName}.scheduled_task_subjob subjob
 join ${mainSchemaName}.scheduled_task_stage scheduled_task_stage

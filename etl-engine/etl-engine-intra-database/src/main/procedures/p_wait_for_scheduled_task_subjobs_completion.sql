@@ -75,7 +75,7 @@ begin
 			exit;
 		end if;
 		
-		if extract(hours from clock_timestamp() - l_start_timestamp) >= i_timeout_in_hours then
+		if extract(hours from clock_timestamp() - l_start_timestamp)::integer >= i_timeout_in_hours then
 			raise exception 'Timeout occured while waiting for the scheduled task completion: %', i_scheduled_task_name;
 		end if;
 			

@@ -11,6 +11,8 @@ select
 	, t.is_failed
 	, t.is_canceled
 	, t.err_descr
+	, t.executor
+	, t.owner
 from 
 	${mainSchemaName}.f_pgpro_scheduler_subjob() t
 ;

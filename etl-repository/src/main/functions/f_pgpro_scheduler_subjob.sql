@@ -13,8 +13,11 @@ returns table(
 	, is_failed boolean
 	, is_canceled boolean	
 	, err_descr text
+	, executor text
+	, owner text
 )
 language sql
+security definer
 as $function$
 %s
 $function$;			
@@ -26,21 +29,59 @@ $func$
 	$func_body$
 	select 
 		t.id
-		, t.query as command
+		, t.do_sql as command
 		, t.submit_time
 		, t.start_time
 		, t.done_time as finish_time
 		, t.done_time - t.start_time as run_duration 
-		, case when t.status = 'done' or t.canceled then true else false end as is_completed
+		, case when t.status or t.canceled then true else false end as is_completed
 		, case
-			when t.status = 'done' and not t.is_success then true 
+			when not t.status then true 
 			else false 
 		end as is_failed
 		, t.canceled as is_canceled
-		, t.error as err_descr
+		, t.reason as err_descr
+		, t.executor 
+		, t.owner 
 	from 
-		schedule.job_status t
-	where 
+		schedule.at_jobs_done t
+	where
+		t.id = i_subjob_id or i_subjob_id is null
+	union all
+	select 
+		t.id
+		, t.do_sql as command
+		, t.submit_time
+		, t.start_time
+		, null::timestamp with time zone as finish_time
+		, null::interval as run_duration 
+		, false as is_completed
+		, null::boolean as is_failed
+		, t.canceled as is_canceled
+		, null::text as err_descr
+		, t.executor 
+		, t.owner 
+	from 
+		schedule.at_jobs_process t
+	where
+		t.id = i_subjob_id or i_subjob_id is null
+	union all
+	select 
+		t.id
+		, t.do_sql as command
+		, t.submit_time
+		, null::timestamp with time zone as start_time
+		, null::timestamp with time zone as finish_time
+		, null::interval as run_duration 
+		, false as is_completed
+		, null::boolean as is_failed
+		, t.canceled as is_canceled
+		, null::text as err_descr
+		, t.executor 
+		, t.owner 
+	from 
+		schedule.at_jobs_submitted t
+	where
 		t.id = i_subjob_id or i_subjob_id is null
 	$func_body$
 else
@@ -56,6 +97,8 @@ else
 		, null::boolean as is_failed
 		, null::boolean as is_canceled
 		, null::text as err_descr
+		, null::text as executor 
+		, null::text as owner 
 	where 
 		false
 	$func_body$
