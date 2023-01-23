@@ -97,10 +97,10 @@
 		<rollback/>
 	</changeSet>
 	
-	<changeSet id="p_truncate_xsd_target_staging_tables-procedure" author="${default_author}" runOnChange="true">
+	<changeSet id="p_clean_xsd_target_staging_tables-procedure" author="${default_author}" runOnChange="true">
 		<sqlFile 
 			dbms="postgresql"
-			path="p_truncate_xsd_target_staging_tables.sql"
+			path="p_clean_xsd_target_staging_tables.sql"
 	        relativeToChangelogFile="true"
 	        splitStatements="false"
 	        stripComments="false"/>
