@@ -1,7 +1,3 @@
-drop procedure p_truncate_xsd_target_staging_tables(
-	${mainSchemaName}.xsd_transformation.internal_name%type
-);
-
 create or replace procedure p_clean_xsd_target_staging_tables(
 	i_xsd_transformation_name ${mainSchemaName}.xsd_transformation.internal_name%type
 	, i_perform_truncation boolean = false
