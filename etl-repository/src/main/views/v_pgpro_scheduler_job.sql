@@ -11,6 +11,7 @@ select
 	, t.use_same_transaction
 	, t.run_as
 	, t.onrollback
+	, t.max_run_time
 	, t.is_disabled
 from 
 	${mainSchemaName}.f_pgpro_scheduler_job() t

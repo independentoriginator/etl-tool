@@ -12,6 +12,7 @@ with
 			, t.use_same_transaction
 			, t.run_as
 			, t.onrollback
+			, t.max_run_time
 			, t.is_disabled
 		from 
 			${mainSchemaName}.v_pgpro_scheduler_job t
@@ -42,6 +43,8 @@ select
 		, t.scheduled_task_name
 	) as on_err_cmd
 	, target_task.onrollback as target_on_err_cmd
+	, make_interval(hours => t.timeout_in_hours) as max_run_time
+	, target_task.max_run_time as target_max_run_time
 	, t.is_disabled
 	, target_task.is_disabled as is_target_job_disabled
 	, case when t.is_built and target_task.id is not null then true else false end as is_built
@@ -63,6 +66,7 @@ from (
 		) as cron_expr
 		, commands.command_string
 		, st.task_session_user
+		, st.timeout_in_hours
 		, sch_type.internal_name as scheduler_type_name
 		, p.internal_name as project_name
 		, p.internal_name || '.' || st.internal_name as scheduled_task_name

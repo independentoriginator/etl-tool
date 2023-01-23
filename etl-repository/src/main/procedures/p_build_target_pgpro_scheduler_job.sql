@@ -30,6 +30,7 @@ $proc$
 					, 'cron', i_job_rec.cron_expr
 					, 'run_as', i_job_rec.task_session_user
 					, 'onrollback', i_job_rec.on_err_cmd
+					, 'max_run_time', i_job_rec.max_run_time
 				)
 			);
 	else
@@ -104,6 +105,18 @@ $proc$
 					jobid => l_job_id
 					, name => 'onrollback'::text
 					, value => i_job_rec.on_err_cmd
+				);
+		end if;	
+	
+		if ${mainSchemaName}.f_values_are_different(
+			i_left => i_job_rec.max_run_time
+			, i_right => i_job_rec.target_max_run_time
+		) then
+			perform 
+				schedule.set_job_attribute(
+					jobid => l_job_id
+					, name => 'max_run_time'::text
+					, value => i_job_rec.max_run_time::text
 				);
 		end if;	
 	end if;

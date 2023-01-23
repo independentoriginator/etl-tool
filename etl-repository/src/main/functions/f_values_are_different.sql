@@ -125,3 +125,19 @@ select
 		else false
 	end
 $function$;		
+
+create or replace function f_values_are_different(
+	i_left interval
+	, i_right interval
+)
+returns boolean
+language sql
+immutable
+parallel safe
+as $function$
+select 
+	case 
+		when nullif(i_left, i_right) is not null or (i_left is null and i_right is not null) then true
+		else false
+	end
+$function$;		

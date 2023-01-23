@@ -11,6 +11,7 @@ returns table(
 	, use_same_transaction boolean
 	, run_as text
 	, onrollback text
+	, max_run_time interval
 	, is_disabled boolean
 )
 language sql
@@ -33,6 +34,7 @@ $func$
 		, t.use_same_transaction
 		, t.run_as
 		, t.onrollback
+		, t.max_run_time
 		, case when t.active then false else true end as is_disabled
 	from 
 		schedule.get_owned_cron() t
@@ -50,6 +52,7 @@ else
 		, null::boolean as use_same_transaction
 		, null::text as run_as
 		, null::text as onrollback
+		, null::interval as max_run_time
 		, null::boolean as is_disabled
 	where 
 		false
