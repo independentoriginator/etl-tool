@@ -18,6 +18,7 @@ select
 				) log
 			where 
 				log.status = 'done'
+				and log.started is not null
 			order by 
 				log.started desc
 			limit 1					
