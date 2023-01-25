@@ -76,7 +76,7 @@ begin
 			raise notice 'Creating table %...', l_table_rec.table_name;
 			execute format('
 				create table %I.%I(
-					_data_package_id ${type.id} not null references %I._data_package(id)
+					_data_package_id ${type.id} not null references %I._data_package(id) on delete cascade
 				);
 
 				create index i_%s$data_package_id on %I.%I(_data_package_id);
