@@ -1,5 +1,7 @@
 do $plpgsql$
 begin
+	drop function if exists f_pgpro_scheduler_job(integer) cascade;
+
 execute format($func$
 create or replace function f_pgpro_scheduler_job(i_job_id integer = null)
 returns table(
@@ -12,6 +14,8 @@ returns table(
 	, run_as text
 	, onrollback text
 	, max_run_time interval
+	, next_time_statement text
+	, last_start_available interval
 	, is_disabled boolean
 )
 language sql
@@ -35,6 +39,8 @@ $func$
 		, t.run_as
 		, t.onrollback
 		, t.max_run_time
+		, t.next_time_statement
+		, t.last_start_available
 		, case when t.active then false else true end as is_disabled
 	from 
 		schedule.get_owned_cron() t
@@ -53,6 +59,8 @@ else
 		, null::text as run_as
 		, null::text as onrollback
 		, null::interval as max_run_time
+		, null::text as next_time_statement
+		, null::interval as last_start_available
 		, null::boolean as is_disabled
 	where 
 		false

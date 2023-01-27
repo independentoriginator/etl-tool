@@ -275,6 +275,33 @@
 		</addColumn> 
 
 	</changeSet>
+	
+	<changeSet id="scheduled_task delayed_start_timeout_in_hours" author="${default_author}">
+
+		<addColumn tableName="scheduled_task">
+			<column 
+				name="delayed_start_timeout_in_hours" 
+				type="integer"
+				remarks="Delayed start timeout in hours"
+				defaultValue="6">
+				<constraints nullable="true" />
+			</column>
+		</addColumn> 
+
+	</changeSet>
+
+	<changeSet id="scheduled_task next_start_time_calc_sttmnt" author="${default_author}">
+
+		<addColumn tableName="scheduled_task">
+			<column 
+				name="next_start_time_calc_sttmnt" 
+				type="clob"
+				remarks="Next start time calculation statement">
+				<constraints nullable="true" />
+			</column>
+		</addColumn> 
+
+	</changeSet>
 
 	<changeSet id="scheduled_task_stage execution parameters schould not have default values" author="${default_author}">
 

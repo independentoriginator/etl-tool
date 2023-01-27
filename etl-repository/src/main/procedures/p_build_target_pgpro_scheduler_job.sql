@@ -31,6 +31,8 @@ $proc$
 					, 'run_as', i_job_rec.task_session_user
 					, 'onrollback', i_job_rec.on_err_cmd
 					, 'max_run_time', i_job_rec.max_run_time
+					, 'last_start_available', i_job_rec.delayed_start_timeout
+					, 'next_time_statement', i_job_rec.next_start_time_calc_sttmnt
 				)
 			);
 	else
@@ -117,6 +119,30 @@ $proc$
 					jobid => l_job_id
 					, name => 'max_run_time'::text
 					, value => i_job_rec.max_run_time::text
+				);
+		end if;	
+	
+		if ${mainSchemaName}.f_values_are_different(
+			i_left => i_job_rec.delayed_start_timeout
+			, i_right => i_job_rec.target_delayed_start_timeout
+		) then
+			perform 
+				schedule.set_job_attribute(
+					jobid => l_job_id
+					, name => 'last_start_available'::text
+					, value => i_job_rec.delayed_start_timeout::text
+				);
+		end if;	
+	
+		if ${mainSchemaName}.f_values_are_different(
+			i_left => i_job_rec.next_start_time_calc_sttmnt
+			, i_right => i_job_rec.target_next_start_time_calc_sttmnt
+		) then
+			perform 
+				schedule.set_job_attribute(
+					jobid => l_job_id
+					, name => 'next_time_statement'::text
+					, value => i_job_rec.next_start_time_calc_sttmnt
 				);
 		end if;	
 	end if;

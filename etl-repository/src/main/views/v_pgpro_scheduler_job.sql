@@ -12,6 +12,8 @@ select
 	, t.run_as
 	, t.onrollback
 	, t.max_run_time
+	, t.next_time_statement
+	, t.last_start_available
 	, t.is_disabled
 from 
 	${mainSchemaName}.f_pgpro_scheduler_job() t
