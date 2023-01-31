@@ -1,4 +1,6 @@
-create or replace view v_scheduled_task
+drop view if exists v_scheduled_task;
+
+create view v_scheduled_task
 as
 with 
 	target_scheduled_task as (
@@ -49,8 +51,10 @@ select
 	, target_task.max_run_time as target_max_run_time
 	, make_interval(hours => t.delayed_start_timeout_in_hours) as delayed_start_timeout
 	, target_task.last_start_available as target_delayed_start_timeout
-	, t.next_start_time_calc_sttmnt
+	, replace(t.next_start_time_calc_sttmnt, '{{scheduled_task_name}}', t.scheduled_task_name) as next_start_time_calc_sttmnt
 	, target_task.next_time_statement as target_next_start_time_calc_sttmnt
+	, t.retry_interval_in_minutes
+	, t.retry_max_count
 	, t.is_disabled
 	, target_task.is_disabled as is_target_job_disabled
 	, case when t.is_built and target_task.id is not null then true else false end as is_built
@@ -73,6 +77,8 @@ from (
 		, commands.command_string
 		, st.task_session_user
 		, st.next_start_time_calc_sttmnt
+		, st.retry_interval_in_minutes
+		, st.retry_max_count
 		, st.timeout_in_hours
 		, st.delayed_start_timeout_in_hours
 		, sch_type.internal_name as scheduler_type_name
