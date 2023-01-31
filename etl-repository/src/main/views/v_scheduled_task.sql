@@ -54,7 +54,6 @@ select
 	, replace(t.next_start_time_calc_sttmnt, '{{scheduled_task_name}}', t.scheduled_task_name) as next_start_time_calc_sttmnt
 	, target_task.next_time_statement as target_next_start_time_calc_sttmnt
 	, t.retry_interval_in_minutes
-	, t.retry_max_count
 	, t.is_disabled
 	, target_task.is_disabled as is_target_job_disabled
 	, case when t.is_built and target_task.id is not null then true else false end as is_built
@@ -78,7 +77,6 @@ from (
 		, st.task_session_user
 		, st.next_start_time_calc_sttmnt
 		, st.retry_interval_in_minutes
-		, st.retry_max_count
 		, st.timeout_in_hours
 		, st.delayed_start_timeout_in_hours
 		, sch_type.internal_name as scheduler_type_name
