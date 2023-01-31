@@ -15,7 +15,7 @@ $func$
 	$func_body$
 	select 
 		case 
-			when schedule.transaction_state = 'success' then true
+			when current_setting('schedule.transaction_state') = 'success' then true
 			else false
 		end
 	$func_body$
