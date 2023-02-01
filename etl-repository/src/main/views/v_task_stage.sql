@@ -66,6 +66,7 @@ with
 			, ts.stage_ordinal_position
 			, params.positional_arguments as transfer_positional_arguments
 		    , ts.preceding_transfer_id
+		    , ptr.id as master_transfer_id
 			, ptr.internal_name as master_transfer_name
 			, ptrt.internal_name as master_transfer_type_name
 		    , ps.internal_name as master_source_name
@@ -137,6 +138,7 @@ with
 			, t.stage_ordinal_position
 			, t.transfer_positional_arguments
 		    , t.preceding_transfer_id
+		    , t.master_transfer_id
 			, t.master_transfer_name
 			, t.master_transfer_type_name
 		    , t.master_source_name
@@ -178,6 +180,7 @@ with
 				, t.stage_ordinal_position
 				, t.transfer_positional_arguments
 			    , t.preceding_transfer_id
+			    , t.master_transfer_id
 				, t.master_transfer_name
 				, t.master_transfer_type_name
 			    , t.master_source_name
@@ -213,6 +216,7 @@ with
 				, t.stage_ordinal_position
 				, null as transfer_positional_arguments
 			    , t.preceding_transfer_id
+			    , t.transfer_id as master_transfer_id
 				, t.transfer_name as master_transfer_name
 				, t.transfer_type_name as master_transfer_type_name
 			    , t.source_name as master_source_name
@@ -252,6 +256,7 @@ select
 	, t.stage_ordinal_position
 	, t.transfer_positional_arguments
     , t.preceding_transfer_id
+    , t.master_transfer_id
 	, t.master_transfer_name
 	, t.master_transfer_type_name
     , t.master_source_name

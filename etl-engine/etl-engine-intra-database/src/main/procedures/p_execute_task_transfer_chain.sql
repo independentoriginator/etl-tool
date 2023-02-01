@@ -73,6 +73,7 @@ begin
 			, ts.stage_ordinal_position
 			, ts.transfer_positional_arguments
 		    , ts.preceding_transfer_id
+		    , ts.master_transfer_id
 			, ts.master_transfer_name
 			, ts.master_transfer_type_name
 		    , ts.master_source_name
@@ -138,7 +139,7 @@ begin
 						l_temp_table_name := 
 							${mainSchemaName}.f_extraction_temp_table_name(
 								i_task_id => i_task_id
-								, i_transfer_id => l_stage_rec.preceding_transfer_id
+								, i_transfer_id => l_stage_rec.master_transfer_id
 								, i_is_for_reexec => true
 							)::text
 							;
@@ -175,7 +176,7 @@ begin
 								, '{{master_recordset}}'
 								, ${mainSchemaName}.f_extraction_temp_table_name(
 									i_task_id => i_task_id
-									, i_transfer_id => l_stage_rec.preceding_transfer_id
+									, i_transfer_id => l_stage_rec.master_transfer_id
 									, i_is_for_reexec => false
 								)::text
 							);
@@ -228,7 +229,7 @@ begin
 				l_temp_table_name := 
 					${mainSchemaName}.f_extraction_temp_table_name(
 						i_task_id => i_task_id
-						, i_transfer_id => l_stage_rec.preceding_transfer_id
+						, i_transfer_id => l_stage_rec.master_transfer_id
 					);
 				
 				if l_stage_rec.source_name = 'this database' then
