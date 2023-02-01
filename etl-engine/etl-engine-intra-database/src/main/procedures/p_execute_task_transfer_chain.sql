@@ -49,6 +49,7 @@ begin
 			ts.task_id
 			, ts.task_name
 			, ts.project_name
+			, ts.transfer_project_name
 		    , ts.transfer_id
 			, ts.transfer_name
 			, ts.transfer_type_name
