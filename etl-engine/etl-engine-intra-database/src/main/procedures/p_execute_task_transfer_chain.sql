@@ -138,7 +138,7 @@ begin
 						l_temp_table_name := 
 							${mainSchemaName}.f_extraction_temp_table_name(
 								i_task_id => i_task_id
-								, i_transfer_name => l_stage_rec.master_transfer_name
+								, i_transfer_id => l_stage_rec.preceding_transfer_id
 								, i_is_for_reexec => true
 							)::text
 							;
@@ -175,7 +175,7 @@ begin
 								, '{{master_recordset}}'
 								, ${mainSchemaName}.f_extraction_temp_table_name(
 									i_task_id => i_task_id
-									, i_transfer_name => l_stage_rec.master_transfer_name
+									, i_transfer_id => l_stage_rec.preceding_transfer_id
 									, i_is_for_reexec => false
 								)::text
 							);
@@ -195,7 +195,7 @@ begin
 				l_temp_table_name := 
 					${mainSchemaName}.f_extraction_temp_table_name(
 						i_task_id => i_task_id
-						, i_transfer_name => l_stage_rec.transfer_name
+						, i_transfer_id => l_stage_rec.transfer_id
 						, i_is_for_reexec => case when l_stage_rec.reexec_results and not l_stage_rec.is_reexecution then true else false end 
 					);
 					
@@ -228,7 +228,7 @@ begin
 				l_temp_table_name := 
 					${mainSchemaName}.f_extraction_temp_table_name(
 						i_task_id => i_task_id
-						, i_transfer_name => l_stage_rec.master_transfer_name
+						, i_transfer_id => l_stage_rec.preceding_transfer_id
 					);
 				
 				if l_stage_rec.source_name = 'this database' then
