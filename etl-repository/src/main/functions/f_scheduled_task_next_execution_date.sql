@@ -16,7 +16,7 @@ join lateral ${mainSchemaName}.f_cron_expr_timestamps(
 		, i_time_to => 
 			case 
 				when t.scheduler_type_name = 'pgpro_scheduler' and not ${mainSchemaName}.f_is_pgpro_scheduler_curr_transaction_succeeded() then
-					make_interval(minutes => t.retry_interval_in_minutes)
+					current_timestamp + make_interval(mins => t.retry_interval_in_minutes)
 				else null 
 			end
 	) ts
