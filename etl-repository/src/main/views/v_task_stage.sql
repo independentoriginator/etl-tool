@@ -1,4 +1,6 @@
-create or replace view v_task_stage
+drop view if exists v_task_stage;
+
+create view v_task_stage
 as
 with 
 	recursive task_stage as (
@@ -45,6 +47,7 @@ with
 			, ts.task_id
 			, t.internal_name as task_name
 			, p.internal_name as project_name
+			, trp.internal_name as transfer_project_name
 		    , ts.transfer_id
 			, tr.internal_name as transfer_name
 			, trt.internal_name as transfer_type_name
@@ -80,6 +83,8 @@ with
 			on tr.id = ts.transfer_id
 		join ${mainSchemaName}.transfer_type trt 
 			on trt.id = tr.type_id
+		join ${mainSchemaName}.project trp 
+			on trp.id = tr.project_id
 		join ${mainSchemaName}.source s 
 			on s.id = tr.source_id
 		join ${mainSchemaName}.source_type st 
@@ -112,6 +117,7 @@ with
 			, t.task_id
 			, t.task_name
 			, t.project_name
+			, t.transfer_project_name
 		    , t.transfer_id
 			, t.transfer_name
 			, t.transfer_type_name
@@ -152,6 +158,7 @@ with
 				, t.task_id
 				, t.task_name
 				, t.project_name
+				, t.transfer_project_name
 			    , t.transfer_id
 				, t.transfer_name
 				, t.transfer_type_name
@@ -186,6 +193,7 @@ with
 				, t.task_id
 				, t.task_name
 				, t.project_name
+				, t.transfer_project_name
 			    , t.transfer_id
 				, t.transfer_name
 				, t.transfer_type_name
@@ -224,6 +232,7 @@ select
 	, t.task_id
 	, t.task_name
 	, t.project_name
+	, t.transfer_project_name
     , t.transfer_id
 	, t.transfer_name
 	, t.transfer_type_name

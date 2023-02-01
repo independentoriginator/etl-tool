@@ -241,7 +241,7 @@ begin
 					from 
 						${stagingSchemaName}.f_insert_data_package(
 							i_type_name => l_stage_rec.container
-							, i_source_name => l_stage_rec.project_name
+							, i_source_name => l_stage_rec.transfer_project_name
 							, i_is_deletion => l_stage_rec.is_deletion
 						)
 					;
