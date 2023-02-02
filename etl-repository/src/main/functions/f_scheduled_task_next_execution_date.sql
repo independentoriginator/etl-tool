@@ -5,6 +5,7 @@ returns timestamptz
 language sql
 stable
 parallel safe
+security definer
 as $function$
 select 
 	ts
