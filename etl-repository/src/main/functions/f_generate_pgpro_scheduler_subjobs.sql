@@ -29,29 +29,7 @@ $func$
 		i_scheduler_type_name => 'pgpro_scheduler'
 	) then 
 	$func_body$
-	if i_iteration_number = 0 then
-		-- Cancel incompleted subjobs from the previous session
-		perform ${mainSchemaName}.f_cancel_pgpro_scheduler_subjobs(
-			i_scheduled_task_stage_id => i_scheduled_task_stage_id
-		);
-	
-		delete from 
-			${stagingSchemaName}.scheduled_task_subjob
-		where 
-			scheduled_task_stage_id in (
-				select 
-					prev_session_task_stage.id
-				from 
-					${mainSchemaName}.scheduled_task_stage task_stage
-				join ${mainSchemaName}.scheduled_task_stage prev_session_task_stage
-					on prev_session_task_stage.scheduled_task_id = task_stage.scheduled_task_id
-					and prev_session_task_stage.ordinal_position >= task_stage.ordinal_position
-					and prev_session_task_stage.is_disabled = false
-				where
-					task_stage.id = i_scheduled_task_stage_id
-			)
-		;
-	elsif i_iteration_number < 0 then
+	if i_iteration_number < 0 then
 		raise exception 'Invalid iteration number specified: %', i_iteration_number;
 	end if;
 

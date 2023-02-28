@@ -8,6 +8,24 @@
         http://www.liquibase.org/xml/ns/dbchangelog 
         http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.1.xsd">
 
+	<changeSet id="f_scheduled_task_id-function" author="${default_author}" runOnChange="true">
+		<createProcedure 
+			procedureName="f_scheduled_task_id" 
+			dbms="postgresql" 
+			path="f_scheduled_task_id.sql" 
+			relativeToChangelogFile="true"/>
+		<rollback/>
+	</changeSet>
+
+	<changeSet id="f_scheduled_task_stage_id-function" author="${default_author}" runOnChange="true">
+		<createProcedure 
+			procedureName="f_scheduled_task_stage_id" 
+			dbms="postgresql" 
+			path="f_scheduled_task_stage_id.sql" 
+			relativeToChangelogFile="true"/>
+		<rollback/>
+	</changeSet>
+
 	<changeSet id="f_scheduled_task_last_execution_date-function" author="${default_author}" runOnChange="true">
 		<createProcedure 
 			procedureName="f_scheduled_task_last_execution_date" 

@@ -29,21 +29,10 @@ $func$
 	$func_body$
 	if l_scheduled_task_id is null then
 		if i_scheduled_task_stage_id is null then
-			select 
-				t.id
-			into 
-				l_scheduled_task_id
-			from 
-				${mainSchemaName}.scheduled_task t
-			join ${mainSchemaName}.project p
-				on p.id = t.project_id
-				and p.internal_name = regexp_replace(i_scheduled_task_name, '(.+)\.(.+)', '\1')
-			join ${mainSchemaName}.scheduler_type st
-				on st.id = t.scheduler_type_id
-				and st.internal_name = 'pgpro_scheduler'
-			where 
-				t.internal_name = regexp_replace(i_scheduled_task_name, '(.+)\.(.+)', '\2')
-			;
+			l_scheduled_task_id := 
+				${mainSchemaName}.f_scheduled_task_id(
+					i_scheduled_task_name => i_scheduled_task_name
+				);
 		else
 			select 
 				t.scheduled_task_id
