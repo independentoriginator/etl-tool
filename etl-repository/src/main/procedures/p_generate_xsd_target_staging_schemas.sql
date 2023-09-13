@@ -70,10 +70,21 @@ begin
 	
 				create index if not exists i_data_package$xsd_transformation_id on %I._data_package(xsd_transformation_id);
 				create unique index if not exists ui_data_package$external_id on %I._data_package(external_id);
+
+				comment on table %I._data_package is $comment$Пакеты данных$comment$;
+				comment on column %I._data_package.id is $comment$Идентификатор пакета данных$comment$;
+				comment on column %I._data_package.xsd_transformation_id is $comment$Идентификатор трансформации XSD$comment$;
+				comment on column %I._data_package.external_id is $comment$Внешний идентификатор пакета данных$comment$;
+				comment on column %I._data_package.load_date is $comment$Дата загрузки$comment$;
 				'
 				, l_rec.target_staging_schema
 				, l_rec.target_staging_schema 
 				, l_rec.target_staging_schema				
+				, l_rec.target_staging_schema
+				, l_rec.target_staging_schema
+				, l_rec.target_staging_schema
+				, l_rec.target_staging_schema
+				, l_rec.target_staging_schema
 			);	
 	
 		if l_is_etl_role_used
