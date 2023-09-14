@@ -8,3 +8,5 @@ begin
 	return new;
 end
 $$;			
+
+comment on function trf_scheduled_task_before_update() is 'Плановое задание. Триггерная функция для события "Перед обновлением"';

@@ -106,4 +106,6 @@ begin
 		;
 	end loop;
 end
-$procedure$;			
+$procedure$;	
+
+comment on procedure p_generate_xsd_target_staging_schemas() is 'XSD. Генерация целевых схем для промежуточных данных';

@@ -16,3 +16,5 @@ select
 from 
 	${mainSchemaName}.f_pgpro_scheduler_subjob() t
 ;
+
+comment on view ${stagingSchemaName}.v_pgpro_scheduler_subjob is 'Подзадачи плановых заданий pgpro_scheduler';

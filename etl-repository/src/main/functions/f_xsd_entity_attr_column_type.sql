@@ -29,4 +29,8 @@ select
 				else 'text'
 			end	
 	end
-$function$;		
+$function$;	
+
+comment on function f_xsd_entity_attr_column_type(
+	${mainSchemaName}.xsd_entity_attr
+) is 'XSD. Тип столбца для атрибута сущности';

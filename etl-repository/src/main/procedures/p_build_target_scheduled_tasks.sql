@@ -32,3 +32,5 @@ begin
 	end loop;
 end
 $procedure$;			
+
+comment on procedure p_build_target_scheduled_tasks() is 'Генерация целевых плановых заданий';

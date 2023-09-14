@@ -20,7 +20,13 @@ declare
 begin
 	%s
 end
-$function$;			
+$function$;		
+
+comment on function f_cancel_pgpro_scheduler_subjobs(
+	${mainSchemaName}.scheduled_task.id%%type 
+	, text
+	, ${mainSchemaName}.scheduled_task_stage.id%%type 
+) is 'Отмена подзадач планового задания pgpro_scheduler';
 $func$
 , case 
 	when ${mainSchemaName}.f_is_scheduler_type_available(
@@ -77,4 +83,4 @@ else
 end
 );
 end
-$plpgsql$;							
+$plpgsql$;

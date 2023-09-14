@@ -50,4 +50,6 @@ join target_subjob
 	and target_subjob.scheduler_type_name = scheduler_type.internal_name 
 ;
 
+comment on view ${stagingSchemaName}.v_scheduled_task_subjob is 'Подзадачи плановых заданий';
+
 grant select on ${stagingSchemaName}.v_scheduled_task_subjob to ${etlUserRole};

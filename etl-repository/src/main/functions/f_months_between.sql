@@ -20,3 +20,8 @@ select
 			(extract(day from $1) - extract(day from $2)) / 31.0
 	end
 $function$;		
+
+comment on function f_months_between(
+	date
+	, date
+) is 'Кол-во месяцев между датами';

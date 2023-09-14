@@ -9,7 +9,11 @@ as $procedure$
 begin
 	%s
 end
-$procedure$;			
+$procedure$;	
+
+comment on procedure p_clean_pgpro_scheduler_log(
+	integer
+) is 'Очистка журнала исполнения планировщика заданий pgpro_scheduler';
 $proc$
 , case 
 	when ${mainSchemaName}.f_is_scheduler_type_available(

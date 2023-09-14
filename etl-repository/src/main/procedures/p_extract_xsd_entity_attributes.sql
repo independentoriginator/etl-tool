@@ -71,4 +71,8 @@ begin
 		and entity.path = a.entity_path
 	;
 end
-$procedure$;			
+$procedure$;	
+
+comment on procedure p_extract_xsd_entity_attributes(
+	${mainSchemaName}.xsd_transformation.id%type
+) is 'Извлечение атрибутов сущностей';

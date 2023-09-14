@@ -11,4 +11,8 @@ select
 		i_str_as_prefix_number_suffix, 
 		'(?:(.*?)((?:-\s*)*(?:(?:\d\s)*(?:\d*[.,]*\d+)+\s*(?:\d*[.,]*\d+)*)+(?:[eE]{1}[+-]*\d+)*)(.*)){1,1}'
 	);
-$function$;		
+$function$;
+
+comment on function f_extract_number(
+	text
+) is 'Извлечение числа из текстовой строки';

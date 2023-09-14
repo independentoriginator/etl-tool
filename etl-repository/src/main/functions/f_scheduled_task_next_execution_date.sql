@@ -27,4 +27,8 @@ where
 order by 
 	1
 limit 1
-$function$;		
+$function$;
+
+comment on function f_scheduled_task_next_execution_date(
+	${mainSchemaName}.v_scheduled_task.scheduled_task_name%type
+) is 'Плановая дата следующего выполнения планового задания';

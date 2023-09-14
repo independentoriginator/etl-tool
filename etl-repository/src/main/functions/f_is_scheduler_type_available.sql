@@ -19,3 +19,7 @@ select
 		else false
 	end 
 $function$;		
+
+comment on function f_is_scheduler_type_available(
+	${mainSchemaName}.scheduler_type.internal_name%type
+) is 'Признак доступности типа планировщика заданий';

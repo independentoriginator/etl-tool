@@ -253,4 +253,10 @@ from (
 join time_interval 
 	on time_interval.time_from <= t.value
 	and (time_interval.time_to >= t.value or time_interval.time_to is null)
-$function$;		
+$function$;	
+
+comment on function f_cron_expr_timestamps(
+	text
+	, timestamptz
+	, timestamptz
+) is 'Перечень временных меток на основе CRON-выражения';

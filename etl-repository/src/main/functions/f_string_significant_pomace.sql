@@ -9,3 +9,7 @@ as $function$
 select 
 	lower(nullif(regexp_replace(i_str, '\W', '', 'g'), ''))
 $function$;		
+
+comment on function f_string_significant_pomace(
+	text
+) is 'Значимая выжимка из строки';

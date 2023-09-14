@@ -23,3 +23,7 @@ begin
 	end loop;
 end
 $procedure$;			
+
+comment on procedure p_clean_staging_data(
+	integer
+) is 'Очистка промежуточных данных';

@@ -25,4 +25,9 @@ select
 		) + 1,
 		0
 	)
-$function$;		
+$function$;
+
+comment on function f_xsd_entity_dependency_level(
+	${mainSchemaName}.xsd_transformation.id%type
+	, ${mainSchemaName}.xsd_entity.path%type
+) is 'XSD. Уровень зависимости сущности';

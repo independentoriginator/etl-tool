@@ -23,6 +23,12 @@ begin
 	%s
 end
 $function$;			
+
+comment on function f_generate_pgpro_scheduler_subjobs(
+	${mainSchemaName}.scheduled_task_stage.id%%type 
+	, ${stagingSchemaName}.scheduled_task_subjob.iteration_number%%type
+	, text[]
+) is 'Генерация подзадач планового задания pgpro_scheduler';	
 $func$
 , case 
 	when ${mainSchemaName}.f_is_scheduler_type_available(
@@ -94,4 +100,4 @@ else
 end
 );
 end
-$plpgsql$;		
+$plpgsql$;

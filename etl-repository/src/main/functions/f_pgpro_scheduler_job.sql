@@ -22,7 +22,9 @@ language sql
 security definer
 as $function$
 %s
-$function$;			
+$function$;		
+
+comment on function f_pgpro_scheduler_job(integer) is 'Плановые задания pgpro_scheduler';
 $func$
 , case 
 	when ${mainSchemaName}.f_is_scheduler_type_available(

@@ -134,3 +134,5 @@ left join target_scheduled_task target_task
 	on target_task.name = t.job_name
 	and target_task.scheduler_type_name = t.scheduler_type_name
 ;
+
+comment on view v_scheduled_task is 'Плановые задания';

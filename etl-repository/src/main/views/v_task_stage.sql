@@ -289,4 +289,6 @@ where
 	)
 ;
 
+comment on view v_task_stage is 'Этапы задач';
+
 grant select on v_task_stage to ${etlUserRole};

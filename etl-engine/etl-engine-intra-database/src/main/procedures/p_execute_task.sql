@@ -112,4 +112,14 @@ begin
 		, i_wait_for_delay_in_seconds => i_wait_for_delay_in_seconds
 	);	
 end
-$procedure$;			
+$procedure$;		
+
+comment on procedure p_execute_task(
+	${mainSchemaName}.task.internal_name%type
+	, ${mainSchemaName}.project.internal_name%type
+	, text
+	, text
+	, integer
+	, integer
+	, integer
+) is 'Исполнение задачи';

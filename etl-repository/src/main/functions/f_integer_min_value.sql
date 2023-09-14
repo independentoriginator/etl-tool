@@ -18,3 +18,7 @@ as $function$
 select 
 	((i_value - i_value) - 1) << (8 * pg_column_size(i_value) - 1)
 $function$;		
+
+comment on function f_integer_min_value(
+	anyelement
+) is 'Минимально возможное целое число';

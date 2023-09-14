@@ -14,3 +14,7 @@ from
 		, 'g'
 	)
 $function$;		
+
+comment on function f_xsd_path_nesting_level(
+	text
+) is 'XSD. Уровень вложенности пути XPath';

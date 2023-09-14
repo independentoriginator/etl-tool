@@ -78,4 +78,8 @@ begin
 		end if;
 	end loop;
 end
-$procedure$;			
+$procedure$;	
+
+comment on procedure p_generate_xsd_target_staging_table_columns(
+	${mainSchemaName}.xsd_entity.id%type
+) is 'Генерация столбцов целевых промежуточных таблиц';

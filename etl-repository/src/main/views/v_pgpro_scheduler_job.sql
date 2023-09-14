@@ -19,3 +19,4 @@ from
 	${mainSchemaName}.f_pgpro_scheduler_job() t
 ;						
 			
+comment on view v_pgpro_scheduler_job is 'Плановые задания pgpro_scheduler';

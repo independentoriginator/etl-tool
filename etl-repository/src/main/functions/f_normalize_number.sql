@@ -84,3 +84,13 @@ exception
 		return null::numeric;
 end
 $function$;		
+
+comment on function f_normalize_number(
+	text
+	, text
+	, boolean
+	, text
+	, boolean
+	, integer
+	, integer
+) is 'Нормализация числа';

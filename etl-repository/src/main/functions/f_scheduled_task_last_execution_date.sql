@@ -28,4 +28,8 @@ from
 	${mainSchemaName}.v_scheduled_task t
 where
 	t.scheduled_task_name = i_scheduled_task_name
-$function$;		
+$function$;
+
+comment on function f_scheduled_task_last_execution_date(
+	${mainSchemaName}.v_scheduled_task.scheduled_task_name%type
+) is 'Дата последнего успешного выполнения планового задания';

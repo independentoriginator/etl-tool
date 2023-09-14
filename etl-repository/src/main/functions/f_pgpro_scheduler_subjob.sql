@@ -21,6 +21,8 @@ security definer
 as $function$
 %s
 $function$;			
+
+comment on function f_pgpro_scheduler_subjob(bigint) is 'Подзадачи плановых заданий pgpro_scheduler';
 $func$
 , case 
 	when ${mainSchemaName}.f_is_scheduler_type_available(

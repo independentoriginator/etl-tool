@@ -122,4 +122,6 @@ left join information_schema.table_constraints fk_constraint
 	and fk_constraint.constraint_type = 'FOREIGN KEY'	
 ;
 
+comment on view v_xsd_entity is 'XSD-трансформация. Сущность';
+
 grant select on ${mainSchemaName}.v_xsd_entity to ${etlUserRole};

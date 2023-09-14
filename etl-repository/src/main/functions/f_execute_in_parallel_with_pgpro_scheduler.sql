@@ -39,3 +39,11 @@ begin
 	return true;
 end
 $function$;
+
+comment on function ${stagingSchemaName}.f_execute_in_parallel_with_pgpro_scheduler(
+	text
+	, integer
+	, text[]
+	, integer
+	, integer
+) is ' Исполнение перечня команд в параллельном режиме с помощью pgpro_scheduler';

@@ -6,7 +6,9 @@ returns boolean
 language sql
 as $function$
 %s
-$function$;			
+$function$;		
+
+comment on function f_is_pgpro_scheduler_curr_transaction_succeeded() is 'Признак завершения текущей транзакции pgpro_scheduler';
 $func$
 , case 
 	when ${mainSchemaName}.f_is_scheduler_type_available(

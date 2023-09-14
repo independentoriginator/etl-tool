@@ -228,4 +228,13 @@ when others then
 		, l_exception_context
 		;
 end
-$procedure$;			
+$procedure$;	
+
+comment on procedure p_load_xml_data(
+	${mainSchemaName}.xsd_transformation.id%type
+	, ${type.code}
+	, timestamp
+	, text[]
+	, xml
+	, boolean
+) is 'Загрузка XML-данных';

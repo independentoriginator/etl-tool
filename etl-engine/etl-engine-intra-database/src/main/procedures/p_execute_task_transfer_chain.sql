@@ -341,3 +341,14 @@ begin
 	end if;
 end
 $procedure$;			
+
+comment on procedure p_execute_task_transfer_chain(
+	${mainSchemaName}.task.id%type
+	, ${mainSchemaName}.transfer.id%type
+	, text
+	, text
+	, integer
+	, integer
+	, integer
+	, timestamptz
+) is 'Исполнение цепочки перемещений задачи';

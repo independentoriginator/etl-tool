@@ -185,4 +185,6 @@ left join lateral (
 	on true		
 ;
 
+comment on view v_xsd_entity_attr is 'XSD-трансформация. Атрибут сущности';
+
 grant select on ${mainSchemaName}.v_xsd_entity_attr to ${etlUserRole};

@@ -16,3 +16,7 @@ join ${mainSchemaName}.project p
 where 
 	t.internal_name = regexp_replace(i_scheduled_task_name, '(.+)\.(.+)', '\2')
 $function$;		
+
+comment on function f_scheduled_task_id(
+	${mainSchemaName}.v_scheduled_task.scheduled_task_name%type
+) is 'Идентификатор планового задания';

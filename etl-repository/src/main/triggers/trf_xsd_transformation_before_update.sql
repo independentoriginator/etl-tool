@@ -8,3 +8,5 @@ begin
 	return new;
 end
 $$;			
+
+comment on function trf_xsd_transformation_before_update() is 'XSD-трансформация. Триггерная функция для события "Перед обновлением"';

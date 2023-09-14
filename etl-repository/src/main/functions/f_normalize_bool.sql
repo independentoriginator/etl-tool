@@ -13,3 +13,7 @@ select
 		else null::boolean 
 	end
 $function$;		
+
+comment on function f_normalize_bool(
+	text
+) is 'Нормализация булева значения';

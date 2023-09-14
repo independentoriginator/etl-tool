@@ -99,4 +99,9 @@ begin
 	end loop
 	;
 end
-$procedure$;			
+$procedure$;
+
+comment on procedure p_clean_xsd_target_staging_tables(
+	${mainSchemaName}.xsd_transformation.internal_name%type
+	, boolean
+) is 'XSD. Очистка целевых промежуточных таблиц';

@@ -237,4 +237,8 @@ begin
 		
 	end loop;
 end
-$procedure$;			
+$procedure$;	
+
+comment on procedure p_generate_xsd_target_staging_tables(
+	${mainSchemaName}.xsd_transformation.id%type
+) is 'XSD. Генерация целевых промежуточных таблиц';

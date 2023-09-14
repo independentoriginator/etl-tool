@@ -33,4 +33,11 @@ begin
 	end if;
 	return l_result;
 end
-$function$;		
+$function$;	
+
+comment on function f_substitute(
+	text
+	, text[]
+	, text[]
+	, boolean
+) is 'Подстановка';

@@ -290,4 +290,8 @@ begin
 		on duplicate.table_name = t.table_name
 	;
 end
-$procedure$;			
+$procedure$;	
+
+comment on procedure p_extract_xsd_entities(
+	${mainSchemaName}.xsd_transformation.id%type
+) is 'XSD. Извлечение сущностей';

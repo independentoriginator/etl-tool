@@ -73,5 +73,12 @@ begin
 	end loop wait_for_completion;
 end
 $procedure$;
+
+comment on procedure p_wait_for_scheduled_task_subjobs_completion(
+	text
+	, integer
+	, integer
+	, integer	
+) is 'Ожидание завершения подзадач планового задания';
 				
 			

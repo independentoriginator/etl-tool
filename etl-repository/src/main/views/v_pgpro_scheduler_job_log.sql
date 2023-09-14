@@ -29,3 +29,4 @@ from
 	, view_obj
 ;
 
+comment on view v_pgpro_scheduler_job_log is 'Журнал исполнения плановых заданий pgpro_scheduler';

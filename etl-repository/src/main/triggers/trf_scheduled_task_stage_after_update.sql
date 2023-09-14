@@ -11,3 +11,5 @@ begin
 	return null;
 end
 $$;			
+
+comment on function trf_scheduled_task_stage_after_update() is 'Плановое задание. Этап. Триггерная функция для события "После обновления"';

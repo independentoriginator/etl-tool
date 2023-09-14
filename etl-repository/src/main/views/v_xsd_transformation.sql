@@ -17,3 +17,5 @@ from
 left join pg_catalog.pg_namespace target_schema
 	on target_schema.nspname = t.target_staging_schema
 ;
+
+comment on view v_xsd_transformation is 'XSD-трансформация';

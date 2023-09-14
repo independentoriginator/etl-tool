@@ -19,4 +19,9 @@ join ${mainSchemaName}.scheduled_task_stage s
 	and s.ordinal_position = i_scheduled_task_stage_ord_pos
 where
 	t.internal_name = regexp_replace(i_scheduled_task_name, '(.+)\.(.+)', '\2')
-$function$;		
+$function$;	
+
+comment on function f_scheduled_task_stage_id(
+	${mainSchemaName}.v_scheduled_task.scheduled_task_name%type
+	, integer
+) is 'Идентификатор этапа планового задания';

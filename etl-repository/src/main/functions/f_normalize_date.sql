@@ -70,3 +70,9 @@ exception
 		return null::date;
 end	
 $function$;		
+
+comment on function f_normalize_date(
+	text
+	, text
+	, boolean
+) is 'Нормализация даты';

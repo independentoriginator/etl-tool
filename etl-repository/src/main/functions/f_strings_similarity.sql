@@ -41,4 +41,9 @@ begin
 	
 	return .0;	
 end
-$function$;		
+$function$;
+
+comment on function f_strings_similarity(
+	text
+	, text
+) is 'Степень схожести двух строк';

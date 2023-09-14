@@ -12,7 +12,11 @@ declare
 begin
 	%s
 end
-$procedure$;			
+$procedure$;
+
+comment on procedure p_build_target_pgpro_scheduler_job(
+	record
+) is 'Генерация целевых плановых заданий pgpro_scheduler';
 $proc$
 , case 
 	when ${mainSchemaName}.f_is_scheduler_type_available(
