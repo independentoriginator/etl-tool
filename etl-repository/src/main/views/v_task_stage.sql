@@ -36,11 +36,12 @@ with
 		select
 			row_number() 
 				over(
-					partition by ts.task_id 
+					partition by 
+						ts.task_id
+						, ts.is_target_transfer_deletion
 					order by 
 						ts.stage_ordinal_position
 						, ts.target_container
-						, case when ts.is_target_transfer_deletion then 0 else 1 end
 						, ts.target_transfer_id
 						, ts.ordinal_position
 				) * 10 as sort_order
@@ -74,6 +75,7 @@ with
 			, pct.internal_name as master_container_type_name
 			, ptr.container as master_container    
 			, ptr.is_virtual as is_master_transfer_virtual
+			, ts.is_target_transfer_deletion as is_deletion_stage
 		from 
 			task_stage ts
 		join ${mainSchemaName}.task t 
@@ -146,6 +148,7 @@ with
 			, t.master_container_type_name
 			, t.master_container    
 			, t.is_master_transfer_virtual
+			, t.is_deletion_stage
 			, first_value(t.transfer_id) 
 				over(
 					partition by 
@@ -188,6 +191,7 @@ with
 				, t.master_container_type_name
 				, t.master_container    
 				, t.is_master_transfer_virtual
+				, t.is_deletion_stage
 			from 
 				task_transfers t
 			union all
@@ -224,6 +228,7 @@ with
 				, t.container_type_name as master_container_type_name
 				, t.container as master_container    
 				, t.is_virtual as is_master_transfer_virtual
+				, t.is_deletion_stage
 			from 
 				task_transfers t
 			where
@@ -265,11 +270,13 @@ select
 	, t.master_container    
 	, t.is_master_transfer_virtual
 	, t.transfer_chain_id
+	, t.is_deletion_stage
 	, first_value(t.sort_order) 
 		over(
 			partition by 
 				t.task_id
 				, t.transfer_chain_id
+				, t.is_deletion_stage
 			order by 
 				t.sort_order
 		) as chain_order_num

@@ -3,9 +3,21 @@ drop procedure if exists p_execute_task_transfer_chain(
 	, ${mainSchemaName}.transfer.id%type
 );
 
+drop procedure if exists p_execute_task_transfer_chain(
+	${mainSchemaName}.task.id%type
+	, ${mainSchemaName}.transfer.id%type
+	, text
+	, text
+	, integer
+	, integer
+	, integer
+	, timestamptz
+);
+
 create or replace procedure p_execute_task_transfer_chain(
 	i_task_id ${mainSchemaName}.task.id%type
 	, i_transfer_chain_id ${mainSchemaName}.transfer.id%type
+	, i_is_deletion_stage boolean
 	, i_scheduler_type_name text = null
 	, i_scheduled_task_name text = null -- 'project_internal_name.scheduled_task_internal_name'
 	, i_scheduled_task_stage_ord_pos integer = 0
@@ -88,6 +100,7 @@ begin
 		where 
 			ts.task_id = i_task_id
 			and ts.transfer_chain_id = i_transfer_chain_id
+			and ts.is_deletion_stage = i_is_deletion_stage
 			and ts.is_virtual = false
 		order by 
 			sort_order
@@ -345,6 +358,7 @@ $procedure$;
 comment on procedure p_execute_task_transfer_chain(
 	${mainSchemaName}.task.id%type
 	, ${mainSchemaName}.transfer.id%type
+	, boolean
 	, text
 	, text
 	, integer

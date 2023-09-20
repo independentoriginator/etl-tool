@@ -28,6 +28,7 @@ begin
 				call ${mainSchemaName}.p_execute_task_transfer_chain(
 					i_task_id => %s
 					, i_transfer_chain_id => %s
+					, i_is_deletion_stage => %L::boolean
 					, i_scheduler_type_name => %L
 					, i_scheduled_task_name => %L
 					, i_scheduled_task_stage_ord_pos => %s
@@ -38,6 +39,7 @@ begin
 				$$
 				, ts.task_id 
 				, ts.transfer_chain_id
+				, ts.is_deletion_stage
 				, i_scheduler_type_name
 				, i_scheduled_task_name
 				, i_scheduled_task_stage_ord_pos
@@ -48,7 +50,8 @@ begin
 				)
 			)
 			order by 
-				chain_order_num
+				ts.chain_order_num
+				, ts.is_deletion_stage desc
 		)
 	into 
 		l_task_commands
@@ -56,6 +59,7 @@ begin
 		select distinct
 		 	ts.task_id 
 			, ts.transfer_chain_id
+			, ts.is_deletion_stage
 			, ts.chain_order_num
 		from 
 			${mainSchemaName}.v_task_stage ts
