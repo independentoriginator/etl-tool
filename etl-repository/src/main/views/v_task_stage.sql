@@ -33,7 +33,7 @@ with
 			on preceding_transfer.id = ts.preceding_transfer_id
 	)
 	, task_transfers as ( 
-		select
+		select (
 			row_number() 
 				over(
 					partition by 
@@ -44,7 +44,13 @@ with
 						, ts.target_container
 						, ts.target_transfer_id
 						, ts.ordinal_position
-				) * 10 as sort_order
+				) 
+				- case 
+					when ts.is_target_transfer_deletion then 1
+					else 0					
+				end
+				* 10
+			) as sort_order
 			, ts.task_id
 			, t.internal_name as task_name
 			, p.internal_name as project_name
