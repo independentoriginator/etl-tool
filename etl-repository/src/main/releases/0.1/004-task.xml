@@ -109,5 +109,25 @@
 			referencedColumnNames="id" />
 			
 	</changeSet>
+	
+	<changeSet id="task: are deletion and insertion stages separated" author="${default_author}">
+	
+		<!-- 
+			Two-phase execution with deletion and insertion separated, executed in
+			reverse and forward order respectively (the order must be specified
+			explicitly), which eliminates the need for cascading deletes 
+		-->
 
+		<addColumn tableName="task">
+			<column 
+				name="are_del_ins_stages_separated" 
+				type="boolean"
+				defaultValue="false"
+				remarks="Are deletion and insertion stages separated">
+				<constraints nullable="true" />
+			</column>
+		</addColumn> 
+
+	</changeSet>
+	
 </databaseChangeLog>

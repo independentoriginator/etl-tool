@@ -20,6 +20,7 @@ language plpgsql
 as $procedure$
 declare 
 	l_task_commands text[];
+	l_checked_exception text;
 	l_scheduled_task_stage_id ${mainSchemaName}.scheduled_task_stage.id%type;
 begin
 	select
@@ -53,21 +54,33 @@ begin
 				ts.chain_order_num
 				, ts.is_deletion_stage desc
 		)
+		, case 
+			when ts.are_del_ins_stages_separated and i_thread_max_count != 1
+			then '''are_del_ins_stages_separated = true'' mode and multi thread mode are incompatible'
+		end as exception_text
 	into 
 		l_task_commands
+		, l_checked_exception
 	from (
 		select distinct
 		 	ts.task_id 
 			, ts.transfer_chain_id
 			, ts.is_deletion_stage
 			, ts.chain_order_num
+			, ts.are_del_ins_stages_separated
 		from 
 			${mainSchemaName}.v_task_stage ts
 		where 
 			ts.project_name = i_project_name
 			and ts.task_name = i_task_name
 	) ts
+	group by 
+		ts.are_del_ins_stages_separated
 	;
+
+	if l_checked_exception is not null then
+		raise exception '%', l_checked_exception;
+	end if;
 	
 	if l_task_commands is null then
 		raise exception 'Unknown task specified or task has no commands: %.%', i_project_name, i_task_name;

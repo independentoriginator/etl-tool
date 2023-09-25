@@ -11,6 +11,7 @@ with
 	        , ts.transfer_id as target_transfer_id
 	        , tr.container as target_container
 	        , tr.is_deletion as is_target_transfer_deletion 
+	        , t.are_del_ins_stages_separated
 			, coalesce(ts.ordinal_position, 0) as ordinal_position
 			, coalesce(ts.ordinal_position, 0) as stage_ordinal_position
 		from 
@@ -25,6 +26,7 @@ with
 	        , ts.target_transfer_id
 	        , ts.target_container
 	        , ts.is_target_transfer_deletion
+	        , ts.are_del_ins_stages_separated
 	        , ts.ordinal_position - 1 as ordinal_position
 	        , ts.stage_ordinal_position
 		from 
@@ -38,7 +40,10 @@ with
 				over(
 					partition by 
 						ts.task_id
-						, ts.is_target_transfer_deletion
+						, case 
+							when ts.are_del_ins_stages_separated then ts.is_target_transfer_deletion 
+							else null::boolean
+						end
 					order by 
 						ts.stage_ordinal_position
 						, ts.target_container
@@ -81,7 +86,8 @@ with
 			, pct.internal_name as master_container_type_name
 			, ptr.container as master_container    
 			, ptr.is_virtual as is_master_transfer_virtual
-			, ts.is_target_transfer_deletion as is_deletion_stage
+			, case when t.are_del_ins_stages_separated then ts.is_target_transfer_deletion else null::boolean end as is_deletion_stage
+			, t.are_del_ins_stages_separated
 		from 
 			task_stage ts
 		join ${mainSchemaName}.task t 
@@ -155,6 +161,7 @@ with
 			, t.master_container    
 			, t.is_master_transfer_virtual
 			, t.is_deletion_stage
+			, t.are_del_ins_stages_separated
 			, first_value(t.transfer_id) 
 				over(
 					partition by 
@@ -198,6 +205,7 @@ with
 				, t.master_container    
 				, t.is_master_transfer_virtual
 				, t.is_deletion_stage
+				, t.are_del_ins_stages_separated
 			from 
 				task_transfers t
 			union all
@@ -235,6 +243,7 @@ with
 				, t.container as master_container    
 				, t.is_virtual as is_master_transfer_virtual
 				, t.is_deletion_stage
+				, t.are_del_ins_stages_separated
 			from 
 				task_transfers t
 			where
@@ -277,6 +286,7 @@ select
 	, t.is_master_transfer_virtual
 	, t.transfer_chain_id
 	, t.is_deletion_stage
+	, t.are_del_ins_stages_separated
 	, first_value(t.sort_order) 
 		over(
 			partition by 
