@@ -47,14 +47,15 @@ with
 					order by 
 						ts.stage_ordinal_position
 						, ts.target_container
+						, case when ts.is_target_transfer_deletion then 0 else 1 end
 						, ts.target_transfer_id
 						, ts.ordinal_position
-				) 
+				)
+				* 10
 				- case 
-					when ts.is_target_transfer_deletion then 1
+					when ts.is_target_transfer_deletion then 2
 					else 0					
 				end
-				* 10
 			) as sort_order
 			, ts.task_id
 			, t.internal_name as task_name
