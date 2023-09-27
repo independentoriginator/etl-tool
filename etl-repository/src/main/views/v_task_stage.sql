@@ -35,25 +35,26 @@ with
 			on preceding_transfer.id = ts.preceding_transfer_id
 	)
 	, task_transfers as ( 
-		select (
-			row_number() 
-				over(
-					partition by 
-						ts.task_id
-						, case 
-							when ts.are_del_ins_stages_separated then ts.is_target_transfer_deletion 
-							else null::boolean
-						end
-					order by 
-						ts.stage_ordinal_position
-						, ts.target_container
-						, case when ts.is_target_transfer_deletion then 0 else 1 end
-						, ts.target_transfer_id
-						, ts.ordinal_position
-				)
-				* 10
+		select ((
+				row_number() 
+					over(
+						partition by 
+							ts.task_id
+							, case 
+								when ts.are_del_ins_stages_separated then ts.is_target_transfer_deletion 
+								else null::boolean
+							end
+						order by 
+							ts.stage_ordinal_position
+							, ts.target_container
+							, case when ts.is_target_transfer_deletion then 0 else 1 end
+							, ts.target_transfer_id
+							, ts.ordinal_position
+					)
+					* 10
+				) 
 				- case 
-					when ts.is_target_transfer_deletion then 2
+					when ts.is_target_transfer_deletion then 1
 					else 0					
 				end
 			) as sort_order
@@ -288,7 +289,7 @@ select
 	, t.transfer_chain_id
 	, t.is_deletion_stage
 	, t.are_del_ins_stages_separated
-	, first_value(t.sort_order) 
+	, first_value(t.stage_ordinal_position) 
 		over(
 			partition by 
 				t.task_id
