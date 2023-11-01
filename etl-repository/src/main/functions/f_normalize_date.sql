@@ -6,7 +6,7 @@ create or replace function f_normalize_date(
 returns date
 language plpgsql
 immutable
-parallel safe
+parallel unsafe
 as $function$
 begin
 	if length(coalesce(i_raw_value, '')) > 0 then

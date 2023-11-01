@@ -10,7 +10,7 @@ create or replace function f_normalize_number(
 returns numeric
 language plpgsql
 immutable
-parallel safe
+parallel unsafe
 as $function$
 declare 
 	l_result numeric;
