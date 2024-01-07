@@ -14,9 +14,23 @@ drop procedure if exists p_execute_task_transfer_chain(
 	, timestamptz
 );
 
+drop procedure if exists p_execute_task_transfer_chain(
+	${mainSchemaName}.task.id%type
+	, ${mainSchemaName}.transfer.id%type
+	, boolean
+	, text
+	, text
+	, integer
+	, integer
+	, integer
+	, timestamptz
+);
+
 create or replace procedure p_execute_task_transfer_chain(
 	i_task_id ${mainSchemaName}.task.id%type
 	, i_transfer_chain_id ${mainSchemaName}.transfer.id%type
+	, i_chunk_id text = null
+	, i_start_transfer_num bigint = null
 	, i_is_deletion_stage boolean = null
 	, i_scheduler_type_name text = null
 	, i_scheduled_task_name text = null -- 'project_internal_name.scheduled_task_internal_name'
@@ -55,14 +69,16 @@ declare
 	l_check_date ${stagingSchemaName}.data_package.state_change_date%type;
 	l_insert_columns text;
 	l_select_columns text;
+	l_chunk_id text;
 begin
+	<<stages>>
 	for l_stage_rec in (
 		select
 			ts.task_id
 			, ts.task_name
 			, ts.project_name
 			, ts.transfer_project_name
-		    , ts.transfer_id
+			, ts.transfer_id
 			, ts.transfer_name
 			, ts.transfer_type_name
 			, ts.source_type_name
@@ -79,31 +95,36 @@ begin
 			, ts.is_virtual
 			, ts.reexec_results
 			, ts.is_reexecution
+			, ts.is_chunking
+			, ts.is_chunked
 			, ts.is_deletion			
 			, ts.ordinal_position
 			, ts.target_transfer_id
 			, ts.stage_ordinal_position
 			, ts.transfer_positional_arguments
-		    , ts.preceding_transfer_id
-		    , ts.master_transfer_id
+			, ts.preceding_transfer_id
+			, ts.master_transfer_id
 			, ts.master_transfer_name
 			, ts.master_transfer_type_name
-		    , ts.master_source_name
+			, ts.master_source_name
 			, ts.master_source_type_name
 			, ts.master_container_type_name
 			, ts.master_container    
 			, ts.is_master_transfer_virtual
+			, ts.is_master_transfer_chunked
 			, ts.transfer_chain_id
 			, ts.chain_order_num
+			, ts.sort_order as transfer_num
 		from 
 			${mainSchemaName}.v_task_stage ts
 		where 
 			ts.task_id = i_task_id
 			and ts.transfer_chain_id = i_transfer_chain_id
+			and (ts.sort_order >= i_start_transfer_num or i_start_transfer_num is null)
 			and (ts.is_deletion_stage = i_is_deletion_stage or i_is_deletion_stage is null)
 			and ts.is_virtual = false
 		order by 
-			sort_order
+			ts.sort_order
 	) 
 	loop
 		if l_stage_rec.is_reexecution = false then
@@ -130,11 +151,9 @@ begin
 						l_command := l_stage_rec.container;
 				end case;	
 				
-				raise notice 'l_command=%', l_command;			
-			
 				if l_stage_rec.master_transfer_name is not null then
 					if l_stage_rec.is_master_transfer_virtual then
-						l_command :=  
+						l_command :=
 							replace(
 								l_command
 								, '{{master_recordset}}'
@@ -147,12 +166,14 @@ begin
 									else 
 										l_stage_rec.master_container
 								end
-							);
+							)
+							;
 					elsif l_stage_rec.reexec_results and l_stage_rec.is_reexecution then
 						l_temp_table_name := 
 							${mainSchemaName}.f_extraction_temp_table_name(
 								i_task_id => i_task_id
 								, i_transfer_id => l_stage_rec.master_transfer_id
+								, i_chunk_id => case when l_stage_rec.is_master_transfer_chunked then i_chunk_id end
 								, i_is_for_reexec => true
 							)::text
 							;
@@ -190,12 +211,21 @@ begin
 								, ${mainSchemaName}.f_extraction_temp_table_name(
 									i_task_id => i_task_id
 									, i_transfer_id => l_stage_rec.master_transfer_id
+									, i_chunk_id => case when l_stage_rec.is_master_transfer_chunked then i_chunk_id end
 									, i_is_for_reexec => false
 								)::text
 							);
 					end if;
+				end if;
 
-					raise notice 'l_command=%', l_command;
+				if i_chunk_id is not null then 
+					l_command :=
+						replace(
+							l_command
+							, '{{chunk_id}}'
+							, i_chunk_id
+						)
+						;
 				end if;
 					
 				if l_stage_rec.transfer_positional_arguments is not null then 
@@ -210,26 +240,55 @@ begin
 					${mainSchemaName}.f_extraction_temp_table_name(
 						i_task_id => i_task_id
 						, i_transfer_id => l_stage_rec.transfer_id
+						, i_chunk_id => case when l_stage_rec.is_chunked then i_chunk_id end
 						, i_is_for_reexec => case when l_stage_rec.reexec_results and not l_stage_rec.is_reexecution then true else false end 
 					);
 					
 				case l_stage_rec.source_type_name
 					when 'postgresql' then
-			
-						l_command := 
-							format('
-									create temporary table %I
-									on commit drop
-									as %s
-								'
-								, l_temp_table_name
-								, l_command
-							);
+
+						if not l_stage_rec.is_chunking then
 						
-						raise notice 'Extraction command: %', l_command;
+							l_command := 
+								format('
+										create temporary table %I
+										on commit drop
+										as %s
+									'
+									, l_temp_table_name
+									, l_command
+								);
+							
+							raise notice 'Extraction command: %', l_command;
+							
+							execute l_command;
 						
-						execute l_command;
+						else
+							raise notice 'Chunking command: %', l_command;
 						
+							<<chunking>>
+							for l_chunk_id in execute l_command loop
+								
+								raise notice 'Extraction chunk: %', l_chunk_id;
+							
+								call ${mainSchemaName}.p_execute_task_transfer_chain(
+									i_task_id => i_task_id
+									, i_transfer_chain_id => i_transfer_chain_id
+									, i_chunk_id => l_chunk_id
+									, i_start_transfer_num => l_stage_rec.transfer_num + 1
+									, i_is_deletion_stage => i_is_deletion_stage
+									, i_scheduler_type_name => i_scheduler_type_name
+									, i_scheduled_task_name => i_scheduled_task_name
+									, i_scheduled_task_stage_ord_pos => i_scheduled_task_stage_ord_pos
+									, i_thread_max_count => i_thread_max_count
+									, i_wait_for_delay_in_seconds => i_wait_for_delay_in_seconds
+									, i_last_execution_date => i_last_execution_date
+								);
+							
+							end loop chunking;
+						
+							exit stages;
+						end if;
 					else
 						raise warning 'Unsupported source type specified: %', l_stage_rec.source_type_name;
 				end case;
@@ -243,6 +302,7 @@ begin
 					${mainSchemaName}.f_extraction_temp_table_name(
 						i_task_id => i_task_id
 						, i_transfer_id => l_stage_rec.master_transfer_id
+						, i_chunk_id => i_chunk_id
 					);
 				
 				if l_stage_rec.source_name = 'this database' then
@@ -322,6 +382,8 @@ begin
 					raise notice 'Load command: %', l_command;
 						
 					execute l_command;
+				
+					raise notice 'Processing the data package...';
 					
 					call ${stagingSchemaName}.p_process_data_package(
 						i_data_package_id => l_data_package_id
@@ -347,7 +409,7 @@ begin
 				raise warning 'Unsupported transfer type specified: %', l_stage_rec.transfer_type_name;
 		end case;	
 
-	end loop;
+	end loop stages;
 	
 	if l_stage_rec.transfer_id is null then
 		raise exception 'Unknown "transfer task" and/or "transfer chain" are specified: task_id = %, transfer_chain_id = %', i_task_id, i_transfer_chain_id;
@@ -358,6 +420,8 @@ $procedure$;
 comment on procedure p_execute_task_transfer_chain(
 	${mainSchemaName}.task.id%type
 	, ${mainSchemaName}.transfer.id%type
+	, text
+	, bigint
 	, boolean
 	, text
 	, text

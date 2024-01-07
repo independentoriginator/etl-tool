@@ -1,0 +1,55 @@
+<?xml version="1.1" encoding="UTF-8"?>
+<databaseChangeLog 
+    xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+    xmlns:ext="http://www.liquibase.org/xml/ns/dbchangelog-ext"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog-ext 
+        http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-ext.xsd 
+        http://www.liquibase.org/xml/ns/dbchangelog 
+        http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.1.xsd">
+
+	<changeSet id="transfer_dependency" author="${default_author}">
+
+		<createTable tableName="transfer_dependency" remarks="Data transfer dependency">
+			<column name="transfer_id" type="${type.id}" remarks="Dependent transfer identifier">
+				<constraints nullable="false" />
+			</column>
+			<column name="master_transfer_id" type="${type.id}" remarks="Master transfer identifier">
+				<constraints nullable="false" />
+			</column>
+		</createTable>
+		
+		<addPrimaryKey 
+			constraintName="pk_transfer_dependency" 
+			tableName="transfer_dependency"
+			columnNames="transfer_id, master_transfer_id"/>
+		
+		<createIndex 
+			indexName="i_transfer_dependency$transfer_id" 
+			tableName="transfer_dependency">
+			<column name="transfer_id" />
+		</createIndex>
+
+		<addForeignKeyConstraint 
+			constraintName="fk_transfer_dependency$transfer_id"
+			baseTableName="transfer_dependency" 
+			baseColumnNames="transfer_id" 
+			referencedTableName="transfer" 
+			referencedColumnNames="id" />
+
+		<createIndex 
+			indexName="i_transfer_dependency$master_transfer_id" 
+			tableName="transfer_dependency">
+			<column name="master_transfer_id" />
+		</createIndex>
+
+		<addForeignKeyConstraint 
+			constraintName="fk_transfer_dependency$master_transfer_id"
+			baseTableName="transfer_dependency" 
+			baseColumnNames="master_transfer_id" 
+			referencedTableName="transfer" 
+			referencedColumnNames="id" />
+			
+	</changeSet>
+		
+</databaseChangeLog>

@@ -271,5 +271,19 @@
 		</addColumn> 
 
 	</changeSet>
+	
+	<changeSet id="transfer chunking" author="${default_author}">
+
+		<addColumn tableName="transfer">
+			<column 
+				name="is_chunking" 
+				type="boolean"
+				remarks="Chunking flag"
+				defaultValueBoolean="false"	>
+				<constraints nullable="false" />
+			</column>
+		</addColumn> 
+
+	</changeSet>
 
 </databaseChangeLog>
