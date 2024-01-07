@@ -27,6 +27,8 @@ from
 		, i_job_name => null
 	) t
 	, view_obj
+where 
+	t.job_name like '${mainSchemaName}%'
 ;
 
 comment on view v_pgpro_scheduler_job_log is 'Журнал исполнения плановых заданий pgpro_scheduler';
