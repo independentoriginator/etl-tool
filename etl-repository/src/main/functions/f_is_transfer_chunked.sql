@@ -3,6 +3,7 @@ create or replace function f_is_transfer_chunked(
 )
 returns boolean
 language sql
+security definer
 stable
 as $function$
 with 
