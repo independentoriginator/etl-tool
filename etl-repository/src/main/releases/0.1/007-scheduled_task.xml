@@ -313,6 +313,15 @@
 
 	</changeSet>
 	
+	<changeSet id="scheduled_task next_start_time_calc_sttmnt is not currently applicable" author="${default_author}">
+
+		<dropDefaultValue
+			tableName="scheduled_task"  
+			columnName="next_start_time_calc_sttmnt"  
+			columnDataType="clob" />  
+
+	</changeSet>
+	
 	<changeSet id="scheduled_task retry parameters" author="${default_author}">
 
 		<addColumn tableName="scheduled_task">
