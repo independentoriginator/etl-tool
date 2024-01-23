@@ -311,7 +311,8 @@ select
 	, t.reexec_results
 	, t.is_reexecution
 	, t.is_chunking
-	, ${mainSchemaName}.f_is_transfer_chunked(i_transfer_id => t.transfer_id) as is_chunked	
+	, (chunking.chunked_sequence_id is not null) as is_chunked	
+	, chunking.chunked_sequence_id
 	, t.is_deletion			
 	, t.ordinal_position
 	, t.target_transfer_id
@@ -326,7 +327,7 @@ select
 	, t.master_container_type_name
 	, t.master_container    
 	, t.is_master_transfer_virtual
-	, ${mainSchemaName}.f_is_transfer_chunked(i_transfer_id => t.master_transfer_id) as is_master_transfer_chunked
+	, chunking.is_master_transfer_chunked
 	, t.transfer_chain_id
 	, t.is_deletion_stage
 	, t.are_del_ins_stages_separated
@@ -341,6 +342,21 @@ select
 		) as chain_order_num
 from 
 	reexecuted_task_transfers t
+join lateral (
+	select 
+		${mainSchemaName}.f_transfer_chunked_sequence_id(
+			i_transfer_id => t.transfer_id
+		) as chunked_sequence_id
+		, (
+			${mainSchemaName}.f_transfer_chunked_sequence_id(
+				i_transfer_id => t.master_transfer_id
+			) is not null
+		) as is_master_transfer_chunked
+) as chunking(
+	chunked_sequence_id
+	, is_master_transfer_chunked
+) 
+	on true
 where 
 	not exists (
 		select 

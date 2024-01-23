@@ -256,4 +256,13 @@
 		<rollback/>
 	</changeSet>
 	
+	<changeSet id="f_transfer_chunked_sequence_id-function" author="${default_author}" runOnChange="true">
+		<createProcedure 
+			procedureName="f_transfer_chunked_sequence_id" 
+			dbms="postgresql" 
+			path="f_transfer_chunked_sequence_id.sql" 
+			relativeToChangelogFile="true"/>
+		<rollback/>
+	</changeSet>
+	
 </databaseChangeLog>

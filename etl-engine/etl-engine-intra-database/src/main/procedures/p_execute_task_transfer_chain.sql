@@ -26,11 +26,25 @@ drop procedure if exists p_execute_task_transfer_chain(
 	, timestamptz
 );
 
+drop procedure if exists p_execute_task_transfer_chain(
+	${mainSchemaName}.task.id%type
+	, ${mainSchemaName}.transfer.id%type
+	, text
+	, bigint
+	, boolean
+	, text
+	, text
+	, integer
+	, integer
+	, integer
+	, timestamptz
+);
+
 create or replace procedure p_execute_task_transfer_chain(
 	i_task_id ${mainSchemaName}.task.id%type
 	, i_transfer_chain_id ${mainSchemaName}.transfer.id%type
 	, i_chunk_id text = null
-	, i_start_transfer_num bigint = null
+	, i_chunked_sequence_id ${mainSchemaName}.transfer.id%type = null
 	, i_is_deletion_stage boolean = null
 	, i_scheduler_type_name text = null
 	, i_scheduled_task_name text = null -- 'project_internal_name.scheduled_task_internal_name'
@@ -70,6 +84,7 @@ declare
 	l_insert_columns text;
 	l_select_columns text;
 	l_chunk_id text;
+	l_last_chunked_sequence_id ${mainSchemaName}.transfer.id%type;
 begin
 	<<stages>>
 	for l_stage_rec in (
@@ -97,6 +112,7 @@ begin
 			, ts.is_reexecution
 			, ts.is_chunking
 			, ts.is_chunked
+			, ts.chunked_sequence_id
 			, ts.is_deletion			
 			, ts.ordinal_position
 			, ts.target_transfer_id
@@ -120,13 +136,18 @@ begin
 		where 
 			ts.task_id = i_task_id
 			and ts.transfer_chain_id = i_transfer_chain_id
-			and (ts.sort_order >= i_start_transfer_num or i_start_transfer_num is null)
+			and (ts.chunked_sequence_id = i_chunked_sequence_id or i_chunked_sequence_id is null)
 			and (ts.is_deletion_stage = i_is_deletion_stage or i_is_deletion_stage is null)
 			and ts.is_virtual = false
 		order by 
 			ts.sort_order
 	) 
 	loop
+		-- Skipping handled chunked sequence
+		if l_last_chunked_sequence_id = l_stage_rec.chunked_sequence_id then
+			continue;
+		end if;
+	
 		if l_stage_rec.is_reexecution = false then
 			raise notice 
 				'Executing the transfer: transfer_name=%, transfer_type_name=%, source_name=%, source_type_name=%'
@@ -266,6 +287,8 @@ begin
 						else
 							raise notice 'Chunking command: %', l_command;
 						
+							l_last_chunked_sequence_id := l_stage_rec.transfer_id;
+						
 							<<chunking>>
 							for l_chunk_id in execute l_command loop
 								
@@ -275,7 +298,7 @@ begin
 									i_task_id => i_task_id
 									, i_transfer_chain_id => i_transfer_chain_id
 									, i_chunk_id => l_chunk_id
-									, i_start_transfer_num => l_stage_rec.transfer_num + 1
+									, i_chunked_sequence_id => l_last_chunked_sequence_id
 									, i_is_deletion_stage => i_is_deletion_stage
 									, i_scheduler_type_name => i_scheduler_type_name
 									, i_scheduled_task_name => i_scheduled_task_name
@@ -286,8 +309,6 @@ begin
 								);
 							
 							end loop chunking;
-						
-							exit stages;
 						end if;
 					else
 						raise warning 'Unsupported source type specified: %', l_stage_rec.source_type_name;
