@@ -26,20 +26,6 @@ drop procedure if exists p_execute_task_transfer_chain(
 	, timestamptz
 );
 
-drop procedure if exists p_execute_task_transfer_chain(
-	${mainSchemaName}.task.id%type
-	, ${mainSchemaName}.transfer.id%type
-	, text
-	, bigint
-	, boolean
-	, text
-	, text
-	, integer
-	, integer
-	, integer
-	, timestamptz
-);
-
 create or replace procedure p_execute_task_transfer_chain(
 	i_task_id ${mainSchemaName}.task.id%type
 	, i_transfer_chain_id ${mainSchemaName}.transfer.id%type
@@ -84,7 +70,7 @@ declare
 	l_insert_columns text;
 	l_select_columns text;
 	l_chunk_id text;
-	l_last_chunked_sequence_id ${mainSchemaName}.transfer.id%type;
+	l_processed_chunked_sequences ${type.id}[];
 begin
 	<<stages>>
 	for l_stage_rec in (
@@ -143,8 +129,8 @@ begin
 			ts.sort_order
 	) 
 	loop
-		-- Skipping handled chunked sequence
-		if l_last_chunked_sequence_id = l_stage_rec.chunked_sequence_id then
+		-- Skipping previously processed chunked sequence
+		if l_stage_rec.chunked_sequence_id = any(l_processed_chunked_sequences) then
 			continue;
 		end if;
 	
@@ -287,7 +273,7 @@ begin
 						else
 							raise notice 'Chunking command: %', l_command;
 						
-							l_last_chunked_sequence_id := l_stage_rec.transfer_id;
+							l_processed_chunked_sequences := array_append(l_processed_chunked_sequences, l_stage_rec.transfer_id);
 						
 							<<chunking>>
 							for l_chunk_id in execute l_command loop
@@ -298,7 +284,7 @@ begin
 									i_task_id => i_task_id
 									, i_transfer_chain_id => i_transfer_chain_id
 									, i_chunk_id => l_chunk_id
-									, i_chunked_sequence_id => l_last_chunked_sequence_id
+									, i_chunked_sequence_id => l_stage_rec.transfer_id
 									, i_is_deletion_stage => i_is_deletion_stage
 									, i_scheduler_type_name => i_scheduler_type_name
 									, i_scheduled_task_name => i_scheduled_task_name
@@ -442,7 +428,7 @@ comment on procedure p_execute_task_transfer_chain(
 	${mainSchemaName}.task.id%type
 	, ${mainSchemaName}.transfer.id%type
 	, text
-	, bigint
+	, ${mainSchemaName}.transfer.id%type
 	, boolean
 	, text
 	, text
