@@ -26,6 +26,20 @@ drop procedure if exists p_execute_task_transfer_chain(
 	, timestamptz
 );
 
+drop procedure if exists p_execute_task_transfer_chain(
+	${mainSchemaName}.task.id%type
+	, ${mainSchemaName}.transfer.id%type
+	, text
+	, bigint
+	, boolean
+	, text
+	, text
+	, integer
+	, integer
+	, integer
+	, timestamptz
+);
+
 create or replace procedure p_execute_task_transfer_chain(
 	i_task_id ${mainSchemaName}.task.id%type
 	, i_transfer_chain_id ${mainSchemaName}.transfer.id%type
