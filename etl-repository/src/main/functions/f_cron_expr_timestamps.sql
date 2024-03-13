@@ -73,14 +73,14 @@ with
 					regexp_split_to_table(
 						case p.ord_num
 							when 4 then 
-								ng_etl.f_substitute(
+								${mainSchemaName}.f_substitute(
 									i_text => upper(p.part)
 									, i_keys => array['JAN','FEB','MAR','APR','MAY','JUN','JUL','AUG','SEP','OCT','NOV','DEC']
 									, i_values => array['1','2','3','4','5','6','7','8','9','10','11','12']
 									, i_quote_value => false
 								)				
 							when 5 then 
-								ng_etl.f_substitute(
+								${mainSchemaName}.f_substitute(
 									i_text => upper(p.part)
 									, i_keys => array['SUN','MON','TUE','WED','THU','FRI','SAT','7']
 									, i_values => array['0','1','2','3','4','5','6','0']
@@ -206,7 +206,7 @@ from (
 		on days.value <= 
 			date_part(
 				'day'
-				, ng_etl.f_last_day(
+				, ${mainSchemaName}.f_last_day(
 					to_date(
 						years.value::varchar
 						|| '-' || months.value::varchar 
