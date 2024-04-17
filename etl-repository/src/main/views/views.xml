@@ -74,6 +74,36 @@
 		<rollback/>
 	</changeSet>
 
+	<changeSet id="v_scheduled_task_subjob_avg_run_duration-view" author="${default_author}" runOnChange="true">
+		<createView 
+			viewName="v_scheduled_task_subjob_avg_run_duration" 
+			path="v_scheduled_task_subjob_avg_run_duration.sql"
+			fullDefinition="true"
+			replaceIfExists="false"   
+			relativeToChangelogFile="true"/>
+		<rollback/>
+	</changeSet>
+	
+	<changeSet id="v_scheduled_task_subjob_last_run_duration-view" author="${default_author}" runOnChange="true">
+		<createView 
+			viewName="v_scheduled_task_subjob_last_run_duration" 
+			path="v_scheduled_task_subjob_last_run_duration.sql"
+			fullDefinition="true"
+			replaceIfExists="false"   
+			relativeToChangelogFile="true"/>
+		<rollback/>
+	</changeSet>
+
+	<changeSet id="v_scheduled_task_subjob_last_error-view" author="${default_author}" runOnChange="true">
+		<createView 
+			viewName="v_scheduled_task_subjob_last_error" 
+			path="v_scheduled_task_subjob_last_error.sql"
+			fullDefinition="true"
+			replaceIfExists="false"   
+			relativeToChangelogFile="true"/>
+		<rollback/>
+	</changeSet>
+
 	<changeSet id="v_xsd_transformation-view" author="${default_author}" runOnChange="true">
 		<createView 
 			viewName="v_xsd_transformation" 

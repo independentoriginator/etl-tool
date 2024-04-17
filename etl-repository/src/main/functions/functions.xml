@@ -265,4 +265,13 @@
 		<rollback/>
 	</changeSet>
 	
+	<changeSet id="f_parse_scheduled_task_subjob_command-function" author="${default_author}" runOnChange="true">
+		<createProcedure 
+			procedureName="f_parse_scheduled_task_subjob_command" 
+			dbms="postgresql" 
+			path="f_parse_scheduled_task_subjob_command.sql" 
+			relativeToChangelogFile="true"/>
+		<rollback/>
+	</changeSet>
+	
 </databaseChangeLog>
