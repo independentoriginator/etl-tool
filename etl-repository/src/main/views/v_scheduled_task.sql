@@ -47,11 +47,19 @@ select
 		, t.scheduled_task_name
 	) as on_err_cmd
 	, target_task.onrollback as target_on_err_cmd
-	, make_interval(hours => t.timeout_in_hours) as max_run_time
+	, make_interval(
+		hours => t.timeout_in_hours
+	) as max_run_time
 	, target_task.max_run_time as target_max_run_time
-	, make_interval(hours => t.delayed_start_timeout_in_hours) as delayed_start_timeout
+	, make_interval(
+		hours => t.delayed_start_timeout_in_hours
+	) as delayed_start_timeout
 	, target_task.last_start_available as target_delayed_start_timeout
-	, replace(t.next_start_time_calc_sttmnt, '{{scheduled_task_name}}', t.scheduled_task_name) as next_start_time_calc_sttmnt
+	, replace(
+		t.next_start_time_calc_sttmnt
+		, '{{scheduled_task_name}}'
+		, t.scheduled_task_name
+	) as next_start_time_calc_sttmnt
 	, target_task.next_time_statement as target_next_start_time_calc_sttmnt
 	, t.retry_interval_in_minutes
 	, t.is_disabled
@@ -135,4 +143,5 @@ left join target_scheduled_task target_task
 	and target_task.scheduler_type_name = t.scheduler_type_name
 ;
 
-comment on view v_scheduled_task is 'Плановые задания';
+comment on view v_scheduled_task is 'Плановые задания'
+;

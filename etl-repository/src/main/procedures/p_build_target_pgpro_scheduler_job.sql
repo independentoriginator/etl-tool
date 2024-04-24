@@ -24,7 +24,7 @@ $proc$
 	) then 
 	$proc_body$
 	if i_job_rec.target_job_id is null then
-		if 'databaseOwner' = session_user then
+		if '${databaseOwner}' = session_user then
 			l_job_id := 
 				schedule.create_job(
 					jsonb_build_object(
@@ -60,7 +60,7 @@ $proc$
   				schedule.nodename()
   				, i_job_rec.cron_expr
   				, l_commands
-  				, 'databaseOwner'
+  				, '${databaseOwner}'
   				, i_job_rec.task_session_user
   				, i_job_rec.job_name
   				, i_job_rec.job_description
@@ -131,7 +131,7 @@ $proc$
 			i_left => i_job_rec.task_session_user
 			, i_right => i_job_rec.target_task_session_user
 		) then
-			if 'databaseOwner' = session_user then		
+			if '${databaseOwner}' = session_user then		
 				perform 
 					schedule.set_job_attribute(
 						jobid => l_job_id

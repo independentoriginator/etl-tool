@@ -1,4 +1,5 @@
-drop view if exists v_pgpro_scheduler_job;
+drop view if exists v_pgpro_scheduler_job
+;
 
 create view v_pgpro_scheduler_job
 as
@@ -19,4 +20,5 @@ from
 	${mainSchemaName}.f_pgpro_scheduler_job() t
 ;						
 			
-comment on view v_pgpro_scheduler_job is 'Плановые задания pgpro_scheduler';
+comment on view v_pgpro_scheduler_job is 'Плановые задания pgpro_scheduler'
+;

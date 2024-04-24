@@ -47,7 +47,27 @@ $func$
 	from 
 		schedule.get_owned_cron() t
 	where 
-		t.id = i_job_id or i_job_id is null
+		'${databaseOwner}' = session_user		
+		and (t.id = i_job_id or i_job_id is null)
+	union all
+	select 
+		t.id
+		, t.name
+		, t.comments as description
+		, t.rule->>'crontab' as cron_expr
+		, array_to_string(t.do_sql, '; ') as commands
+		, t.same_transaction as use_same_transaction
+		, t.executor as run_as
+		, t.onrollback_statement as onrollback
+		, t.max_run_time
+		, t.next_time_statement
+		, t.postpone as last_start_available
+		, case when t.active then false else true end as is_disabled
+	from 
+		schedule.cron t
+	where 
+		'${databaseOwner}' <> session_user		
+		and (t.id = i_job_id or i_job_id is null)
 	$func_body$
 else
 	$func_body$
