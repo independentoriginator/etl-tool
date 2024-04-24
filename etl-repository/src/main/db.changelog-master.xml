@@ -18,6 +18,12 @@
 			SET search_path = ${mainSchemaName}
 		</sql>
 	</changeSet>
+	
+	<changeSet id="database owner" author="${default_author}" runAlways="true">
+		<sql dbms="postgresql">
+			SET role = ${databaseOwner}
+		</sql>
+	</changeSet>
 
 	<includeAll path="releases" relativeToChangelogFile="true" />
 	<include file="functions/functions.xml" relativeToChangelogFile="true" />

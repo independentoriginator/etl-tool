@@ -21,6 +21,7 @@
 		<postgresql.jdbcdriver.version>42.3.1</postgresql.jdbcdriver.version>
 
 		<databaseMainSchemaName>etl_schema</databaseMainSchemaName>
+		<databaseOwnerName>etl_schema</databaseOwnerName>
 		<databaseStagingSchemaName>etl_staging</databaseStagingSchemaName>
 		<databaseStagingTableSpace></databaseStagingTableSpace>
 		<databaseEtlUserRole>etl_schema</databaseEtlUserRole>
@@ -64,6 +65,10 @@
 						<property>
 							<name>project.name</name>
 							<value>${project.name}</value>
+						</property>
+						<property>
+							<name>databaseOwner</name>
+							<value>${databaseOwnerName}</value>
 						</property>
 						<property>
 							<name>mainSchemaName</name>
