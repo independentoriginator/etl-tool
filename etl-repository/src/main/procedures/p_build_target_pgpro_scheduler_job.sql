@@ -24,21 +24,58 @@ $proc$
 	) then 
 	$proc_body$
 	if i_job_rec.target_job_id is null then
-		l_job_id := 
-			schedule.create_job(
-				jsonb_build_object(
-					'name', i_job_rec.job_name
-					, 'comments', i_job_rec.job_description
-					, 'commands', l_commands
-					, 'use_same_transaction', i_job_rec.is_task_used_single_transaction
-					, 'cron', i_job_rec.cron_expr
-					, 'run_as', i_job_rec.task_session_user
-					, 'onrollback', i_job_rec.on_err_cmd
-					, 'max_run_time', i_job_rec.max_run_time
-					, 'last_start_available', i_job_rec.delayed_start_timeout
-					, 'next_time_statement', i_job_rec.next_start_time_calc_sttmnt
-				)
-			);
+		if 'databaseOwner' = session_user then
+			l_job_id := 
+				schedule.create_job(
+					jsonb_build_object(
+						'name', i_job_rec.job_name
+						, 'comments', i_job_rec.job_description
+						, 'commands', l_commands
+						, 'use_same_transaction', i_job_rec.is_task_used_single_transaction
+						, 'cron', i_job_rec.cron_expr
+						, 'run_as', i_job_rec.task_session_user
+						, 'onrollback', i_job_rec.on_err_cmd
+						, 'max_run_time', i_job_rec.max_run_time
+						, 'last_start_available', i_job_rec.delayed_start_timeout
+						, 'next_time_statement', i_job_rec.next_start_time_calc_sttmnt
+					)
+				);
+		else
+  			insert into 
+  				schedule.cron(
+  					node
+  					, rule
+  					, do_sql
+  					, owner
+  					, executor
+  					, name
+  					, comments
+  					, max_run_time
+  					, same_transaction
+  					, onrollback_statement
+  					, next_time_statement
+  					, postpone
+  				)
+  			values (
+  				schedule.nodename()
+  				, i_job_rec.cron_expr
+  				, l_commands
+  				, 'databaseOwner'
+  				, i_job_rec.task_session_user
+  				, i_job_rec.job_name
+  				, i_job_rec.job_description
+  				, i_job_rec.max_run_time
+  				, i_job_rec.is_task_used_single_transaction
+  				, i_job_rec.on_err_cmd
+  				, i_job_rec.next_start_time_calc_sttmnt
+  				, i_job_rec.delayed_start_timeout
+  			)
+  			returning 
+  				id 
+  			into 
+  				l_job_id
+  			;		
+		end if;
 	else
 		l_job_id := i_job_rec.target_job_id;
 		
@@ -94,12 +131,22 @@ $proc$
 			i_left => i_job_rec.task_session_user
 			, i_right => i_job_rec.target_task_session_user
 		) then
-			perform 
-				schedule.set_job_attribute(
-					jobid => l_job_id
-					, name => 'run_as'::text
-					, value => i_job_rec.task_session_user
-				);
+			if 'databaseOwner' = session_user then		
+				perform 
+					schedule.set_job_attribute(
+						jobid => l_job_id
+						, name => 'run_as'::text
+						, value => i_job_rec.task_session_user
+					);
+			else
+				update
+					schedule.cron
+				set
+					executor = i_job_rec.task_session_user
+				where 	
+					id = l_job_id
+				;
+			end if;
 		end if;	
 
 		if ${mainSchemaName}.f_values_are_different(
