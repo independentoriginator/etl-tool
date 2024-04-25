@@ -9,6 +9,7 @@ as $procedure$
 declare 
 	l_job_id ${mainSchemaName}.v_pgpro_scheduler_job.id%%type;
 	l_commands text[] := string_to_array(i_job_rec.command_string, '; ');
+	l_is_direct_modification_mode boolean := false; 
 begin
 	%s
 end
@@ -24,7 +25,21 @@ $proc$
 	) then 
 	$proc_body$
 	if i_job_rec.target_job_id is null then
-		if '${databaseOwner}' = session_user then
+		if '${databaseOwner}' <> session_user 
+			or exists (
+				select 
+					1
+				from 
+					pg_catalog.pg_roles
+				where 
+					rolname = session_user
+					and not rolsuper
+			)
+		then
+			l_is_direct_modification_mode := true;
+		end if;
+	
+		if not l_is_direct_modification_mode then
 			l_job_id := 
 				schedule.create_job(
 					jsonb_build_object(
@@ -131,7 +146,7 @@ $proc$
 			i_left => i_job_rec.task_session_user
 			, i_right => i_job_rec.target_task_session_user
 		) then
-			if '${databaseOwner}' = session_user then		
+			if not l_is_direct_modification_mode then		
 				perform 
 					schedule.set_job_attribute(
 						jobid => l_job_id
