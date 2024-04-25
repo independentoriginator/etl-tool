@@ -1,7 +1,4 @@
-drop view if exists v_pgpro_scheduler_job
-;
-
-create view v_pgpro_scheduler_job
+create or replace view v_pgpro_scheduler_job
 as
 select 
 	t.id

@@ -1,6 +1,4 @@
-drop view if exists v_scheduled_task_subjob_last_run_duration;
-
-create view v_scheduled_task_subjob_last_run_duration
+create or replace view v_scheduled_task_subjob_last_run_duration
 as
 with 
 	subjob as (

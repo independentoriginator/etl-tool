@@ -1,6 +1,4 @@
-drop view if exists v_scheduled_task;
-
-create view v_scheduled_task
+create or replace view v_scheduled_task
 as
 with 
 	target_scheduled_task as (

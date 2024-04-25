@@ -1,6 +1,4 @@
-drop view if exists v_scheduled_task_subjob_last_error;
-
-create view v_scheduled_task_subjob_last_error
+create or replace view v_scheduled_task_subjob_last_error
 as
 with 
 	subjob as (
