@@ -331,7 +331,7 @@ select
 	, t.transfer_chain_id
 	, t.is_deletion_stage
 	, t.are_del_ins_stages_separated
-	, first_value(t.stage_ordinal_position) 
+	, last_value(t.stage_ordinal_position) 
 		over(
 			partition by 
 				t.task_id
@@ -339,6 +339,9 @@ select
 				, t.is_deletion_stage
 			order by 
 				t.sort_order
+			range between 
+	            unbounded preceding and 
+	            unbounded following						
 		) as chain_order_num
 from 
 	reexecuted_task_transfers t
