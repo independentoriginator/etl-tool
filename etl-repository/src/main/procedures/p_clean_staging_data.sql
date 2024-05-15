@@ -21,6 +21,15 @@ begin
 			i_data_package_id => l_data_package_id
 		);
 	end loop;
+
+	delete from  
+		${stagingSchemaName}.materialized_view_refresh_duration
+	where 
+		${mainSchemaName}.f_months_between(
+			current_date
+			, start_time::date
+		)::integer >= i_data_package_expiration_age_in_months
+	;
 end
 $procedure$;			
 
