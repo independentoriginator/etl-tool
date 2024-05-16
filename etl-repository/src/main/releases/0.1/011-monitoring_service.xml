@@ -1,0 +1,380 @@
+<?xml version="1.1" encoding="UTF-8"?>
+<databaseChangeLog 
+    xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+    xmlns:ext="http://www.liquibase.org/xml/ns/dbchangelog-ext"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog-ext 
+        http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-ext.xsd 
+        http://www.liquibase.org/xml/ns/dbchangelog 
+        http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.1.xsd">
+
+	<changeSet id="monitoring_service" author="${default_author}">
+
+		<createTable tableName="monitoring_service" remarks="Monitoring service">
+			<column name="id" type="${type.id}" autoIncrement="true" remarks="Identifier">
+				<constraints nullable="false" />
+			</column>
+			<column name="internal_name" type="${type.internal_name}" remarks="Internal name">
+				<constraints nullable="false" />
+			</column>
+			<column name="name" type="${type.name}" remarks="Name">
+				<constraints nullable="false" />
+			</column>
+			<column name="description" type="${type.description}" remarks="Description">
+				<constraints nullable="true" />
+			</column>
+			<column name="source_id" type="${type.id}" remarks="Data source identifier">
+				<constraints nullable="false" />
+			</column>
+			<column name="external_id" type="${type.code}" remarks="External identifier">
+				<constraints nullable="true" />
+			</column>
+			<column name="external_code" type="${type.code}" remarks="External code">
+				<constraints nullable="true" />
+			</column>
+			<column name="event_publication_cmd_tmpl" type="clob" remarks="Event publication command template">
+				<constraints nullable="false" />
+			</column>
+		</createTable>
+		
+		<addPrimaryKey 
+			constraintName="pk_monitoring_service" 
+			tableName="monitoring_service"
+			columnNames="id"/>
+		
+		<addUniqueConstraint 
+			constraintName="uc_monitoring_service" 
+			tableName="monitoring_service"
+			columnNames="internal_name" />
+			
+		<createIndex 
+			indexName="i_monitoring_service$source_id" 
+			tableName="monitoring_service">
+			<column name="source_id" />
+		</createIndex>
+
+		<addForeignKeyConstraint 
+			constraintName="fk_monitoring_service$source_id"
+			baseTableName="monitoring_service" 
+			baseColumnNames="source_id" 
+			referencedTableName="source" 
+			referencedColumnNames="id" />
+		
+	</changeSet>
+
+	<changeSet id="scheduled_task_monitor_publication" author="${default_author}">
+
+		<createTable tableName="scheduled_task_monitor_publication" remarks="Scheduled task monitor publication">
+			<column name="id" type="${type.id}" autoIncrement="true" remarks="Identifier">
+				<constraints nullable="false" />
+			</column>
+			<column name="monitoring_service_id" type="${type.id}" remarks="Monitoring service identifier">
+				<constraints nullable="false" />
+			</column>
+			<column name="scheduled_task_id" type="${type.id}" remarks="Scheduled task identifier">
+				<constraints nullable="false" />
+			</column>
+			<column name="external_id" type="${type.code}" remarks="External identifier">
+				<constraints nullable="true" />
+			</column>
+			<column name="external_code" type="${type.code}" remarks="External code">
+				<constraints nullable="true" />
+			</column>
+			<column name="is_disabled" type="boolean" remarks="Is disabled" defaultValueBoolean="false">
+				<constraints nullable="false" />
+			</column>
+		</createTable>
+		
+		<addPrimaryKey 
+			constraintName="pk_scheduled_task_monitor_publication" 
+			tableName="scheduled_task_monitor_publication"
+			columnNames="id"/>
+		
+		<addUniqueConstraint 
+			constraintName="uc_scheduled_task_monitor_publication" 
+			tableName="scheduled_task_monitor_publication"
+			columnNames="monitoring_service_id, scheduled_task_id" />
+			
+		<createIndex 
+			indexName="i_scheduled_task_monitor_publication$monitoring_service_id" 
+			tableName="scheduled_task_monitor_publication">
+			<column name="monitoring_service_id" />
+		</createIndex>
+
+		<addForeignKeyConstraint 
+			constraintName="fk_scheduled_task_monitor_publication$monitoring_service_id"
+			baseTableName="scheduled_task_monitor_publication" 
+			baseColumnNames="monitoring_service_id" 
+			referencedTableName="monitoring_service" 
+			referencedColumnNames="id" />
+			
+		<createIndex 
+			indexName="i_scheduled_task_monitor_publication$scheduled_task_id" 
+			tableName="scheduled_task_monitor_publication">
+			<column name="scheduled_task_id" />
+		</createIndex>
+
+		<addForeignKeyConstraint 
+			constraintName="fk_scheduled_task_monitor_publication$scheduled_task_id"
+			baseTableName="scheduled_task_monitor_publication" 
+			baseColumnNames="scheduled_task_id" 
+			referencedTableName="scheduled_task" 
+			referencedColumnNames="id" />
+
+	</changeSet>
+	
+	<changeSet id="monitoring_event_type" author="${default_author}">
+
+		<createTable tableName="monitoring_event_type" remarks="Monitoring event type">
+			<column name="id" type="${type.id}" autoIncrement="true" remarks="Identifier">
+				<constraints nullable="false" />
+			</column>
+			<column name="internal_name" type="${type.internal_name}" remarks="Internal name">
+				<constraints nullable="false" />
+			</column>
+			<column name="name" type="${type.name}" remarks="Name">
+				<constraints nullable="false" />
+			</column>
+		</createTable>
+		
+		<addPrimaryKey 
+			constraintName="pk_monitoring_event_type" 
+			tableName="monitoring_event_type"
+			columnNames="id"/>
+		
+		<addUniqueConstraint 
+			constraintName="uc_monitoring_event_type" 
+			tableName="monitoring_event_type"
+			columnNames="internal_name" />
+			
+		<createTable tableName="monitoring_service_event_type" remarks="Monitoring service event type">
+			<column name="id" type="${type.id}" autoIncrement="true" remarks="Identifier">
+				<constraints nullable="false" />
+			</column>
+			<column name="monitoring_service_id" type="${type.id}" remarks="Monitoring service identifier">
+				<constraints nullable="false" />
+			</column>
+			<column name="monitoring_event_type_id" type="${type.id}" remarks="Monitoring event type identifier">
+				<constraints nullable="false" />
+			</column>
+			<column name="external_code" type="${type.code}" remarks="External code">
+				<constraints nullable="false" />
+			</column>
+		</createTable>
+		
+		<addPrimaryKey 
+			constraintName="pk_monitoring_service_event_type" 
+			tableName="monitoring_service_event_type"
+			columnNames="id"/>
+		
+		<addUniqueConstraint 
+			constraintName="uc_monitoring_service_event_type" 
+			tableName="monitoring_service_event_type"
+			columnNames="monitoring_service_id, monitoring_event_type_id" />
+			
+		<createIndex 
+			indexName="i_monitoring_service_event_type$monitoring_service_id" 
+			tableName="monitoring_service_event_type">
+			<column name="monitoring_service_id" />
+		</createIndex>
+
+		<addForeignKeyConstraint 
+			constraintName="fk_monitoring_service_event_type$monitoring_service_id"
+			baseTableName="monitoring_service_event_type" 
+			baseColumnNames="monitoring_service_id" 
+			referencedTableName="monitoring_service" 
+			referencedColumnNames="id" />
+			
+		<createIndex 
+			indexName="i_monitoring_service_event_type$monitoring_event_type_id" 
+			tableName="monitoring_service_event_type">
+			<column name="monitoring_event_type_id" />
+		</createIndex>
+
+		<addForeignKeyConstraint 
+			constraintName="fk_monitoring_service_event_type$monitoring_event_type_id"
+			baseTableName="monitoring_service_event_type" 
+			baseColumnNames="monitoring_event_type_id" 
+			referencedTableName="monitoring_event_type" 
+			referencedColumnNames="id" />
+
+		<createTable tableName="monitoring_service_scheduled_task_event_type" remarks="Monitoring service scheduled task event type">
+			<column name="id" type="${type.id}" autoIncrement="true" remarks="Identifier">
+				<constraints nullable="false" />
+			</column>
+			<column name="monitoring_service_id" type="${type.id}" remarks="Monitoring service identifier">
+				<constraints nullable="false" />
+			</column>
+			<column name="scheduled_task_id" type="${type.id}" remarks="Scheduled task identifier">
+				<constraints nullable="false" />
+			</column>
+			<column name="monitoring_event_type_id" type="${type.id}" remarks="Monitoring event type identifier">
+				<constraints nullable="false" />
+			</column>
+			<column name="external_code" type="${type.code}" remarks="External code">
+				<constraints nullable="false" />
+			</column>
+		</createTable>
+		
+		<addPrimaryKey 
+			constraintName="pk_monitoring_service_scheduled_task_event_type" 
+			tableName="monitoring_service_scheduled_task_event_type"
+			columnNames="id"/>
+		
+		<addUniqueConstraint 
+			constraintName="uc_monitoring_service_scheduled_task_event_type" 
+			tableName="monitoring_service_scheduled_task_event_type"
+			columnNames="monitoring_service_id, scheduled_task_id, monitoring_event_type_id" />
+			
+		<createIndex 
+			indexName="i_monitoring_service_scheduled_task_event_type$monitoring_service_id" 
+			tableName="monitoring_service_scheduled_task_event_type">
+			<column name="monitoring_service_id" />
+		</createIndex>
+
+		<addForeignKeyConstraint 
+			constraintName="fk_monitoring_service_scheduled_task_event_type$monitoring_service_id"
+			baseTableName="monitoring_service_scheduled_task_event_type" 
+			baseColumnNames="monitoring_service_id" 
+			referencedTableName="monitoring_service" 
+			referencedColumnNames="id" />
+			
+		<createIndex 
+			indexName="i_monitoring_service_scheduled_task_event_type$scheduled_task_id" 
+			tableName="monitoring_service_scheduled_task_event_type">
+			<column name="scheduled_task_id" />
+		</createIndex>
+
+		<addForeignKeyConstraint 
+			constraintName="fk_monitoring_service_scheduled_task_event_type$scheduled_task_id"
+			baseTableName="monitoring_service_scheduled_task_event_type" 
+			baseColumnNames="scheduled_task_id" 
+			referencedTableName="scheduled_task" 
+			referencedColumnNames="id" />
+			
+		<createIndex 
+			indexName="i_monitoring_service_scheduled_task_event_type$monitoring_event_type_id" 
+			tableName="monitoring_service_scheduled_task_event_type">
+			<column name="monitoring_event_type_id" />
+		</createIndex>
+
+		<addForeignKeyConstraint 
+			constraintName="fk_monitoring_service_scheduled_task_event_type$monitoring_event_type_id"
+			baseTableName="monitoring_service_scheduled_task_event_type" 
+			baseColumnNames="monitoring_event_type_id" 
+			referencedTableName="monitoring_event_type" 
+			referencedColumnNames="id" />
+			
+	</changeSet>	
+	
+	<changeSet id="built-in monitoring_event_type" author="${default_author}">
+
+		<insert tableName="monitoring_event_type">
+			<column name="internal_name" value="launch"/>
+			<column name="name" value="Launch"/>
+		</insert>
+
+		<insert tableName="monitoring_event_type">
+			<column name="internal_name" value="completion"/>
+			<column name="name" value="Completion"/>
+		</insert>
+	
+	</changeSet>	
+
+	<changeSet id="monitoring_event_status" author="${default_author}">
+
+		<createTable tableName="monitoring_event_status" remarks="Monitoring event status">
+			<column name="id" type="${type.id}" autoIncrement="true" remarks="Identifier">
+				<constraints nullable="false" />
+			</column>
+			<column name="internal_name" type="${type.internal_name}" remarks="Internal name">
+				<constraints nullable="false" />
+			</column>
+			<column name="name" type="${type.name}" remarks="Name">
+				<constraints nullable="false" />
+			</column>
+		</createTable>
+		
+		<addPrimaryKey 
+			constraintName="pk_monitoring_event_status" 
+			tableName="monitoring_event_status"
+			columnNames="id"/>
+		
+		<addUniqueConstraint 
+			constraintName="uc_monitoring_event_status" 
+			tableName="monitoring_event_status"
+			columnNames="internal_name" />
+			
+		<createTable tableName="monitoring_service_event_status" remarks="Monitoring service event status">
+			<column name="id" type="${type.id}" autoIncrement="true" remarks="Identifier">
+				<constraints nullable="false" />
+			</column>
+			<column name="monitoring_service_id" type="${type.id}" remarks="Monitoring service identifier">
+				<constraints nullable="false" />
+			</column>
+			<column name="monitoring_event_status_id" type="${type.id}" remarks="Monitoring event status identifier">
+				<constraints nullable="false" />
+			</column>
+			<column name="external_code" type="${type.code}" remarks="External code">
+				<constraints nullable="false" />
+			</column>
+		</createTable>
+		
+		<addPrimaryKey 
+			constraintName="pk_monitoring_service_event_status" 
+			tableName="monitoring_service_event_status"
+			columnNames="id"/>
+		
+		<addUniqueConstraint 
+			constraintName="uc_monitoring_service_event_status" 
+			tableName="monitoring_service_event_status"
+			columnNames="monitoring_service_id, monitoring_event_status_id" />
+			
+		<createIndex 
+			indexName="i_monitoring_service_event_status$monitoring_service_id" 
+			tableName="monitoring_service_event_status">
+			<column name="monitoring_service_id" />
+		</createIndex>
+
+		<addForeignKeyConstraint 
+			constraintName="fk_monitoring_service_event_status$monitoring_service_id"
+			baseTableName="monitoring_service_event_status" 
+			baseColumnNames="monitoring_service_id" 
+			referencedTableName="monitoring_service" 
+			referencedColumnNames="id" />
+			
+		<createIndex 
+			indexName="i_monitoring_service_event_status$monitoring_event_status_id" 
+			tableName="monitoring_service_event_status">
+			<column name="monitoring_event_status_id" />
+		</createIndex>
+
+		<addForeignKeyConstraint 
+			constraintName="fk_monitoring_service_event_status$monitoring_event_status_id"
+			baseTableName="monitoring_service_event_status" 
+			baseColumnNames="monitoring_event_status_id" 
+			referencedTableName="monitoring_event_status" 
+			referencedColumnNames="id" />
+			
+	</changeSet>	
+	
+	<changeSet id="built-in monitoring_event_status" author="${default_author}">
+
+		<insert tableName="monitoring_event_status">
+			<column name="internal_name" value="success"/>
+			<column name="name" value="Success"/>
+		</insert>
+
+		<insert tableName="monitoring_event_status">
+			<column name="internal_name" value="failure"/>
+			<column name="name" value="Failure"/>
+		</insert>
+
+		<insert tableName="monitoring_event_status">
+			<column name="internal_name" value="warning"/>
+			<column name="name" value="Warning"/>
+		</insert>
+	
+	</changeSet>	
+		
+</databaseChangeLog>

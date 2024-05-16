@@ -1,23 +1,166 @@
-drop procedure if exists p_execute_task(
-	${mainSchemaName}.task.internal_name%type
-	, ${mainSchemaName}.project.internal_name%type
-	, text
-	, text
-	, integer
-	, integer
-);
+drop procedure if exists 
+	p_execute_task(
+		${mainSchemaName}.task.internal_name%type
+		, ${mainSchemaName}.project.internal_name%type
+		, text
+		, text
+		, integer
+		, integer
+	)
+;
 
-create or replace procedure p_execute_task(
-	i_task_name ${mainSchemaName}.task.internal_name%type
-	, i_project_name ${mainSchemaName}.project.internal_name%type
-	, i_scheduler_type_name text = null
-	, i_scheduled_task_name text = null -- 'project_internal_name.scheduled_task_internal_name'
-	, i_scheduled_task_stage_ord_pos integer = 0
-	, i_thread_max_count integer = 1
-	, i_wait_for_delay_in_seconds integer = 1
-)
+create or replace procedure 
+	p_execute_task(
+		i_task_name ${mainSchemaName}.task.internal_name%type
+		, i_project_name ${mainSchemaName}.project.internal_name%type
+		, i_scheduler_type_name text = null
+		, i_scheduled_task_name text = null -- 'project_internal_name.scheduled_task_internal_name'
+		, i_scheduled_task_stage_ord_pos integer = 0
+		, i_thread_max_count integer = 1
+		, i_wait_for_delay_in_seconds integer = 1
+	)
 language plpgsql
 as $procedure$
+declare 
+	l_exception_descr text;
+	l_exception_detail text;
+	l_exception_hint text;
+	l_scheduled_task_id ${mainSchemaName}.scheduled_task.id%type := 
+		${mainSchemaName}.f_scheduled_task_id(
+			i_scheduled_task_name => i_scheduled_task_name
+		)
+	;
+	l_process_uuid uuid := ${mainSchemaName}.f_generate_uuid();
+begin
+	if l_scheduled_task_id is not null then
+		call
+			${mainSchemaName}.p_publish_scheduled_task_monitoring_event(
+				i_scheduled_task_id => l_scheduled_task_id
+				, i_event_type_name => 'launch'
+				, i_event_status_name => 'success'
+				, i_process_uuid => l_process_uuid
+				, i_event_message => null
+			)
+		;
+	end if
+	;
+
+	if i_thread_max_count > 1 
+		and exists (
+			select 
+				1
+			from 
+				${mainSchemaName}.v_task_stage ts
+			where 
+				ts.project_name = i_project_name
+				and ts.task_name = i_task_name
+				and ts.are_del_ins_stages_separated 
+		)
+	then
+		raise exception
+			'Separated deletion and insertion stages cannot be executed in multithreaded mode'
+		;
+	end if
+	;
+
+	call 
+		${stagingSchemaName}.p_execute_in_parallel(
+			i_command_list_query => 
+				format(
+					$sql$
+					select
+						format($$
+							call 
+								${mainSchemaName}.p_execute_task_transfer_chain(
+									i_task_id => %%s
+									, i_transfer_chain_id => %%s
+									, i_is_deletion_stage => %%L::boolean
+									, i_scheduler_type_name => %L
+									, i_scheduled_task_name => %L
+									, i_scheduled_task_stage_ord_pos => %s
+									, i_thread_max_count => %s
+									, i_wait_for_delay_in_seconds => %s
+									, i_last_execution_date => %L
+								)
+							$$
+							, ts.task_id 
+							, ts.transfer_chain_id
+							, ts.is_deletion_stage
+						)
+					from (
+						select distinct
+						 	ts.task_id 
+							, ts.transfer_chain_id
+							, ts.is_deletion_stage
+							, ts.chain_order_num
+							, ts.are_del_ins_stages_separated
+						from 
+							${mainSchemaName}.v_task_stage ts
+						where 
+							ts.project_name = %L
+							and ts.task_name = %L
+					) ts
+					order by 
+						ts.chain_order_num
+						, ts.is_deletion_stage desc
+					$sql$
+					, i_scheduler_type_name
+					, i_scheduled_task_name
+					, i_scheduled_task_stage_ord_pos
+					, i_thread_max_count
+					, i_wait_for_delay_in_seconds
+					, ${mainSchemaName}.f_scheduled_task_last_execution_date(
+						i_scheduled_task_name => i_scheduled_task_name
+					)
+					, i_project_name
+					, i_task_name
+				)
+			, i_context_id => '${mainSchemaName}.p_execute_task'::regproc
+			, i_max_worker_processes => i_thread_max_count
+			, i_polling_interval => '10 seconds'
+			, i_max_run_time => '8 hours'
+			, i_close_process_pool_on_completion => false
+		)
+	;
+
+	if l_scheduled_task_id is not null then
+		call
+			${mainSchemaName}.p_publish_scheduled_task_monitoring_event(
+				i_scheduled_task_id => l_scheduled_task_id
+				, i_event_type_name => 'completion'
+				, i_event_status_name => 'success'
+				, i_process_uuid => l_process_uuid
+				, i_event_message => null
+			)
+		;
+	end if
+	;
+
+exception
+when others then
+	get stacked diagnostics
+		l_exception_descr = MESSAGE_TEXT
+		, l_exception_detail = PG_EXCEPTION_DETAIL
+		, l_exception_hint = PG_EXCEPTION_HINT
+	;
+
+	if l_scheduled_task_id is not null then
+		call
+			${mainSchemaName}.p_publish_scheduled_task_monitoring_event(
+				i_scheduled_task_id => l_scheduled_task_id
+				, i_event_type_name => 'completion'
+				, i_event_status_name => 'failure'
+				, i_process_uuid => l_process_uuid
+				, i_event_message => l_exception_descr
+			)
+		;
+	end if
+	;
+
+	raise
+	;
+end;
+/*
 declare 
 	l_task_commands text[];
 	l_checked_exception text;
@@ -129,6 +272,7 @@ begin
 		, i_wait_for_delay_in_seconds => i_wait_for_delay_in_seconds
 	);	
 end
+*/
 $procedure$;		
 
 comment on procedure p_execute_task(
