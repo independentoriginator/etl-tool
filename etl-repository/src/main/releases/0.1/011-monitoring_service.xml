@@ -376,5 +376,19 @@
 		</insert>
 	
 	</changeSet>	
+	
+	<changeSet id="monitoring_service etlUserRole read permissions" author="${default_author}">
+		
+		<sql dbms="postgresql">
+			grant select on monitoring_service to ${etlUserRole}; 
+			grant select on scheduled_task_monitor_publication to ${etlUserRole};
+			grant select on monitoring_event_type to ${etlUserRole};
+			grant select on monitoring_service_event_type to ${etlUserRole};
+			grant select on monitoring_service_scheduled_task_event_type to ${etlUserRole};
+			grant select on monitoring_event_status to ${etlUserRole};
+			grant select on monitoring_service_event_status to ${etlUserRole};
+		</sql>
+
+	</changeSet>
 		
 </databaseChangeLog>
