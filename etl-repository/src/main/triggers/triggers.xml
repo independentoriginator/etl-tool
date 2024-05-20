@@ -79,5 +79,42 @@
 		</rollback>
 
 	</changeSet>
+	
+	<changeSet id="trf_publish_pgpro_scheduler_job_monitoring_event-function" author="${default_author}" runOnChange="true">
+		<createProcedure 
+			procedureName="trf_publish_pgpro_scheduler_job_monitoring_event" 
+			dbms="postgresql" 
+			path="trf_publish_pgpro_scheduler_job_monitoring_event.sql" 
+			relativeToChangelogFile="true"/>
+		<rollback/>
+	</changeSet>
+
+	<changeSet id="tr_publish_pgpro_scheduler_job_monitoring_event-trigger" author="${default_author}" runOnChange="true">
+
+		<sqlFile 
+			dbms="postgresql"
+			path="tr_publish_pgpro_scheduler_job_monitoring_event.sql"
+	        relativeToChangelogFile="true"
+	        splitStatements="false"
+	        stripComments="false"/>
+
+		<rollback>
+			do $$
+			begin
+				execute 
+					format('
+						drop trigger if exists tr%s_monitoring_event_pub on schedule.log;
+						'
+						, ${stagingSchemaName}.f_valid_system_name(
+							i_raw_name => '${project_internal_name}'
+							, i_is_considered_as_whole_name	=> false
+						)
+					)
+				;
+			end 
+			$$
+		</rollback>
+
+	</changeSet>
 
 </databaseChangeLog>

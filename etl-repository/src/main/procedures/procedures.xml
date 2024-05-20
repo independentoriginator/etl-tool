@@ -8,6 +8,16 @@
         http://www.liquibase.org/xml/ns/dbchangelog 
         http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.1.xsd">
 
+	<changeSet id="p_publish_scheduled_task_monitoring_event-procedure" author="${default_author}" runOnChange="true">
+		<sqlFile 
+			dbms="postgresql"
+			path="p_publish_scheduled_task_monitoring_event.sql"
+	        relativeToChangelogFile="true"
+	        splitStatements="false"
+	        stripComments="false"/>
+		<rollback/>
+	</changeSet>
+	
 	<changeSet id="p_build_target_pgpro_scheduler_job-procedure" author="${default_author}" runOnChange="true">
 		<sqlFile 
 			dbms="postgresql"
@@ -117,14 +127,4 @@
 		<rollback/>
 	</changeSet>
 	
-	<changeSet id="p_publish_scheduled_task_monitoring_event-procedure" author="${default_author}" runOnChange="true">
-		<sqlFile 
-			dbms="postgresql"
-			path="p_publish_scheduled_task_monitoring_event.sql"
-	        relativeToChangelogFile="true"
-	        splitStatements="false"
-	        stripComments="false"/>
-		<rollback/>
-	</changeSet>
-					
 </databaseChangeLog>
