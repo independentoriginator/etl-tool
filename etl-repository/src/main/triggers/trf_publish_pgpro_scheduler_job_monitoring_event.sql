@@ -4,29 +4,21 @@ language plpgsql
 as $$
 declare
 	l_event record;
+	l_exception_descr text;
 begin
-	for l_event in (			
-		with
-			scheduled_task as (
-				select
-					id
-					, target_job_id
-				from
-					${mainSchemaName}.v_scheduled_task t
-				where
-					scheduler_type_name = 'pgpro_scheduler'
-			)
-		select 
-			scheduled_task.id as scheduled_task_id
+	for l_event in (
+		select
+			t.id as scheduled_task_id
 			, case
-				when l.message ilike 'max instances limit reached%' then 'warning'
+				when new.message ilike 'max instances limit reached%' then 'warning'
 				else 'failure'
 			end as status_name
-			, l.message
+			, new.message
 		from
-			new l
-		join scheduled_task 
-			on scheduled_task.target_job_id = l.cron
+			${mainSchemaName}.v_scheduled_task t
+		where
+			t.target_job_id = new.cron
+			and t.scheduler_type_name = 'pgpro_scheduler'
 	)
 	loop 
 		call
@@ -41,7 +33,24 @@ begin
 	end loop
 	;
 	return
-		null
+		new
+	;
+exception
+when others then
+	get stacked diagnostics
+		l_exception_descr = MESSAGE_TEXT
+	;
+
+	new.message := 
+		concat_ws(
+			E'\n'
+			, new.message
+			, l_exception_descr
+		)
+	;
+
+	return
+		new
 	;
 end
 $$;

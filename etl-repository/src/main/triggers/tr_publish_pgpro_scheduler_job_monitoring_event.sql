@@ -7,12 +7,12 @@ begin
 		execute 
 			format(
 				E'create or replace trigger tr_%s_monitoring_event_pub'
-				'\nafter insert'
+				'\nbefore insert'
 				'\non schedule.log'
 				'\nfor each row'
 				'\n-- only unstarted jobs are processed'
 				'\nwhen ('
-				'\n	not new.status' 
+				'\n	not coalesce(new.status, false)' 
 				'\n	and ('
 				'\n		new.started is null'
 				'\n		or date_trunc(''second'', new.finished) - date_trunc(''second'', new.started) = ''0 second''::interval'
