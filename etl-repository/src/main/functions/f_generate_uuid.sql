@@ -1,13 +1,15 @@
 create or replace function f_generate_uuid()
 returns uuid
 language sql
-immutable
+volatile
 parallel safe
 as $function$
+set local search_path = pg_catalog,${dbms_extension.uuid-ossp.schema},public
+;
 select 
 	/* #if #server_major_version >= 13 */
 	/* #then */
-	gen_random_uuid()
+	pg_catalog.gen_random_uuid()
 	/* #else */
 	/* uuid_generate_v4() */
 	/* #endif */
