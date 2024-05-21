@@ -11,7 +11,7 @@ select
 	/* #then */
 	pg_catalog.gen_random_uuid()
 	/* #else */
-	/* uuid_generate_v4() */
+	/* ${dbms_extension.uuid-ossp.schema}.uuid_generate_v4() */
 	/* #endif */
 $function$
 ;
