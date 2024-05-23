@@ -116,6 +116,7 @@ begin
 					, i_task_name
 				)
 			, i_context_id => '${mainSchemaName}.p_execute_task'::regproc
+			, i_operation_instance_id => l_scheduled_task_id::integer
 			, i_max_worker_processes => i_thread_max_count
 			, i_polling_interval => '10 seconds'
 			, i_max_run_time => '8 hours'
