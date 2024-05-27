@@ -26,7 +26,6 @@ begin
 				i_scheduled_task_id => l_event.scheduled_task_id
 				, i_event_type_name => 'launch'
 				, i_event_status_name => l_event.status_name
-				, i_process_uuid => ${mainSchemaName}.f_generate_uuid()
 				, i_event_message => l_event.message
 			)
 		;

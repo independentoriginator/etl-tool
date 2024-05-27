@@ -1,10 +1,20 @@
-create or replace procedure p_publish_scheduled_task_monitoring_event(
-	i_scheduled_task_id ${mainSchemaName}.scheduled_task.id%type
-	, i_event_type_name ${mainSchemaName}.monitoring_event_type.internal_name%type
-	, i_event_status_name ${mainSchemaName}.monitoring_event_status.internal_name%type
-	, i_process_uuid uuid
-	, i_event_message text = null
-)
+drop procedure if exists 
+	p_publish_scheduled_task_monitoring_event(
+		${mainSchemaName}.scheduled_task.id%type
+		, ${mainSchemaName}.monitoring_event_type.internal_name%type
+		, ${mainSchemaName}.monitoring_event_status.internal_name%type
+		, uuid
+		, text
+	)
+;
+
+create or replace procedure 
+	p_publish_scheduled_task_monitoring_event(
+		i_scheduled_task_id ${mainSchemaName}.scheduled_task.id%type
+		, i_event_type_name ${mainSchemaName}.monitoring_event_type.internal_name%type
+		, i_event_status_name ${mainSchemaName}.monitoring_event_status.internal_name%type
+		, i_event_message text = null
+	)
 language plpgsql
 as $procedure$
 declare 
@@ -32,7 +42,7 @@ begin
 						, ms.external_code
 						, pub.external_id
 						, pub.external_code
-						, i_process_uuid
+						, pub.external_id
 						, coalesce((
 								select
 									service_event_type.external_code
@@ -98,7 +108,6 @@ comment on procedure p_publish_scheduled_task_monitoring_event(
 	${mainSchemaName}.scheduled_task.id%type
 	, ${mainSchemaName}.monitoring_event_type.internal_name%type
 	, ${mainSchemaName}.monitoring_event_status.internal_name%type
-	, uuid
 	, text
 ) is 'Опубликовать событие в рамках мониторинга планового задания'
 ;

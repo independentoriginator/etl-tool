@@ -30,7 +30,6 @@ declare
 			i_scheduled_task_name => i_scheduled_task_name
 		)
 	;
-	l_process_uuid uuid := ${mainSchemaName}.f_generate_uuid();
 begin
 	if l_scheduled_task_id is not null then
 		call
@@ -38,7 +37,6 @@ begin
 				i_scheduled_task_id => l_scheduled_task_id
 				, i_event_type_name => 'launch'
 				, i_event_status_name => 'success'
-				, i_process_uuid => l_process_uuid
 				, i_event_message => null
 			)
 		;
@@ -130,7 +128,6 @@ begin
 				i_scheduled_task_id => l_scheduled_task_id
 				, i_event_type_name => 'completion'
 				, i_event_status_name => 'success'
-				, i_process_uuid => l_process_uuid
 				, i_event_message => null
 			)
 		;
@@ -151,7 +148,6 @@ when others then
 				i_scheduled_task_id => l_scheduled_task_id
 				, i_event_type_name => 'completion'
 				, i_event_status_name => 'failure'
-				, i_process_uuid => l_process_uuid
 				, i_event_message => l_exception_descr
 			)
 		;
