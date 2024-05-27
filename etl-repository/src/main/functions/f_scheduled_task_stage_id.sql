@@ -10,15 +10,13 @@ as $function$
 select 
 	s.id
 from 
-	${mainSchemaName}.scheduled_task t
-join ${mainSchemaName}.project p
-	on p.id = t.project_id
-	and p.internal_name = regexp_replace(i_scheduled_task_name, '(.+)\.(.+)', '\1')
-join ${mainSchemaName}.scheduled_task_stage s
-	on s.scheduled_task_id = t.id
-	and s.ordinal_position = i_scheduled_task_stage_ord_pos
+	${mainSchemaName}.scheduled_task_stage s
 where
-	t.internal_name = regexp_replace(i_scheduled_task_name, '(.+)\.(.+)', '\2')
+	s.scheduled_task_id = 
+		${mainSchemaName}.f_scheduled_task_id(
+			i_scheduled_task_name => i_scheduled_task_name
+		)
+	and s.ordinal_position = i_scheduled_task_stage_ord_pos
 $function$;	
 
 comment on function f_scheduled_task_stage_id(
