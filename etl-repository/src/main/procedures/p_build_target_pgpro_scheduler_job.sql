@@ -55,7 +55,14 @@ $proc$
   				)
   			values (
   				schedule.nodename()
-  				, i_job_rec.cron_expr
+  				, schedule._get_cron_from_attrs(
+					params => 
+						jsonb_build_object(
+							'cron'::text
+							, i_job_rec.cron_expr
+						)
+					, prev => null
+				)
   				, l_commands
   				, '${databaseOwner}'
   				, i_job_rec.task_session_user
