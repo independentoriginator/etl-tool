@@ -12,9 +12,9 @@ from
 	${mainSchemaName}.scheduled_task t
 join ${mainSchemaName}.project p
 	on p.id = t.project_id
-	and p.internal_name = regexp_replace(i_scheduled_task_name, '(.+)\.(.+)', '\1')
+	and p.internal_name = regexp_replace(i_scheduled_task_name, '(?:(.+?)\.(.+)){1,1}', '\1')
 where 
-	t.internal_name = regexp_replace(i_scheduled_task_name, '(.+)\.(.+)', '\2')
+	t.internal_name = regexp_replace(i_scheduled_task_name, '(?:(.+?)\.(.+)){1,1}', '\2')
 $function$;		
 
 comment on function f_scheduled_task_id(
