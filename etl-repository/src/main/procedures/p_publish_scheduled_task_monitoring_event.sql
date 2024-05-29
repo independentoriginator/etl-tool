@@ -30,7 +30,6 @@ begin
 						, '{{monitoring_service_external_code}}'
 						, '{{scheduled_task_external_id}}'
 						, '{{scheduled_task_external_code}}'
-						, '{{scheduled_task_process_uuid}}'
 						, '{{monitoring_event_type_code}}'
 						, '{{scheduled_task_event_type_external_code}}'
 						, '{{monitoring_event_status_code}}'
@@ -42,7 +41,6 @@ begin
 						, ms.external_code
 						, pub.external_id
 						, pub.external_code
-						, pub.external_id
 						, coalesce((
 								select
 									service_event_type.external_code
