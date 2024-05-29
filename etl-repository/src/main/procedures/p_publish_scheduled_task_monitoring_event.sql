@@ -33,8 +33,10 @@ begin
 						, '{{scheduled_task_external_code}}'
 						, '{{scheduled_task_id}}'
 						, '{{monitoring_event_type_code}}'
+						, '{{monitoring_event_type_external_code}}'
 						, '{{scheduled_task_event_type_external_code}}'
 						, '{{monitoring_event_status_code}}'
+						, '{{monitoring_event_status_external_code}}'
 						, '{{monitoring_event_message}}'
 					]::text[]
 				, i_values => 
@@ -45,6 +47,7 @@ begin
 						, pub.external_id
 						, pub.external_code
 						, pub.scheduled_task_id
+						, i_event_type_name
 						, coalesce((
 								select
 									service_event_type.external_code
@@ -72,6 +75,7 @@ begin
 							)
 							, i_event_type_name
 						)
+						, i_event_status_name
 						, coalesce((
 								select
 									service_event_status.external_code
