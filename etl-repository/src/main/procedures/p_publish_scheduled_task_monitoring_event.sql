@@ -28,8 +28,10 @@ begin
 					array[
 						'{{monitoring_service_external_id}}'
 						, '{{monitoring_service_external_code}}'
+						, '{{monitoring_service_id}}'
 						, '{{scheduled_task_external_id}}'
 						, '{{scheduled_task_external_code}}'
+						, '{{scheduled_task_id}}'
 						, '{{monitoring_event_type_code}}'
 						, '{{scheduled_task_event_type_external_code}}'
 						, '{{monitoring_event_status_code}}'
@@ -39,8 +41,10 @@ begin
 					array[
 						ms.external_id
 						, ms.external_code
+						, ms.id
 						, pub.external_id
 						, pub.external_code
+						, pub.scheduled_task_id
 						, coalesce((
 								select
 									service_event_type.external_code
