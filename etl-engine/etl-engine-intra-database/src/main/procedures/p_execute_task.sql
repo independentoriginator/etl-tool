@@ -30,6 +30,7 @@ declare
 			i_scheduled_task_name => i_scheduled_task_name
 		)
 	;
+	l_scheduled_task_stage_id ${mainSchemaName}.scheduled_task_stage.id%type;
 begin
 	if l_scheduled_task_id is not null then
 		call
@@ -41,6 +42,39 @@ begin
 			)
 		;
 	end if
+	;
+
+	l_scheduled_task_stage_id := 
+		${mainSchemaName}.f_scheduled_task_stage_id(
+			i_scheduled_task_name => i_scheduled_task_name
+			, i_scheduled_task_stage_ord_pos => i_scheduled_task_stage_ord_pos
+		);
+	
+	if l_scheduled_task_stage_id is null then
+		raise exception 'Unknown scheduled task stage specified: %.%', i_scheduled_task_name, i_scheduled_task_stage_ord_pos;
+	end if;
+
+	-- Cancel incompleted subjobs from the previous session
+	perform ${mainSchemaName}.f_cancel_pgpro_scheduler_subjobs(
+		i_scheduled_task_stage_id => l_scheduled_task_stage_id
+	);
+
+	-- Clean staging subjob list
+	delete from 
+		${stagingSchemaName}.scheduled_task_subjob
+	where 
+		scheduled_task_stage_id in (
+			select 
+				prev_session_task_stage.id
+			from 
+				${mainSchemaName}.scheduled_task_stage task_stage
+			join ${mainSchemaName}.scheduled_task_stage prev_session_task_stage
+				on prev_session_task_stage.scheduled_task_id = task_stage.scheduled_task_id
+				and prev_session_task_stage.ordinal_position >= task_stage.ordinal_position
+				and prev_session_task_stage.is_disabled = false
+			where
+				task_stage.id = l_scheduled_task_stage_id
+		)
 	;
 
 	if i_thread_max_count > 1 
