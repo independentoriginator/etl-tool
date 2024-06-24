@@ -27,6 +27,16 @@
 	        stripComments="false"/>
 		<rollback/>
 	</changeSet>
+	
+	<changeSet id="p_drop_pgpro_scheduler_job-procedure" author="${default_author}" runOnChange="true">
+		<sqlFile 
+			dbms="postgresql"
+			path="p_drop_pgpro_scheduler_job.sql"
+	        relativeToChangelogFile="true"
+	        splitStatements="false"
+	        stripComments="false"/>
+		<rollback/>
+	</changeSet>
         	        	
 	<changeSet id="p_build_target_scheduled_tasks-procedure" author="${default_author}" runOnChange="true">
 		<createProcedure 
