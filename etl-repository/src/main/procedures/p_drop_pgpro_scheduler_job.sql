@@ -20,10 +20,31 @@ $proc$
 		i_scheduler_type_name => 'pgpro_scheduler'
 	) then 
 	$proc_body$
-		perform 
-			schedule.drop_job(
-				i_job_id
+		if (
+			'${databaseOwner}' <> session_user 
+			or exists (
+				select 
+					1
+				from 
+					pg_catalog.pg_roles
+				where 
+					rolname = session_user
+					and not rolsuper
 			)
+		) 
+		then
+  			delete from 
+  				schedule.cron
+  			where 
+  				id = i_job_id
+  			;		
+		else 
+			perform 
+				schedule.drop_job(
+					i_job_id
+				)
+			;
+		end if 
 		;
 	$proc_body$
 else
