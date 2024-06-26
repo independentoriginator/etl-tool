@@ -379,18 +379,45 @@ $proc$
 		;
 	end if
 	;
-			
+		
 	if i_job_rec.is_disabled = true and coalesce(i_job_rec.is_target_job_disabled, false) = false then
-		perform 
-			schedule.deactivate_job(
-				jobid => l_job_id
-			);
+		if l_direct_modification_mode then
+			update
+				schedule.cron
+			set
+				active = false
+			where 	
+				id = l_job_id
+				and active
+			;
+		else			
+			perform 
+				schedule.deactivate_job(
+					jobid => l_job_id
+				)
+			;
+		end if
+		;
 	elsif i_job_rec.is_disabled = false and coalesce(i_job_rec.is_target_job_disabled, false) = true then
-		perform 
-			schedule.activate_job(
-				jobid => l_job_id
-			);
-	end if;	
+		if l_direct_modification_mode then
+			update
+				schedule.cron
+			set
+				active = true
+			where 	
+				id = l_job_id
+				and active = false
+			;
+		else			
+			perform 
+				schedule.activate_job(
+					jobid => l_job_id
+				)
+			;
+		end if
+		;
+	end if
+	;
 	$proc_body$
 else
 	$proc_body$
