@@ -1,15 +1,18 @@
-drop function if exists f_substitute(
-	text
-	, text[]
-	, text[]
-);
+drop function if exists 
+	f_substitute(
+		text
+		, text[]
+		, text[]
+	)
+;
 
-create or replace function f_substitute(
-	i_text text
-	, i_keys text[]
-	, i_values text[]
-	, i_quote_value boolean = true
-)
+create or replace function 
+	f_substitute(
+		i_text text
+		, i_keys text[]
+		, i_values text[]
+		, i_quote_value boolean = true
+	)
 returns text
 language plpgsql
 immutable
@@ -35,9 +38,49 @@ begin
 end
 $function$;	
 
-comment on function f_substitute(
+comment on function 
+	f_substitute(
+		text
+		, text[]
+		, text[]
+		, boolean
+	) is 'Подстановка'
+;
+
+drop function if exists ${stagingSchemaName}.f_substitute(
 	text
 	, text[]
 	, text[]
 	, boolean
-) is 'Подстановка';
+);
+
+create or replace function 
+	${stagingSchemaName}.f_substitute(
+		i_text text
+		, i_keys text[]
+		, i_values text[]
+		, i_quote_value boolean = true
+	)
+returns text
+language sql
+immutable
+parallel safe
+as $function$
+select 	
+	 ${mainSchemaName}.f_substitute(
+		i_text => i_text
+		, i_keys => i_keys
+		, i_values => i_values
+		, i_quote_value => i_quote_value
+	)
+$function$
+;
+
+comment on function 
+	${stagingSchemaName}.f_substitute(
+		text
+		, text[]
+		, text[]
+		, boolean
+	) is 'Подстановка'
+;
