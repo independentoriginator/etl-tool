@@ -381,8 +381,8 @@ begin
 										, i_scheduler_type_name => i_scheduler_type_name
 										, i_scheduled_task_name => i_scheduled_task_name
 										, i_scheduled_task_stage_ord_pos => i_scheduled_task_stage_ord_pos
-										, i_thread_max_count => i_thread_max_count
-										, i_wait_for_delay_in_seconds => i_wait_for_delay_in_seconds
+										, i_max_worker_processes => i_max_worker_processes
+										, i_polling_interval => i_polling_interval
 										, i_last_execution_date => i_last_execution_date
 									);
 								
