@@ -315,55 +315,79 @@ begin
 						
 							l_processed_chunked_sequences := array_append(l_processed_chunked_sequences, l_stage_rec.transfer_id);
 						
-							call 
-								${stagingSchemaName}.p_execute_in_parallel(
-									i_command_list_query => 
-										format(
-											$sql$
-											select
-												format($$
-													call 
-														${mainSchemaName}.p_execute_task_transfer_chain(
-															i_task_id => %s
-															, i_transfer_chain_id => %s
-															, i_chunk_id => %%L
-															, i_chunked_sequence_id => %s
-															, i_is_deletion_stage => %L::boolean
-															, i_scheduler_type_name => %L
-															, i_scheduled_task_name => %L
-															, i_scheduled_task_stage_ord_pos => %s
-															, i_max_worker_processes => %s
-															, i_polling_interval => %L
-															, i_max_run_time => %L
-															, i_last_execution_date => %L
-														)
-													$$
-													, c.chunk_id
-												)
-											from (
-												%s
-											) as c(chunk_id)
-											$sql$
-											, i_task_id
-											, i_transfer_chain_id
-											, l_stage_rec.transfer_id
-											, i_is_deletion_stage
-											, i_scheduler_type_name
-											, i_scheduled_task_name
-											, i_scheduled_task_stage_ord_pos
-											, i_max_worker_processes
-											, i_polling_interval
-											, i_max_run_time
-											, i_last_execution_date
-											, l_command
-										)
-									, i_context_id => '${mainSchemaName}.p_execute_task_transfer_chain'::regproc
-									, i_operation_instance_id => -i_transfer_chain_id::integer
-									, i_max_worker_processes => round(i_max_worker_processes::numeric / 2, 0)::integer
-									, i_polling_interval => i_polling_interval
-									, i_max_run_time => i_max_run_time
-									, i_application_name => '${project_internal_name}'
-								)
+							if l_stage_rec.master_transfer_id is null then
+								call 
+									${stagingSchemaName}.p_execute_in_parallel(
+										i_command_list_query => 
+											format(
+												$sql$
+												select
+													format($$
+														call 
+															${mainSchemaName}.p_execute_task_transfer_chain(
+																i_task_id => %s
+																, i_transfer_chain_id => %s
+																, i_chunk_id => %%L
+																, i_chunked_sequence_id => %s
+																, i_is_deletion_stage => %L::boolean
+																, i_scheduler_type_name => %L
+																, i_scheduled_task_name => %L
+																, i_scheduled_task_stage_ord_pos => %s
+																, i_max_worker_processes => %s
+																, i_polling_interval => %L
+																, i_max_run_time => %L
+																, i_last_execution_date => %L
+															)
+														$$
+														, c.chunk_id
+													)
+												from (
+													%s
+												) as c(chunk_id)
+												$sql$
+												, i_task_id
+												, i_transfer_chain_id
+												, l_stage_rec.transfer_id
+												, i_is_deletion_stage
+												, i_scheduler_type_name
+												, i_scheduled_task_name
+												, i_scheduled_task_stage_ord_pos
+												, i_max_worker_processes
+												, i_polling_interval
+												, i_max_run_time
+												, i_last_execution_date
+												, l_command
+											)
+										, i_context_id => '${mainSchemaName}.p_execute_task_transfer_chain'::regproc
+										, i_operation_instance_id => -i_transfer_chain_id::integer
+										, i_max_worker_processes => round(i_max_worker_processes::numeric / 2, 0)::integer
+										, i_polling_interval => i_polling_interval
+										, i_max_run_time => i_max_run_time
+										, i_application_name => '${project_internal_name}'
+									)
+								;
+							else
+								<<chunking>>
+								for l_chunk_id in execute l_command loop
+									
+									raise notice 'Extraction chunk: %', l_chunk_id;
+								
+									call ${mainSchemaName}.p_execute_task_transfer_chain(
+										i_task_id => i_task_id
+										, i_transfer_chain_id => i_transfer_chain_id
+										, i_chunk_id => l_chunk_id
+										, i_chunked_sequence_id => l_stage_rec.transfer_id
+										, i_is_deletion_stage => i_is_deletion_stage
+										, i_scheduler_type_name => i_scheduler_type_name
+										, i_scheduled_task_name => i_scheduled_task_name
+										, i_scheduled_task_stage_ord_pos => i_scheduled_task_stage_ord_pos
+										, i_thread_max_count => i_thread_max_count
+										, i_wait_for_delay_in_seconds => i_wait_for_delay_in_seconds
+										, i_last_execution_date => i_last_execution_date
+									);
+								
+								end loop chunking;
+							end if 
 							;
 						
 						end if;
