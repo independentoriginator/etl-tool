@@ -168,6 +168,7 @@ begin
 			, i_max_worker_processes => i_thread_max_count
 			, i_polling_interval => l_polling_interval
 			, i_max_run_time => i_max_run_time
+			, i_application_name => '${project_internal_name}'
 			, i_close_process_pool_on_completion => true
 		)
 	;

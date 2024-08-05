@@ -362,6 +362,7 @@ begin
 									, i_max_worker_processes => round(i_max_worker_processes::numeric / 2, 0)::integer
 									, i_polling_interval => i_polling_interval
 									, i_max_run_time => i_max_run_time
+									, i_application_name => '${project_internal_name}'
 								)
 							;
 						
