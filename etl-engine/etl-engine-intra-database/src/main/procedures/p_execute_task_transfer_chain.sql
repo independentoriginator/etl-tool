@@ -1,58 +1,84 @@
-drop procedure if exists p_execute_task_transfer_chain(
-	${mainSchemaName}.task.id%type
-	, ${mainSchemaName}.transfer.id%type
-);
+drop procedure if exists 
+	p_execute_task_transfer_chain(
+		${mainSchemaName}.task.id%type
+		, ${mainSchemaName}.transfer.id%type
+	)
+;
 
-drop procedure if exists p_execute_task_transfer_chain(
-	${mainSchemaName}.task.id%type
-	, ${mainSchemaName}.transfer.id%type
-	, text
-	, text
-	, integer
-	, integer
-	, integer
-	, timestamptz
-);
+drop procedure if exists 
+	p_execute_task_transfer_chain(
+		${mainSchemaName}.task.id%type
+		, ${mainSchemaName}.transfer.id%type
+		, text
+		, text
+		, integer
+		, integer
+		, integer
+		, timestamptz
+	)
+;
 
-drop procedure if exists p_execute_task_transfer_chain(
-	${mainSchemaName}.task.id%type
-	, ${mainSchemaName}.transfer.id%type
-	, boolean
-	, text
-	, text
-	, integer
-	, integer
-	, integer
-	, timestamptz
-);
+drop procedure if exists 
+	p_execute_task_transfer_chain(
+		${mainSchemaName}.task.id%type
+		, ${mainSchemaName}.transfer.id%type
+		, boolean
+		, text
+		, text
+		, integer
+		, integer
+		, integer
+		, timestamptz
+	)
+;
 
-drop procedure if exists p_execute_task_transfer_chain(
-	${mainSchemaName}.task.id%type
-	, ${mainSchemaName}.transfer.id%type
-	, text
-	, bigint
-	, boolean
-	, text
-	, text
-	, integer
-	, integer
-	, integer
-	, timestamptz
-);
+drop procedure if exists 
+	p_execute_task_transfer_chain(
+		${mainSchemaName}.task.id%type
+		, ${mainSchemaName}.transfer.id%type
+		, text
+		, bigint
+		, boolean
+		, text
+		, text
+		, integer
+		, integer
+		, integer
+		, timestamptz
+	)
+;
 
-create or replace procedure p_execute_task_transfer_chain(
-	i_task_id ${mainSchemaName}.task.id%type
-	, i_transfer_chain_id ${mainSchemaName}.transfer.id%type
-	, i_chunk_id text = null
-	, i_chunked_sequence_id ${mainSchemaName}.transfer.id%type = null
-	, i_is_deletion_stage boolean = null
-	, i_scheduler_type_name text = null
-	, i_scheduled_task_name text = null -- 'project_internal_name.scheduled_task_internal_name'
-	, i_scheduled_task_stage_ord_pos integer = 0
-	, i_thread_max_count integer = 1
-	, i_wait_for_delay_in_seconds integer = 1
-	, i_last_execution_date timestamptz = null
-)
+drop procedure if exists 
+	p_execute_task_transfer_chain(
+		${mainSchemaName}.task.id%type
+		, ${mainSchemaName}.transfer.id%type
+		, text
+		, ${mainSchemaName}.transfer.id%type
+		, boolean
+		, text
+		, text
+		, integer
+		, integer
+		, integer
+		, timestamptz
+	)
+;
+
+create or replace procedure 
+	p_execute_task_transfer_chain(
+		i_task_id ${mainSchemaName}.task.id%type
+		, i_transfer_chain_id ${mainSchemaName}.transfer.id%type
+		, i_chunk_id text = null
+		, i_chunked_sequence_id ${mainSchemaName}.transfer.id%type = null
+		, i_is_deletion_stage boolean = null
+		, i_scheduler_type_name text = null
+		, i_scheduled_task_name text = null -- 'project_internal_name.scheduled_task_internal_name'
+		, i_scheduled_task_stage_ord_pos integer = 0
+		, i_max_worker_processes integer = 1
+		, i_polling_interval interval = '10 seconds'
+		, i_max_run_time interval = '8 hours'
+		, i_last_execution_date timestamptz = null
+	)
 language plpgsql
 as $procedure$
 declare 
@@ -71,8 +97,8 @@ declare
 			i_scheduler_type_name
 			, i_scheduled_task_name
 			, i_scheduled_task_stage_ord_pos::text
-			, i_thread_max_count::text
-			, i_wait_for_delay_in_seconds::text
+			, i_max_worker_processes::text
+			, i_polling_interval::text
 			, i_last_execution_date::text
 		]::text[];
 	l_command ${mainSchemaName}.transfer.container%type;
@@ -289,26 +315,56 @@ begin
 						
 							l_processed_chunked_sequences := array_append(l_processed_chunked_sequences, l_stage_rec.transfer_id);
 						
-							<<chunking>>
-							for l_chunk_id in execute l_command loop
-								
-								raise notice 'Extraction chunk: %', l_chunk_id;
-							
-								call ${mainSchemaName}.p_execute_task_transfer_chain(
-									i_task_id => i_task_id
-									, i_transfer_chain_id => i_transfer_chain_id
-									, i_chunk_id => l_chunk_id
-									, i_chunked_sequence_id => l_stage_rec.transfer_id
-									, i_is_deletion_stage => i_is_deletion_stage
-									, i_scheduler_type_name => i_scheduler_type_name
-									, i_scheduled_task_name => i_scheduled_task_name
-									, i_scheduled_task_stage_ord_pos => i_scheduled_task_stage_ord_pos
-									, i_thread_max_count => i_thread_max_count
-									, i_wait_for_delay_in_seconds => i_wait_for_delay_in_seconds
-									, i_last_execution_date => i_last_execution_date
-								);
-							
-							end loop chunking;
+							call 
+								${stagingSchemaName}.p_execute_in_parallel(
+									i_command_list_query => 
+										format(
+											$sql$
+											select
+												format($$
+													call 
+														${mainSchemaName}.p_execute_task_transfer_chain(
+															i_task_id => %s
+															, i_transfer_chain_id => %s
+															, i_chunk_id => %%L
+															, i_chunked_sequence_id => %s
+															, i_is_deletion_stage => %L::boolean
+															, i_scheduler_type_name => %L
+															, i_scheduled_task_name => %L
+															, i_scheduled_task_stage_ord_pos => %s
+															, i_max_worker_processes => %s
+															, i_polling_interval => %L
+															, i_max_run_time => %L
+															, i_last_execution_date => %L
+														)
+													$$
+													, c.chunk_id
+												)
+											from (
+												%s
+											) as c(chunk_id)
+											$sql$
+											, i_task_id
+											, i_transfer_chain_id
+											, l_stage_rec.transfer_id
+											, i_is_deletion_stage
+											, i_scheduler_type_name
+											, i_scheduled_task_name
+											, i_scheduled_task_stage_ord_pos
+											, i_max_worker_processes
+											, i_polling_interval
+											, i_max_run_time
+											, i_last_execution_date
+											, l_command
+										)
+									, i_context_id => '${mainSchemaName}.p_execute_task_transfer_chain'::regproc
+									, i_operation_instance_id => -i_transfer_chain_id::integer
+									, i_max_worker_processes => round(i_max_worker_processes::numeric / 2, 0)::integer
+									, i_polling_interval => i_polling_interval
+									, i_max_run_time => i_max_run_time
+								)
+							;
+						
 						end if;
 					else
 						raise warning 'Unsupported source type specified: %', l_stage_rec.source_type_name;
@@ -438,16 +494,20 @@ begin
 end
 $procedure$;			
 
-comment on procedure p_execute_task_transfer_chain(
-	${mainSchemaName}.task.id%type
-	, ${mainSchemaName}.transfer.id%type
-	, text
-	, ${mainSchemaName}.transfer.id%type
-	, boolean
-	, text
-	, text
-	, integer
-	, integer
-	, integer
-	, timestamptz
-) is 'Исполнение цепочки перемещений задачи';
+comment on procedure 
+	p_execute_task_transfer_chain(
+		${mainSchemaName}.task.id%type
+		, ${mainSchemaName}.transfer.id%type
+		, text
+		, ${mainSchemaName}.transfer.id%type
+		, boolean
+		, text
+		, text
+		, integer
+		, integer
+		, interval
+		, interval
+		, timestamptz
+	) 
+	is 'Исполнение цепочки перемещений задачи'
+;

@@ -9,6 +9,18 @@ drop procedure if exists
 	)
 ;
 
+drop procedure if exists 
+	p_execute_task(
+		${mainSchemaName}.task.internal_name%type
+		, ${mainSchemaName}.project.internal_name%type
+		, text
+		, text
+		, integer
+		, integer
+		, integer
+	)
+;
+
 create or replace procedure 
 	p_execute_task(
 		i_task_name ${mainSchemaName}.task.internal_name%type
@@ -17,7 +29,8 @@ create or replace procedure
 		, i_scheduled_task_name text = null -- 'project_internal_name.scheduled_task_internal_name'
 		, i_scheduled_task_stage_ord_pos integer = 0
 		, i_thread_max_count integer = 1
-		, i_wait_for_delay_in_seconds integer = 1
+		, i_wait_for_delay_in_seconds integer = 10
+		, i_max_run_time interval = '8 hours'
 	)
 language plpgsql
 as $procedure$
@@ -31,6 +44,7 @@ declare
 		)
 	;
 	l_scheduled_task_stage_id ${mainSchemaName}.scheduled_task_stage.id%type;
+	l_polling_interval interval := make_interval(secs => i_wait_for_delay_in_seconds);
 begin
 	if l_scheduled_task_id is not null then
 		call
@@ -110,8 +124,9 @@ begin
 									, i_scheduler_type_name => %L
 									, i_scheduled_task_name => %L
 									, i_scheduled_task_stage_ord_pos => %s
-									, i_thread_max_count => %s
-									, i_wait_for_delay_in_seconds => %s
+									, i_max_worker_processes => %s
+									, i_polling_interval => %L
+									, i_max_run_time => %L
 									, i_last_execution_date => %L
 								)
 							$$
@@ -140,7 +155,8 @@ begin
 					, i_scheduled_task_name
 					, i_scheduled_task_stage_ord_pos
 					, i_thread_max_count
-					, i_wait_for_delay_in_seconds
+					, l_polling_interval
+					, i_max_run_time
 					, ${mainSchemaName}.f_scheduled_task_last_execution_date(
 						i_scheduled_task_name => i_scheduled_task_name
 					)
@@ -150,9 +166,9 @@ begin
 			, i_context_id => '${mainSchemaName}.p_execute_task'::regproc
 			, i_operation_instance_id => l_scheduled_task_id::integer
 			, i_max_worker_processes => i_thread_max_count
-			, i_polling_interval => '10 seconds'
-			, i_max_run_time => '8 hours'
-			, i_close_process_pool_on_completion => false
+			, i_polling_interval => l_polling_interval
+			, i_max_run_time => i_max_run_time
+			, i_close_process_pool_on_completion => true
 		)
 	;
 
@@ -306,12 +322,16 @@ end
 */
 $procedure$;		
 
-comment on procedure p_execute_task(
-	${mainSchemaName}.task.internal_name%type
-	, ${mainSchemaName}.project.internal_name%type
-	, text
-	, text
-	, integer
-	, integer
-	, integer
-) is 'Исполнение задачи';
+comment on procedure 
+	p_execute_task(
+		${mainSchemaName}.task.internal_name%type
+		, ${mainSchemaName}.project.internal_name%type
+		, text
+		, text
+		, integer
+		, integer
+		, integer
+		, interval
+	) 
+	is 'Исполнение задачи'
+;
