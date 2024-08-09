@@ -369,6 +369,7 @@ where
 		where 
 			tt.task_id = t.task_id
 			and tt.transfer_id = t.transfer_id
+			and tt.transfer_chain_id = t.transfer_chain_id
 			and tt.sort_order < t.sort_order
 			and tt.is_reexecution = t.is_reexecution
 	)
