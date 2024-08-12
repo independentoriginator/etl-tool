@@ -98,7 +98,7 @@ declare
 			, i_scheduled_task_name
 			, i_scheduled_task_stage_ord_pos::text
 			, i_max_worker_processes::text
-			, i_polling_interval::text
+			, extract(epoch from i_polling_interval)::text
 			, i_last_execution_date::text
 		]::text[];
 	l_command ${mainSchemaName}.transfer.container%type;
