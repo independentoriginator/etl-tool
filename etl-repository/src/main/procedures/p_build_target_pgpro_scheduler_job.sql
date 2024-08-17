@@ -206,7 +206,7 @@ $proc$
 				update
 					schedule.cron
 				set
-					max_run_time = i_job_rec.max_run_time::text
+					max_run_time = i_job_rec.max_run_time
 				where 	
 					id = l_job_id
 				;
