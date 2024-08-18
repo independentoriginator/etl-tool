@@ -109,6 +109,7 @@ with
 			, tr.is_virtual
 			, tr.reexec_results
 			, tr.is_chunking
+			, tr.is_chunking_parallelizable
 			, tr.is_deletion			
 			, ts.ordinal_position
 			, ts.target_transfer_id
@@ -184,6 +185,7 @@ with
 			, t.reexec_results
 			, t.is_reexecution
 			, t.is_chunking
+			, t.is_chunking_parallelizable
 			, t.is_deletion			
 			, t.ordinal_position
 			, t.target_transfer_id
@@ -229,6 +231,7 @@ with
 				, t.reexec_results
 				, false as is_reexecution
 				, t.is_chunking
+				, t.is_chunking_parallelizable
 				, t.is_deletion			
 				, t.ordinal_position
 				, t.target_transfer_id
@@ -268,6 +271,7 @@ with
 				, t.reexec_results
 				, true as is_reexecution
 				, t.is_chunking
+				, t.is_chunking_parallelizable
 				, t.is_deletion			
 				, t.ordinal_position
 				, t.target_transfer_id
@@ -311,6 +315,7 @@ select
 	, t.reexec_results
 	, t.is_reexecution
 	, t.is_chunking
+	, t.is_chunking_parallelizable
 	, (chunking.chunked_sequence_id is not null) as is_chunked	
 	, chunking.chunked_sequence_id
 	, t.is_deletion			

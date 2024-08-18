@@ -285,5 +285,19 @@
 		</addColumn> 
 
 	</changeSet>
+	
+	<changeSet id="is_chunking_parallelizable" author="${default_author}">
+
+		<addColumn tableName="transfer">
+			<column 
+				name="is_chunking_parallelizable" 
+				type="boolean"
+				remarks="Is chunking parallelizable"
+				defaultValueBoolean="true"	>
+				<constraints nullable="false" />
+			</column>
+		</addColumn> 
+
+	</changeSet>
 
 </databaseChangeLog>

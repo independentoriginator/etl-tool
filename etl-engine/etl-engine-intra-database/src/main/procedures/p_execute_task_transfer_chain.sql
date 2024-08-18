@@ -137,6 +137,7 @@ begin
 			, ts.reexec_results
 			, ts.is_reexecution
 			, ts.is_chunking
+			, ts.is_chunking_parallelizable
 			, ts.is_chunked
 			, ts.chunked_sequence_id
 			, ts.is_deletion			
@@ -315,7 +316,7 @@ begin
 						
 							l_processed_chunked_sequences := array_append(l_processed_chunked_sequences, l_stage_rec.transfer_id);
 						
-							if l_stage_rec.master_transfer_id is null then
+							if l_stage_rec.master_transfer_id is null and l_stage_rec.is_chunking_parallelizable then
 								call 
 									${stagingSchemaName}.p_execute_in_parallel(
 										i_command_list_query => 
@@ -372,21 +373,24 @@ begin
 									
 									raise notice 'Extraction chunk: %', l_chunk_id;
 								
-									call ${mainSchemaName}.p_execute_task_transfer_chain(
-										i_task_id => i_task_id
-										, i_transfer_chain_id => i_transfer_chain_id
-										, i_chunk_id => l_chunk_id
-										, i_chunked_sequence_id => l_stage_rec.transfer_id
-										, i_is_deletion_stage => i_is_deletion_stage
-										, i_scheduler_type_name => i_scheduler_type_name
-										, i_scheduled_task_name => i_scheduled_task_name
-										, i_scheduled_task_stage_ord_pos => i_scheduled_task_stage_ord_pos
-										, i_max_worker_processes => i_max_worker_processes
-										, i_polling_interval => i_polling_interval
-										, i_last_execution_date => i_last_execution_date
-									);
+									call 
+										${mainSchemaName}.p_execute_task_transfer_chain(
+											i_task_id => i_task_id
+											, i_transfer_chain_id => i_transfer_chain_id
+											, i_chunk_id => l_chunk_id
+											, i_chunked_sequence_id => l_stage_rec.transfer_id
+											, i_is_deletion_stage => i_is_deletion_stage
+											, i_scheduler_type_name => i_scheduler_type_name
+											, i_scheduled_task_name => i_scheduled_task_name
+											, i_scheduled_task_stage_ord_pos => i_scheduled_task_stage_ord_pos
+											, i_max_worker_processes => i_max_worker_processes
+											, i_polling_interval => i_polling_interval
+											, i_last_execution_date => i_last_execution_date
+										)
+									;
 								
-								end loop chunking;
+								end loop chunking
+								;
 							end if 
 							;
 						
