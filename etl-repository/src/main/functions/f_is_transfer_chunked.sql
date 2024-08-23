@@ -1,44 +1,72 @@
-create or replace function f_is_transfer_chunked(
-	i_transfer_id ${mainSchemaName}.transfer.id%type
-)
+drop function if exists 
+	f_is_transfer_chunked(
+		${mainSchemaName}.transfer.id%type
+	)
+;
+
+create or replace function 
+	f_is_transfer_chunked(
+		i_transfer_id ${mainSchemaName}.transfer.id%type
+		, i_chunked_sequence_id ${mainSchemaName}.transfer.id%type
+	)
 returns boolean
 language sql
 security definer
 stable
 as $function$
-with 
-	recursive dependent_transfer as (
+with recursive 
+	sequence_transfer as (
 		select 
-			t.id
-			, master_transfer.id as master_id
-			, master_transfer.is_chunking as is_chunked
+			master_transfer.id as master_id
+			, t.id as id
+			, true as is_chunked
+			, 0 as dep_level
+			, array[t.id] as dep_seq 
 		from
-			${mainSchemaName}.transfer t 
+			${mainSchemaName}.transfer master_transfer 
 		left join ${mainSchemaName}.transfer_dependency dep
-			on dep.transfer_id = t.id
-		join ${mainSchemaName}.transfer master_transfer
-			on master_transfer.id = t.master_id
-			or master_transfer.id = dep.master_transfer_id
+			on dep.master_transfer_id = master_transfer.id
+		join ${mainSchemaName}.transfer t 
+			on t.master_id = master_transfer.id
+			or t.id = dep.transfer_id
 		where 
-			t.id = i_transfer_id
-			and not t.is_chunking
+			master_transfer.id = i_chunked_sequence_id
+			and master_transfer.is_chunking
 		union all
 		select
-			t.id as id
-			, master_transfer.id as master_id
-			, master_transfer.is_chunking as is_chunked
+			master_transfer.id as master_id
+			, t.id as id
+			, (
+				sequence_transfer.is_chunked
+				and (
+					master_transfer.id = t.master_id
+					or strpos('{{chunk_id}}', t.container) > 0
+				)
+			) as is_chunked
+			, sequence_transfer.dep_level + 1 as dep_level
+			, sequence_transfer.dep_seq || t.id as dep_seq
 		from
-			dependent_transfer 
-		join ${mainSchemaName}.transfer t			
-			on t.id = dependent_transfer.master_id
+			sequence_transfer 
+		join ${mainSchemaName}.transfer master_transfer			
+			on master_transfer.id = sequence_transfer.id
 		left join ${mainSchemaName}.transfer_dependency dep
-			on dep.transfer_id = t.id
-		join ${mainSchemaName}.transfer master_transfer
-			on master_transfer.id = t.master_id
-			or master_transfer.id = dep.master_transfer_id
+			on dep.master_transfer_id = master_transfer.id
+		join ${mainSchemaName}.transfer t
+			on t.master_id = master_transfer.id
+			or t.id = dep.transfer_id
+		where 
+			t.id <> all(sequence_transfer.dep_seq)
 	)
-select 
-	coalesce(bool_or(t.is_chunked), false) as is_chunked
-from 
-	dependent_transfer t
-$function$;
+select ( 
+	exists (
+		select 
+			1
+		from 
+			sequence_transfer
+		where 
+			id = i_transfer_id
+			and is_chunked
+	)
+) as is_chunked
+$function$
+;

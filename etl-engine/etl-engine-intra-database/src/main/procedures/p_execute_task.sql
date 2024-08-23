@@ -143,9 +143,6 @@ begin
 							, ts.are_del_ins_stages_separated
 						from 
 							${mainSchemaName}.v_task_stage ts
-						join ${mainSchemaName}.transfer t 	
-							on t.id = ts.transfer_chain_id
-							and t.is_virtual = false
 						where 
 							ts.project_name = %L
 							and ts.task_name = %L

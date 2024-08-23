@@ -274,6 +274,15 @@
 		<rollback/>
 	</changeSet>
 	
+	<changeSet id="f_transfer_chain_id-function" author="${default_author}" runOnChange="true">
+		<createProcedure 
+			procedureName="f_transfer_chain_id" 
+			dbms="postgresql" 
+			path="f_transfer_chain_id.sql" 
+			relativeToChangelogFile="true"/>
+		<rollback/>
+	</changeSet>
+	
 	<changeSet id="f_parse_scheduled_task_subjob_command-function" author="${default_author}" runOnChange="true">
 		<createProcedure 
 			procedureName="f_parse_scheduled_task_subjob_command" 
