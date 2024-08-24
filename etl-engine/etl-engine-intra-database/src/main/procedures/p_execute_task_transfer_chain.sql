@@ -89,7 +89,10 @@ declare
 			, '{{scheduled_task_name}}'
 			, '{{scheduled_task_stage_ord_pos}}'
 			, '{{thread_max_count}}'
+			, '{{max_worker_processes}}'
+			, '{{max_run_time}}'
 			, '{{wait_for_delay_in_seconds}}'
+			, '{{polling_interval}}'
 			, '{{last_execution_date}}'
 		]::text[];
 	l_env_variable_values text[] := 
@@ -98,7 +101,10 @@ declare
 			, i_scheduled_task_name
 			, i_scheduled_task_stage_ord_pos::text
 			, i_max_worker_processes::text
+			, i_max_worker_processes::text
+			, i_max_run_time::text
 			, extract(epoch from i_polling_interval)::integer::text
+			, i_polling_interval::text
 			, i_last_execution_date::text
 		]::text[];
 	l_command ${mainSchemaName}.transfer.container%type;
