@@ -391,6 +391,7 @@ begin
 											, i_scheduled_task_stage_ord_pos => i_scheduled_task_stage_ord_pos
 											, i_max_worker_processes => i_max_worker_processes
 											, i_polling_interval => i_polling_interval
+											, i_max_run_time => i_max_run_time
 											, i_last_execution_date => i_last_execution_date
 										)
 									;
