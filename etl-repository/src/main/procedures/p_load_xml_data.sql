@@ -1,11 +1,12 @@
-create or replace procedure p_load_xml_data(
-	i_xsd_transformation_id ${mainSchemaName}.xsd_transformation.id%type
-	, i_data_package_external_id ${type.code}
-	, i_load_date timestamp
-	, i_path text[]
-	, i_xml_data xml
-	, i_aggregate_insert_instructions boolean = true 
-)
+create or replace procedure 
+	p_load_xml_data(
+		i_xsd_transformation_id ${mainSchemaName}.xsd_transformation.id%type
+		, i_data_package_external_id ${type.code}
+		, i_load_date timestamp
+		, i_path text[]
+		, i_xml_data xml
+		, i_aggregate_insert_instructions boolean = true 
+	)
 language plpgsql
 as $procedure$
 declare
@@ -24,11 +25,14 @@ begin
 		t.schema_name
 		, array_agg(
 			format($$
-				insert into %I.%I(
-					_data_package_id, %s
-				)
+				insert into 
+					%I.%I(
+						_data_package_id
+						, %s
+					)
 				select
-					$1, %s
+					$1
+					, %s
 				from 
 					xmltable(
 						xmlnamespaces(
@@ -49,18 +53,22 @@ begin
 				, regexp_replace(t.path, '(/)([^/])', '\1tns:\2', 'g')
 				, t.xml_table_columns
 			)
-			order by t.dependency_level
+			order by 
+				t.dependency_level
 		) as insert_commands
 		, string_agg(
 			format($$
-				delete from %I.%I
-				where _data_package_id = $1
+				delete from 
+					%I.%I
+				where 
+					_data_package_id = $1
 				$$
 				, t.schema_name
 				, t.table_name
 			)
 			, E';\n'
-			order by t.dependency_level desc
+			order by 
+				t.dependency_level desc
 		) as delete_commands
 	into
 		l_target_staging_schema
@@ -160,17 +168,19 @@ begin
 	if l_data_package_id is null then
 		execute 
 			format('
-				insert into %I._data_package(
-					xsd_transformation_id
-					, external_id
-					, load_date
-				)
+				insert into 
+					%I._data_package(
+						xsd_transformation_id
+						, external_id
+						, load_date
+					)
 				values(
 					$1
 					, $2
 					, $3
 				)
-				returning id
+				returning 
+					id
 				'
 				, l_target_staging_schema
 			)
@@ -200,15 +210,17 @@ begin
 		;
 	else
 		foreach l_command in array l_insert_commands loop
-			raise notice '%', l_command;
+			-- raise notice '%', l_command;
 			execute 
 				l_command
 			using 
 				l_data_package_id
 				, i_xml_data
 			;
-		end loop;
-	end if;
+		end loop
+		;
+	end if
+	;
 
 exception
 when others then
@@ -217,7 +229,7 @@ when others then
 		, l_exception_detail = PG_EXCEPTION_DETAIL
 		, l_exception_hint = PG_EXCEPTION_HINT
 		, l_exception_context = PG_EXCEPTION_CONTEXT
-		;
+	;
 	raise exception 
 		E'XML data loading error: %:\n%\n(hint: %,\nxsd_transformation_id = %,\ndata_package_external_id = %,\ncontext=%)'
 		, l_msg_text
@@ -226,15 +238,18 @@ when others then
 		, i_xsd_transformation_id
 		, i_data_package_external_id
 		, l_exception_context
-		;
+	;
 end
-$procedure$;	
+$procedure$
+;	
 
-comment on procedure p_load_xml_data(
-	${mainSchemaName}.xsd_transformation.id%type
-	, ${type.code}
-	, timestamp
-	, text[]
-	, xml
-	, boolean
-) is 'Загрузка XML-данных';
+comment on procedure 
+	p_load_xml_data(
+		${mainSchemaName}.xsd_transformation.id%type
+		, ${type.code}
+		, timestamp
+		, text[]
+		, xml
+		, boolean
+	) is 'Загрузка XML-данных'
+;
