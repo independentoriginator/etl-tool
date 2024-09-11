@@ -1,3 +1,26 @@
+drop procedure if exists
+	p_load_xml_data(
+		${mainSchemaName}.xsd_transformation.id%type
+		, ${type.code}
+		, timestamp
+		, text[]
+		, xml
+		, boolean
+	)
+;
+
+drop procedure if exists
+	p_load_xml_data(
+		${mainSchemaName}.xsd_transformation.id%type
+		, ${type.code}
+		, timestamp
+		, text[]
+		, xml
+		, ${mainSchemaName}.xsd_transformation.namespace%type
+		, boolean
+	)
+;
+
 create or replace procedure 
 	p_load_xml_data(
 		i_xsd_transformation_id ${mainSchemaName}.xsd_transformation.id%type
@@ -5,6 +28,8 @@ create or replace procedure
 		, i_load_date timestamp
 		, i_path text[]
 		, i_xml_data xml
+		, i_namespace ${mainSchemaName}.xsd_transformation.namespace%type = null
+		, i_xsd_version ${mainSchemaName}.xsd_transformation.version%type = null
 		, i_aggregate_insert_instructions boolean = true 
 	)
 language plpgsql
@@ -20,6 +45,7 @@ declare
 	l_exception_detail text;
 	l_exception_hint text;
 	l_exception_context text;
+	l_xsd_version ${mainSchemaName}.xsd_transformation.version%type;
 begin
 	select 
 		t.schema_name
@@ -49,7 +75,7 @@ begin
 				, t.table_name
 				, t.target_columns
 				, t.src_columns
-				, t.namespace
+				, coalesce(i_namespace, t.namespace)
 				, regexp_replace(t.path, '(/)([^/])', '\1tns:\2', 'g')
 				, t.xml_table_columns
 			)
@@ -70,10 +96,12 @@ begin
 			order by 
 				t.dependency_level desc
 		) as delete_commands
+		, coalesce(i_xsd_version, t.version)
 	into
 		l_target_staging_schema
 		, l_insert_commands
 		, l_delete_commands
+		, l_xsd_version
 	from (
 		with 
 			path_prefix as (
@@ -91,6 +119,7 @@ begin
 				, i_entity_path => e.path
 			) as dependency_level
 			, t.namespace
+			, t.version
 			, attr.target_columns
 			, attr.src_columns
 			, attr.xml_table_columns
@@ -144,6 +173,7 @@ begin
 	) t
 	group by 
 		t.schema_name
+		, t.version
 	;
 
 	execute 
@@ -171,6 +201,7 @@ begin
 				insert into 
 					%I._data_package(
 						xsd_transformation_id
+						, xsd_version
 						, external_id
 						, load_date
 					)
@@ -178,6 +209,7 @@ begin
 					$1
 					, $2
 					, $3
+					, $4
 				)
 				returning 
 					id
@@ -186,6 +218,7 @@ begin
 			)
 			using 
 				i_xsd_transformation_id
+				, l_xsd_version
 				, i_data_package_external_id
 				, i_load_date
 			into 
@@ -250,6 +283,9 @@ comment on procedure
 		, timestamp
 		, text[]
 		, xml
+		, ${mainSchemaName}.xsd_transformation.namespace%type
+		, ${mainSchemaName}.xsd_transformation.version%type
 		, boolean
-	) is 'Загрузка XML-данных'
+	) 
+	is 'Загрузка XML-данных'
 ;
