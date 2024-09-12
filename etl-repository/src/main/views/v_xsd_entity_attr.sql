@@ -130,6 +130,10 @@ select
 	end as master_table_name
 	, case when fk.ord_num is not null then a.column_name end as fk_ref_column
 	, a.is_multivalued
+	, a.type
+	, a.max_length
+	, a.total_digits
+	, a.fraction_digits
 from 
 	entity_attr 
 join ${mainSchemaName}.xsd_entity_attr a 

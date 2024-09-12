@@ -166,8 +166,24 @@ begin
 							case 
 								when t.is_compatibility_mode then
 									format(
-										'${mainSchemaName}.f_try_cast(i_in => nullif(t.%s, ''''), i_out => null::%s) as %s' 
-										, quote_ident(a.column_name)
+										E'${mainSchemaName}.f_try_cast('
+										'\n	i_in =>'
+										'\n		nullif('
+										'\n			%s'
+										'\n			, '''''
+										'\n		)'
+										'\n	, i_out => null::%s'
+										'\n) as %s' 
+										, case 
+											when a.type = 'xs:string' and a.max_length > 0 then
+												format(
+													'${mainSchemaName}.f_truncate_string(i_str => t.%s, i_max_length => %s)'
+													, quote_ident(a.column_name)
+													, a.max_length
+												)
+											else 
+												't.' || quote_ident(a.column_name)
+										end
 										, a.column_type
 										, quote_ident(a.column_name)
 									)
