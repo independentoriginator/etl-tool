@@ -30,7 +30,7 @@ create or replace procedure
 		, i_xml_data xml
 		, i_namespace ${mainSchemaName}.xsd_transformation.namespace%type = null
 		, i_xsd_version ${mainSchemaName}.xsd_transformation.version%type = null
-		, i_aggregate_insert_instructions boolean = true 
+		, i_aggregate_insert_instructions boolean = true
 	)
 language plpgsql
 as $procedure$
@@ -111,33 +111,74 @@ begin
 					unnest(i_path) as path(directory)
 			)
 		select 
-			e.path
-			, t.target_staging_schema as schema_name
-			, e.table_name
-			, ${mainSchemaName}.f_xsd_entity_dependency_level(
-				i_xsd_transformation_id => t.id
-				, i_entity_path => e.path
-			) as dependency_level
+			t.path
+			, t.schema_name
+			, t.table_name
+			, t.dependency_level
 			, t.namespace
 			, t.version
 			, attr.target_columns
 			, attr.src_columns
 			, attr.xml_table_columns
-		from 
-			${mainSchemaName}.xsd_transformation t
-		join ${mainSchemaName}.xsd_entity e
-			on e.xsd_transformation_id = t.id 
+		from (			
+			select 
+				e.id as entity_id
+				, e.path
+				, t.target_staging_schema as schema_name
+				, e.table_name
+				, ${mainSchemaName}.f_xsd_entity_dependency_level(
+					i_xsd_transformation_id => t.id
+					, i_entity_path => e.path
+				) as dependency_level
+				, t.namespace
+				, t.version
+				, (
+					i_xsd_version is not null 
+					and ${mainSchemaName}.f_values_are_different(
+						i_left => t.version
+						, i_right => i_xsd_version
+					)
+				) as is_compatibility_mode
+			from 
+				${mainSchemaName}.xsd_transformation t
+			join ${mainSchemaName}.xsd_entity e
+				on e.xsd_transformation_id = t.id
+			where 
+				t.id = i_xsd_transformation_id
+				and (
+					exists (
+						select 
+							1
+						from 
+							path_prefix
+						where
+							path_prefix.directory = left(e.path, length(path_prefix.directory))
+					)
+					or i_path is null
+				)
+		) t
 		join lateral (
 			select 
 				string_agg(quote_ident(a.column_name), ', ') as target_columns
 				, string_agg(
 					case 
 						when not a.is_multivalued then
-							'cast(nullif(t.' 
-							|| quote_ident(a.column_name) 
-							|| ', '''') as ' 
-							|| a.column_type 
-							|| ') as ' || quote_ident(a.column_name)
+							case 
+								when t.is_compatibility_mode then
+									format(
+										'${mainSchemaName}.f_try_cast(i_in => nullif(t.%s, ''''), i_out => null::%s) as %s' 
+										, quote_ident(a.column_name)
+										, a.column_type
+										, quote_ident(a.column_name)
+									)
+								else 
+									format(
+										'cast(nullif(t.%s, '''') as %s) as %s' 
+										, quote_ident(a.column_name)
+										, a.column_type
+										, quote_ident(a.column_name)
+									)
+							end
 						else
 							quote_ident(a.column_name)
 					end
@@ -154,22 +195,9 @@ begin
 			from 
 				${mainSchemaName}.v_xsd_entity_attr a
 			where
-				a.xsd_entity_id = e.id
+				a.xsd_entity_id = t.entity_id
 		) attr 
 			on true
-		where 
-			t.id = i_xsd_transformation_id
-			and (
-				exists (
-					select 
-						1
-					from 
-						path_prefix
-					where
-						path_prefix.directory = left(e.path, length(path_prefix.directory))
-				)
-				or i_path is null
-			)
 	) t
 	group by 
 		t.schema_name

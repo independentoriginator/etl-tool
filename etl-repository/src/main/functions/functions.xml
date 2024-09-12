@@ -7,6 +7,15 @@
         http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-ext.xsd 
         http://www.liquibase.org/xml/ns/dbchangelog 
         http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.1.xsd">
+        
+	<changeSet id="f_try_cast-function" author="${default_author}" runOnChange="true">
+		<createProcedure 
+			procedureName="f_try_cast" 
+			dbms="postgresql" 
+			path="f_try_cast.sql" 
+			relativeToChangelogFile="true"/>
+		<rollback/>
+	</changeSet>
 
 	<changeSet id="f_string_significant_pomace-function" author="${default_author}" runOnChange="true">
 		<createProcedure 
