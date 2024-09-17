@@ -1,2 +1,3 @@
 ToDO list:
 - reverse execution order for deletion transfers, that will eliminate from cascade deletion necessarity
+- XSD transformations: we should use a user type for a semantic version (https://semver.org/spec/v2.0.0.html), that will bring an ability to compare versions
