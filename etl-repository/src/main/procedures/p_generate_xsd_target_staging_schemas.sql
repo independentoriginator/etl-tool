@@ -35,7 +35,12 @@ begin
 		for update of xsd_transformation
 	) 
 	loop
-		raise notice 'Generating schema %...', l_rec.target_staging_schema;
+		raise notice 
+			'XSD transformation "%/%": generating schema %...'
+			, l_rec.internal_name
+			, l_rec.version
+			, l_rec.target_staging_schema
+		;
 	
 		if not l_rec.is_target_staging_schema_exists then
 			execute format('create schema %I', l_rec.target_staging_schema);
