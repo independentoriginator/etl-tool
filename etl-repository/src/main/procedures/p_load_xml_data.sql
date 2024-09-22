@@ -40,6 +40,7 @@ declare
 	l_delete_commands text;
 	l_command text;
 	l_data_package_id ${type.id};
+	l_is_must_be_updated boolean;
 	l_last_err_msg text;
 	l_msg_text text;
 	l_exception_detail text;
@@ -224,11 +225,11 @@ begin
 		format('
 			select 
 				id
+				, (xsd_transformation_id <> $1) as is_must_be_updated 
 			from
 				%I._data_package	
 			where
-				xsd_transformation_id = $1
-				and external_id = $2
+				external_id = $2
 			'
 			, l_target_staging_schema
 		)
@@ -237,6 +238,7 @@ begin
 			, i_data_package_external_id
 		into 
 			l_data_package_id
+			, l_is_must_be_updated
 	;
 
 	if l_data_package_id is null then
@@ -269,6 +271,27 @@ begin
 				l_data_package_id
 		;
 	else
+		if l_is_must_be_updated then
+			execute 
+				format('
+					update
+						%I._data_package
+					set
+						xsd_transformation_id = $2
+						, xsd_version = $3
+					where 
+						id = $1
+					'
+					, l_target_staging_schema
+				)
+				using 
+					l_data_package_id
+					, i_xsd_transformation_id
+					, l_xsd_version
+			;
+		end if
+		;
+	
 		-- Deleting old package data
 		execute 
 			l_delete_commands

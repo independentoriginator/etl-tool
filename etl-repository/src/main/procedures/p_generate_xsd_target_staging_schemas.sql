@@ -29,6 +29,7 @@ begin
 		) schema_usage_permission on true
 		where 
 			coalesce(t.is_staging_schema_generated, false) = false
+			and t.is_disabled = false
 		order by 
 			t.internal_name
 			, t.version

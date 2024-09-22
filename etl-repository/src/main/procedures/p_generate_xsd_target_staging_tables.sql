@@ -205,7 +205,7 @@ begin
 		else 
 			if l_table_rec.is_fk_index_exists then
 				execute format('
-					drop index %I.%I
+					drop index if exists %I.%I
 					'
 					, l_table_rec.schema_name
 					, l_table_rec.fk_index_name 
@@ -215,7 +215,7 @@ begin
 			if l_table_rec.is_fk_constraint_exists then
 				execute format('
 					alter table %I.%I
-						drop constraint %I 
+						drop constraint if exists  %I 
 					'
 					, l_table_rec.schema_name
 					, l_table_rec.table_name 

@@ -12,6 +12,7 @@ select
 	, t.relational_schema
 	, t.target_staging_schema
 	, case when t.is_staging_schema_generated and target_schema.oid is not null then true else false end as is_staging_schema_generated  
+	, t.is_disabled
 from 
 	${mainSchemaName}.xsd_transformation t
 left join pg_catalog.pg_namespace target_schema

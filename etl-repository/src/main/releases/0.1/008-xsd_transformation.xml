@@ -169,6 +169,13 @@
 			referencedColumnNames="id" />
 
 	</changeSet>
+	
+	<changeSet id="xsd_entity: path unique constraint" author="${default_author}">
+		<addUniqueConstraint 
+			constraintName="uc_xsd_entity$path" 
+			tableName="xsd_entity"
+			columnNames="xsd_transformation_id, path" />
+	</changeSet>
 
 	<changeSet id="xsd_entity_attr" author="${default_author}">
 		

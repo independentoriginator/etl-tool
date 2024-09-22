@@ -1,8 +1,34 @@
-create or replace procedure p_extract_xsd_entities(
-	i_xsd_transformation_id ${mainSchemaName}.xsd_transformation.id%type
-)
+create or replace procedure 
+	p_extract_xsd_entities(
+		i_xsd_transformation_id ${mainSchemaName}.xsd_transformation.id%type
+	)
 language plpgsql
 as $procedure$
+declare
+	l_previous_version_transformation_id ${mainSchemaName}.xsd_transformation.id%type := (
+			select 
+				t.prev_transformation_id
+			from (
+				select
+					-- Assuming all parts of the version number are valid integer numbers (ToDo: add semantic versioning support)
+					replace(t.version, '.', '')::integer as n_version 
+					, prev_t.id as prev_transformation_id
+					, replace(prev_t.version, '.', '')::integer as n_prev_version	
+				from 
+					${mainSchemaName}.xsd_transformation t
+				join ${mainSchemaName}.xsd_transformation prev_t
+					on prev_t.internal_name = t.internal_name
+					and prev_t.is_disabled = false
+				where
+					t.id = i_xsd_transformation_id
+			) t
+			where 
+				t.n_prev_version < t.n_version
+			order by 
+				t.n_prev_version desc
+			limit 1
+		)
+	;
 begin
 	delete from 
 		${mainSchemaName}.xsd_entity_attr
@@ -44,6 +70,7 @@ begin
 				, t.pkey
 				, t.master_entity
 				, t.directory
+				, prev_version_entity.table_name
 			from (
 				select
 					t.id as xsd_transformation_id
@@ -69,6 +96,9 @@ begin
 				where 
 					t.id = i_xsd_transformation_id
 			) t
+			left join ${mainSchemaName}.xsd_entity prev_version_entity
+				on prev_version_entity.xsd_transformation_id = l_previous_version_transformation_id
+				and prev_version_entity.path = t.path
 		)
 		, directory as (
 			select 
@@ -168,14 +198,16 @@ begin
 					, t.full_path
 					, t.is_directory_path_unique
 					, t.is_full_path_unique
-					, row_number() over(
-						partition by
-							t.path
-						order by 
-							t.is_directory_path_unique desc
-							, t.is_full_path_unique desc
-							, t.directory_level desc
-					) as rn
+					, row_number() 
+						over(
+							partition by
+								t.path
+							order by 
+								t.is_directory_path_unique desc
+								, t.is_full_path_unique desc
+								, t.directory_level desc
+						) 
+						as rn
 				from (
 					select 
 						t.path
@@ -230,14 +262,17 @@ begin
 					ep.essential_path
 					, t.name
 				) as name_candidate
-				, lower(
-					${stagingSchemaName}.f_abbreviate_name(
-						i_name => 
-							coalesce(
-								ep.essential_path
-								, t.name
-							)
-						, i_adjust_to_max_length => true
+				, coalesce(
+					t.table_name
+					, lower(
+						${stagingSchemaName}.f_abbreviate_name(
+							i_name => 
+								coalesce(
+									ep.essential_path
+									, t.name
+								)
+							, i_adjust_to_max_length => true
+						)
 					)
 				) as table_name
 				, nullif(t.description, '') as description
@@ -290,8 +325,11 @@ begin
 		on duplicate.table_name = t.table_name
 	;
 end
-$procedure$;	
+$procedure$
+;	
 
-comment on procedure p_extract_xsd_entities(
-	${mainSchemaName}.xsd_transformation.id%type
-) is 'XSD. Извлечение сущностей';
+comment on procedure 
+	p_extract_xsd_entities(
+		${mainSchemaName}.xsd_transformation.id%type
+	) is 'XSD. Извлечение сущностей'
+;
