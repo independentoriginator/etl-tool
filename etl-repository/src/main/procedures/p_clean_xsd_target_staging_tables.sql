@@ -1,107 +1,79 @@
-create or replace procedure p_clean_xsd_target_staging_tables(
-	i_xsd_transformation_name ${mainSchemaName}.xsd_transformation.internal_name%type
-	, i_perform_truncation boolean = false
-)
+drop procedure if exists 
+	p_clean_xsd_target_staging_tables(
+		${mainSchemaName}.xsd_transformation.internal_name%type
+		, boolean
+	)
+;
+
+create or replace procedure 
+	p_clean_xsd_target_staging_tables(
+		i_xsd_transformation_name ${mainSchemaName}.xsd_transformation.internal_name%type
+		, i_iteration_row_limit integer = 10
+		, i_max_worker_processes integer = ${max_parallel_worker_processes}
+		, i_polling_interval interval = '10 seconds'
+		, i_max_run_time interval = '8 hours'
+	)
 language plpgsql
 as $procedure$
 declare 
-	l_rec record;
-begin
-	for l_rec in (
+	l_command_list_query text := (
 		select 
 			string_agg(
-				case 	
-					when i_perform_truncation then
-						format('
-							truncate table %I.%I cascade;
-							'
-							, t.target_staging_schema
-							, t.table_name
+				format(
+					$sql$
+					select
+						format(
+							'delete from %I._data_package where id = any(%%L)'
+							, array_agg(t.data_package_id)
 						)
-					else
-						format('
-							delete from %I.%I 
-							where _data_package_id in ( 
-								select 
-									id 
-								from 
-									%I._data_package 	
-								where 
-									xsd_transformation_id = any(%L)
-							);
-							'
-							, t.target_staging_schema
-							, t.table_name
-							, t.target_staging_schema
-							, t.xsd_transformation_ids
-						)
-				end					
-				, E'\n'
-				order by dependency_level desc
-			) 
-			|| case 	
-				when i_perform_truncation then
-					format('
-						truncate table %I._data_package cascade;
-						'
-						, t.target_staging_schema
-					)
-				else
-					format('
-						delete from 
-							%I._data_package 
+					from (						
+						select  
+							dp.id as data_package_id
+							, ((row_number() over () - 1) / %s) + 1 as bucket_num
+						from 
+							%I._data_package dp 
 						where 
-							xsd_transformation_id = any(%L);
-						'
-						, t.target_staging_schema
-						, t.xsd_transformation_ids
-					)
-			end as command
-		from (
-			select 
-				t.target_staging_schema
-				, t.table_name
-				, t.dependency_level
-				, array_agg(t.xsd_transformation_id) as xsd_transformation_ids
-			from (
-				select  
-					t.id as xsd_transformation_id
+							dp.xsd_transformation_id = %s
+					) t
+					group by 
+						t.bucket_num
+					$sql$
 					, t.target_staging_schema
-					, e.table_name
-					, ${mainSchemaName}.f_xsd_entity_dependency_level(
-						i_xsd_transformation_id => t.id
-						, i_entity_path => e.path
-					) as dependency_level
-				from 
-					${mainSchemaName}.xsd_transformation t
-				join ${mainSchemaName}.xsd_entity e
-					on e.xsd_transformation_id = t.id 
-				join pg_catalog.pg_namespace target_schema
-					on target_schema.nspname = t.target_staging_schema
-				join pg_catalog.pg_class target_table
-					on target_table.relnamespace = target_schema.oid 
-					and target_table.relname = e.table_name
-					and target_table.relkind in ('r'::"char", 'p'::"char")
-				where 
-					t.internal_name = i_xsd_transformation_name
-					and t.is_disabled = true -- cleaning non-actual data
-			) t
-			group by 
-				t.target_staging_schema
-				, t.table_name
-				, t.dependency_level			
-		) t
-		group by 
-			t.target_staging_schema
-			, t.xsd_transformation_ids
-	) loop
-		execute l_rec.command; 
-	end loop
+					, i_iteration_row_limit
+					, t.target_staging_schema
+					, t.id
+				)
+				, E'\nunion all'
+			)
+		from 
+			${mainSchemaName}.xsd_transformation t
+		where 
+			t.internal_name = i_xsd_transformation_name
+			and t.is_disabled = true
+	)
+	;
+begin
+	call 
+		${stagingSchemaName}.p_execute_in_parallel(
+			i_command_list_query => l_command_list_query
+			, i_context_id => '${mainSchemaName}.p_clean_xsd_target_staging_tables'::regproc
+			, i_max_worker_processes => i_max_worker_processes
+			, i_polling_interval => i_polling_interval
+			, i_max_run_time => i_max_run_time
+			, i_application_name => '${project_internal_name}'
+		)
 	;
 end
-$procedure$;
+$procedure$
+;
 
-comment on procedure p_clean_xsd_target_staging_tables(
-	${mainSchemaName}.xsd_transformation.internal_name%type
-	, boolean
-) is 'XSD. Очистка целевых промежуточных таблиц';
+comment on procedure 
+	p_clean_xsd_target_staging_tables(
+		${mainSchemaName}.xsd_transformation.internal_name%type
+		, integer
+		, integer
+		, interval
+		, interval
+	) 
+	is 'XSD. Очистка целевых промежуточных таблиц'
+;
