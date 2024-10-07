@@ -57,6 +57,7 @@ begin
 		${stagingSchemaName}.p_execute_in_parallel(
 			i_command_list_query => l_command_list_query
 			, i_context_id => '${mainSchemaName}.p_clean_xsd_target_staging_tables'::regproc
+			, i_operation_instance_id => hashtext(i_xsd_transformation_name)
 			, i_max_worker_processes => i_max_worker_processes
 			, i_polling_interval => i_polling_interval
 			, i_max_run_time => i_max_run_time
