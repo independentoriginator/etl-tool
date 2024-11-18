@@ -21,6 +21,19 @@ drop procedure if exists
 	)
 ;
 
+drop procedure if exists 
+	p_execute_task(
+		${mainSchemaName}.task.internal_name%type
+		, ${mainSchemaName}.project.internal_name%type
+		, text
+		, text
+		, integer
+		, integer
+		, integer
+		, interval
+	)
+;
+
 create or replace procedure 
 	p_execute_task(
 		i_task_name ${mainSchemaName}.task.internal_name%type
@@ -31,6 +44,7 @@ create or replace procedure
 		, i_thread_max_count integer = 1
 		, i_wait_for_delay_in_seconds integer = 10
 		, i_max_run_time interval = '8 hours'
+		, i_process_chunks_in_single_transaction boolean = false
 	)
 language plpgsql
 as $procedure$
@@ -128,6 +142,7 @@ begin
 									, i_polling_interval => %L
 									, i_max_run_time => %L
 									, i_last_execution_date => %L
+									, i_process_chunks_in_single_transaction => %L::boolean
 								)
 							$$
 							, ts.task_id 
@@ -160,12 +175,14 @@ begin
 					, ${mainSchemaName}.f_scheduled_task_last_execution_date(
 						i_scheduled_task_name => i_scheduled_task_name
 					)
+					, i_process_chunks_in_single_transaction
 					, i_project_name
 					, i_task_name
 				)
 			, i_context_id => '${mainSchemaName}.p_execute_task'::regproc
 			, i_operation_instance_id => l_scheduled_task_id::integer
 			, i_max_worker_processes => i_thread_max_count
+			, i_single_transaction => i_process_chunks_in_single_transaction
 			, i_polling_interval => l_polling_interval
 			, i_max_run_time => i_max_run_time
 			, i_application_name => '${project_internal_name}'
@@ -222,6 +239,7 @@ comment on procedure
 		, integer
 		, integer
 		, interval
+		, boolean
 	) 
 	is 'Исполнение задачи'
 ;

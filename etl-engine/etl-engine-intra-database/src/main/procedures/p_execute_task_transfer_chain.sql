@@ -64,12 +64,30 @@ drop procedure if exists
 	)
 ;
 
+drop procedure if exists 
+	p_execute_task_transfer_chain(
+		${mainSchemaName}.task.id%type
+		, ${mainSchemaName}.transfer.id%type
+		, text
+		, ${mainSchemaName}.transfer.id%type
+		, boolean
+		, text
+		, text
+		, integer
+		, integer
+		, interval
+		, interval
+		, timestamptz
+	) 
+;
+
 create or replace procedure 
 	p_execute_task_transfer_chain(
 		i_task_id ${mainSchemaName}.task.id%type
 		, i_transfer_chain_id ${mainSchemaName}.transfer.id%type
 		, i_chunk_id text = null
 		, i_chunked_sequence_id ${mainSchemaName}.transfer.id%type = null
+		, i_process_chunks_in_single_transaction boolean = false
 		, i_is_deletion_stage boolean = null
 		, i_scheduler_type_name text = null
 		, i_scheduled_task_name text = null -- 'project_internal_name.scheduled_task_internal_name'
@@ -322,7 +340,15 @@ begin
 						
 							l_processed_chunked_sequences := array_append(l_processed_chunked_sequences, l_stage_rec.transfer_id);
 						
-							if l_stage_rec.master_transfer_id is null and l_stage_rec.is_chunking_parallelizable then
+							if l_stage_rec.master_transfer_id is null 
+								and (
+									l_stage_rec.is_chunking_parallelizable
+								 	or (
+								 		i_max_worker_processes = 1
+								 		and i_process_chunks_in_single_transaction = false
+								 	)
+								)
+							then
 								call 
 									${stagingSchemaName}.p_execute_in_parallel(
 										i_command_list_query => 
@@ -368,6 +394,7 @@ begin
 										, i_context_id => '${mainSchemaName}.p_execute_task_transfer_chain'::regproc
 										, i_operation_instance_id => -i_transfer_chain_id::integer
 										, i_max_worker_processes => round(i_max_worker_processes::numeric / 2, 0)::integer
+										, i_single_transaction => i_process_chunks_in_single_transaction
 										, i_polling_interval => i_polling_interval
 										, i_max_run_time => i_max_run_time
 										, i_application_name => '${project_internal_name}'
@@ -536,6 +563,7 @@ comment on procedure
 		, ${mainSchemaName}.transfer.id%type
 		, text
 		, ${mainSchemaName}.transfer.id%type
+		, boolean
 		, boolean
 		, text
 		, text
