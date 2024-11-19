@@ -343,10 +343,7 @@ begin
 							if l_stage_rec.master_transfer_id is null 
 								and (
 									l_stage_rec.is_chunking_parallelizable
-								 	or (
-								 		i_max_worker_processes = 1
-								 		and i_process_chunks_in_single_transaction = false
-								 	)
+								 	or not i_process_chunks_in_single_transaction
 								)
 							then
 								call 
@@ -366,7 +363,7 @@ begin
 																, i_scheduler_type_name => %L
 																, i_scheduled_task_name => %L
 																, i_scheduled_task_stage_ord_pos => %s
-																, i_max_worker_processes => %s
+																, i_max_worker_processes => 1
 																, i_polling_interval => %L
 																, i_max_run_time => %L
 																, i_last_execution_date => %L
@@ -385,7 +382,6 @@ begin
 												, i_scheduler_type_name
 												, i_scheduled_task_name
 												, i_scheduled_task_stage_ord_pos
-												, i_max_worker_processes
 												, i_polling_interval
 												, i_max_run_time
 												, i_last_execution_date
@@ -393,7 +389,15 @@ begin
 											)
 										, i_context_id => '${mainSchemaName}.p_execute_task_transfer_chain'::regproc
 										, i_operation_instance_id => -i_transfer_chain_id::integer
-										, i_max_worker_processes => round(i_max_worker_processes::numeric / 2, 0)::integer
+										, i_max_worker_processes =>
+											case 
+												when not l_stage_rec.is_chunking_parallelizable 
+													and not i_process_chunks_in_single_transaction 
+												then 
+													1
+												else
+													round(i_max_worker_processes::numeric / 2, 0)::integer
+											end
 										, i_single_transaction => i_process_chunks_in_single_transaction
 										, i_polling_interval => i_polling_interval
 										, i_max_run_time => i_max_run_time
