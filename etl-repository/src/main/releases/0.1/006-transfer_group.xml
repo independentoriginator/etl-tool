@@ -71,6 +71,21 @@
 			columnNames="project_id, type_id, internal_name, group_id" />
 
 	</changeSet>
+	
+	<!-- 
+	<changeSet id="transfer_group ordinal_position" author="${default_author}">
+
+		<addColumn tableName="transfer">
+			<column 
+				name="ordinal_position" 
+				type="integer"
+				remarks="Ordinal position"	>
+				<constraints nullable="true" />
+			</column>
+		</addColumn> 
+
+	</changeSet>
+	 -->
 
 	<changeSet id="transfer_group_project" author="${default_author}">
 

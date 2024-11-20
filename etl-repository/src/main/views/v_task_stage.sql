@@ -78,12 +78,63 @@ with recursive
 		where 
 			ts.preceding_transfer_id <> all(ts.chain_transfers)
 	)
+	, dependent_transfer_group as (
+		with recursive 
+			transfer_group as (
+				select 
+					tg.id as transfer_group_id
+					, dep.master_transfer_group_id
+					, case
+						when dep.master_transfer_group_id is not null then 1
+						else 0
+					end as dep_level
+					, array[dep.master_transfer_group_id] as transfer_group_seq
+				from
+					${mainSchemaName}.transfer_group tg
+				left join ${mainSchemaName}.transfer_group_dependency dep 
+					on dep.transfer_group_id = tg.id
+				union all
+				select
+					tg.transfer_group_id
+					, dep.master_transfer_group_id
+					, tg.dep_level + 1 as dep_level 
+					, tg.transfer_group_seq || dep.master_transfer_group_id as transfer_group_seq
+				from 
+					transfer_group tg
+				join ${mainSchemaName}.transfer_group_dependency dep 
+					on dep.transfer_group_id = tg.master_transfer_group_id
+				where 
+					dep.master_transfer_group_id <> all(tg.transfer_group_seq)
+			)
+		select 
+			tg.transfer_group_id
+			, tg.master_transfer_group_id
+			, tg.dep_level
+			, first_value(
+				coalesce(
+					tg.master_transfer_group_id
+					, tg.transfer_group_id
+				)
+			)
+				over(
+					partition by 
+						tg.transfer_group_id
+					order by 
+						tg.dep_level desc
+				)
+				as transfer_group_chain_id
+		from 
+			transfer_group tg	
+	)
 	, task_transfers as ( 
 		select 
 			ts.task_id
 			, t.internal_name as task_name
 			, p.internal_name as project_name
 			, trp.internal_name as transfer_project_name
+			, tr.group_id as transfer_group_id
+			, tg.transfer_group_chain_id
+			, tg.dep_level as transfer_group_dep_level
 			, ts.transfer_id
 			, tr.internal_name as transfer_name
 			, trt.internal_name as transfer_type_name
@@ -128,6 +179,20 @@ with recursive
 			on p.id = t.project_id
 		join ${mainSchemaName}.transfer tr 
 			on tr.id = ts.transfer_id
+		join lateral (
+			select 
+				tg.transfer_group_id
+				, tg.dep_level
+				, tg.transfer_group_chain_id
+			from 
+				dependent_transfer_group tg
+			where 
+				tg.transfer_group_id = tr.group_id
+			order by 
+				tg.dep_level desc
+			limit 1
+		) tg
+			on true
 		join ${mainSchemaName}.transfer_type trt 
 			on trt.id = tr.type_id
 		join ${mainSchemaName}.project trp 
@@ -167,6 +232,9 @@ with recursive
 			, t.task_name
 			, t.project_name
 			, t.transfer_project_name
+			, t.transfer_group_id
+			, t.transfer_group_chain_id
+			, t.transfer_group_dep_level
 			, t.transfer_id
 			, t.transfer_name
 			, t.transfer_type_name
@@ -234,6 +302,9 @@ with recursive
 			, t.task_name
 			, t.project_name
 			, t.transfer_project_name
+			, t.transfer_group_id
+			, t.transfer_group_chain_id
+			, t.transfer_group_dep_level
 			, t.transfer_id
 			, t.transfer_name
 			, t.transfer_type_name
@@ -274,6 +345,9 @@ with recursive
 				, t.task_name
 				, t.project_name
 				, t.transfer_project_name
+				, t.transfer_group_id
+				, t.transfer_group_chain_id
+				, t.transfer_group_dep_level
 				, t.transfer_id
 				, t.transfer_name
 				, t.transfer_type_name
@@ -319,6 +393,9 @@ with recursive
 				, t.task_name
 				, t.project_name
 				, t.transfer_project_name
+				, t.transfer_group_id
+				, t.transfer_group_chain_id
+				, t.transfer_group_dep_level
 				, t.transfer_id
 				, t.transfer_name
 				, t.transfer_type_name
@@ -366,6 +443,9 @@ with recursive
 				, t.task_name
 				, t.project_name
 				, t.transfer_project_name
+				, t.transfer_group_id
+				, t.transfer_group_chain_id
+				, t.transfer_group_dep_level
 				, t.transfer_id
 				, t.transfer_name
 				, t.transfer_type_name
@@ -418,6 +498,9 @@ select
 	, t.task_name
 	, t.project_name
 	, t.transfer_project_name
+	, t.transfer_group_id
+	, t.transfer_group_dep_level
+	, t.transfer_group_chain_id
 	, t.transfer_id
 	, t.transfer_name
 	, t.transfer_type_name
@@ -453,9 +536,9 @@ select
 	, t.is_master_transfer_virtual
 	, t.is_master_transfer_chunked
 	, t.transfer_chain_id
+	, t.chain_order_num
 	, t.is_deletion_stage
 	, t.are_del_ins_stages_separated
-	, t.chain_order_num
 from ( 
 	select
 		t.sort_order
@@ -463,6 +546,9 @@ from (
 		, t.task_name
 		, t.project_name
 		, t.transfer_project_name
+		, t.transfer_group_id
+		, t.transfer_group_chain_id
+		, t.transfer_group_dep_level
 		, t.transfer_id
 		, t.transfer_name
 		, t.transfer_type_name
@@ -510,6 +596,7 @@ from (
 			over(
 				partition by 
 					t.task_id
+					, t.transfer_group_chain_id
 					, t.transfer_chain_id
 					, t.is_deletion_stage
 				order by 
@@ -517,7 +604,8 @@ from (
 				range between 
 		            unbounded preceding and 
 		            unbounded following						
-			) as chain_order_num
+			) 
+			as chain_order_num
 	from 
 		reexecuted_task_transfers t
 	join lateral (

@@ -16,6 +16,15 @@
 			relativeToChangelogFile="true"/>
 		<rollback/>
 	</changeSet>
+	
+	<changeSet id="p_execute_task_transfer_group-procedure" author="${default_author}" runOnChange="true">
+		<createProcedure 
+			procedureName="p_execute_task_transfer_group" 
+			dbms="postgresql" 
+			path="p_execute_task_transfer_group.sql" 
+			relativeToChangelogFile="true"/>
+		<rollback/>
+	</changeSet>
         	
 	<changeSet id="p_execute_task-procedure" author="${default_author}" runOnChange="true">
 		<createProcedure 

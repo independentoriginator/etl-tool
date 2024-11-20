@@ -51,5 +51,49 @@
 			referencedColumnNames="id" />
 			
 	</changeSet>
+
+	<changeSet id="transfer_group_dependency" author="${default_author}">
+
+		<createTable tableName="transfer_group_dependency" remarks="Data transfer group dependency">
+			<column name="transfer_group_id" type="${type.id}" remarks="Dependent transfer group identifier">
+				<constraints nullable="false" />
+			</column>
+			<column name="master_transfer_group_id" type="${type.id}" remarks="Master transfer group identifier">
+				<constraints nullable="false" />
+			</column>
+		</createTable>
+		
+		<addPrimaryKey 
+			constraintName="pk_transfer_group_dependency" 
+			tableName="transfer_group_dependency"
+			columnNames="transfer_group_id, master_transfer_group_id"/>
+		
+		<createIndex 
+			indexName="i_transfer_group_dependency$transfer_group_id" 
+			tableName="transfer_group_dependency">
+			<column name="transfer_group_id" />
+		</createIndex>
+
+		<addForeignKeyConstraint 
+			constraintName="fk_transfer_group_dependency$transfer_group_id"
+			baseTableName="transfer_group_dependency" 
+			baseColumnNames="transfer_group_id" 
+			referencedTableName="transfer_group" 
+			referencedColumnNames="id" />
+
+		<createIndex 
+			indexName="i_transfer_group_dependency$master_transfer_group_id" 
+			tableName="transfer_group_dependency">
+			<column name="master_transfer_group_id" />
+		</createIndex>
+
+		<addForeignKeyConstraint 
+			constraintName="fk_transfer_group_dependency$master_transfer_group_id"
+			baseTableName="transfer_group_dependency" 
+			baseColumnNames="master_transfer_group_id" 
+			referencedTableName="transfer_group" 
+			referencedColumnNames="id" />
+			
+	</changeSet>
 		
 </databaseChangeLog>
