@@ -42,6 +42,12 @@ create or replace procedure
 	)
 language plpgsql
 as $procedure$
+declare
+	l_scheduled_task_id ${mainSchemaName}.scheduled_task.id%type := 
+		${mainSchemaName}.f_scheduled_task_id(
+			i_scheduled_task_name => i_scheduled_task_name
+		)
+	;
 begin
 	call 
 		${stagingSchemaName}.p_execute_in_parallel(
@@ -100,7 +106,14 @@ begin
 					, i_transfer_group_dep_level
 				)
 			, i_context_id => '${mainSchemaName}.p_execute_task_transfer_group'::regproc
-			, i_operation_instance_id => i_transfer_group_chain_id::integer
+			, i_operation_instance_id => 
+				hashtext(
+					concat_ws(
+						'.'
+						, l_scheduled_task_id::text
+						, i_transfer_group_chain_id::text
+					)
+				)
 			, i_max_worker_processes => i_max_worker_processes
 			, i_single_transaction => i_process_chunks_in_single_transaction
 			, i_polling_interval => i_polling_interval
