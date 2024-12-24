@@ -310,4 +310,13 @@
 		<rollback/>
 	</changeSet>
 	
+	<changeSet id="f_extract_url_parameters-function" author="${default_author}" runOnChange="true">
+		<createProcedure 
+			procedureName="f_extract_url_parameters" 
+			dbms="postgresql" 
+			path="f_extract_url_parameters.sql" 
+			relativeToChangelogFile="true"/>
+		<rollback/>
+	</changeSet>
+	
 </databaseChangeLog>
