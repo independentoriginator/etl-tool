@@ -27,11 +27,25 @@ drop procedure if exists
 	)
 ;
 
+drop procedure if exists 
+	p_execute_task_transfer_group(
+		${mainSchemaName}.task.id%type
+		, integer
+		, ${mainSchemaName}.transfer_group.id%type
+		, text
+		, text
+		, integer
+		, integer
+		, interval
+		, interval
+		, boolean
+	)
+;
+
 create or replace procedure 
 	p_execute_task_transfer_group(
 		i_task_id ${mainSchemaName}.task.id%type
-		, i_transfer_group_dep_level integer
-		, i_transfer_group_chain_id ${mainSchemaName}.transfer_group.id%type
+		, i_transfer_group_id ${mainSchemaName}.transfer_group.id%type
 		, i_scheduler_type_name text = null
 		, i_scheduled_task_name text = null -- 'project_internal_name.scheduled_task_internal_name'
 		, i_scheduled_task_stage_ord_pos integer = 0
@@ -85,8 +99,8 @@ begin
 						from 
 							${mainSchemaName}.v_task_stage ts
 						where 
-							ts.task_id = %L
-							and ts.transfer_group_dep_level = %s
+							ts.task_id = %s
+							and ts.transfer_group_id = %s
 					) ts
 					order by 
 						ts.chain_order_num
@@ -103,7 +117,7 @@ begin
 					)
 					, i_process_chunks_in_single_transaction
 					, i_task_id
-					, i_transfer_group_dep_level
+					, i_transfer_group_id
 				)
 			, i_context_id => '${mainSchemaName}.p_execute_task_transfer_group'::regproc
 			, i_operation_instance_id => 
@@ -111,7 +125,7 @@ begin
 					concat_ws(
 						'.'
 						, l_scheduled_task_id::text
-						, i_transfer_group_chain_id::text
+						, i_transfer_group_id::text
 					)
 				)
 			, i_max_worker_processes => i_max_worker_processes
@@ -128,7 +142,6 @@ $procedure$;
 comment on procedure 
 	p_execute_task_transfer_group(
 		${mainSchemaName}.task.id%type
-		, integer
 		, ${mainSchemaName}.transfer_group.id%type
 		, text
 		, text

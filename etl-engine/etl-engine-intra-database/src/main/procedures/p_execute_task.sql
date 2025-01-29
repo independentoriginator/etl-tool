@@ -59,7 +59,6 @@ declare
 	;
 	l_scheduled_task_stage_id ${mainSchemaName}.scheduled_task_stage.id%type;
 	l_polling_interval interval := make_interval(secs => i_wait_for_delay_in_seconds);
-	l_iteration_rec record;
 begin
 	if l_scheduled_task_id is not null then
 		call
@@ -124,42 +123,84 @@ begin
 	end if
 	;
 
-	<<sequential_iteration>>
-	for l_iteration_rec in (
-		select
-			ts.task_id 
-			, ts.transfer_group_dep_level
-			, ts.transfer_group_chain_id
-		from (
-			select distinct
-				ts.task_id
-				, ts.transfer_group_dep_level
-				, ts.transfer_group_chain_id
-			from 
-				${mainSchemaName}.v_task_stage ts
-			where 
-				ts.project_name = i_project_name
-				and ts.task_name = i_task_name
-		) ts
-		order by 
-			ts.transfer_group_dep_level
-	)
-	loop
-		call 
-			${mainSchemaName}.p_execute_task_transfer_group(
-				i_task_id => l_iteration_rec.task_id
-				, i_transfer_group_dep_level => l_iteration_rec.transfer_group_dep_level
-				, i_transfer_group_chain_id => l_iteration_rec.transfer_group_chain_id
-				, i_scheduler_type_name => i_scheduler_type_name
-				, i_scheduled_task_name => i_scheduled_task_name
-				, i_scheduled_task_stage_ord_pos => i_scheduled_task_stage_ord_pos
-				, i_max_worker_processes => i_thread_max_count
-				, i_polling_interval => l_polling_interval
-				, i_max_run_time => i_max_run_time
-				, i_process_chunks_in_single_transaction => i_process_chunks_in_single_transaction
-			)
-		;
-	end loop sequential_iteration
+	call 
+		${stagingSchemaName}.p_execute_in_parallel(
+			i_command_list_query => 
+				format(
+					$sql$
+					select
+						format($$
+							do $plpgsql$
+							declare 
+								l_iteration_rec record;
+							begin
+								<<sequential_iteration>>
+								for l_iteration_rec in (
+									select distinct
+										ts.task_id
+										, ts.transfer_group_id
+										, ts.transfer_group_dep_level
+									from 
+										${mainSchemaName}.v_task_stage ts
+									where 
+										ts.task_id = %%s
+										and ts.transfer_group_chain_id = %%s
+									order by 
+										ts.transfer_group_dep_level
+								)
+								loop
+									call 
+										${mainSchemaName}.p_execute_task_transfer_group(
+											i_task_id => l_iteration_rec.task_id
+											, i_transfer_group_id => l_iteration_rec.transfer_group_id
+											, i_scheduler_type_name => %L
+											, i_scheduled_task_name => %L
+											, i_scheduled_task_stage_ord_pos => %s
+											, i_max_worker_processes => %s
+											, i_polling_interval => %L
+											, i_max_run_time => %L
+											, i_process_chunks_in_single_transaction => %L::boolean
+										)
+									;
+								end loop sequential_iteration
+								;
+							end
+							$plpgsql$
+							;
+							$$
+							, ts.task_id 
+							, ts.transfer_group_chain_id
+						)
+					from (
+						select distinct
+						 	ts.task_id
+							, ts.transfer_group_chain_id
+						from 
+							${mainSchemaName}.v_task_stage ts
+						where 
+							ts.project_name = %L
+							and ts.task_name = %L
+					) ts
+					$sql$
+					, i_scheduler_type_name
+					, i_scheduled_task_name
+					, i_scheduled_task_stage_ord_pos
+					, i_thread_max_count
+					, l_polling_interval
+					, i_max_run_time
+					, i_process_chunks_in_single_transaction
+					, i_project_name
+					, i_task_name
+				)
+			, i_context_id => '${mainSchemaName}.p_execute_task'::regproc
+			, i_operation_instance_id => l_scheduled_task_id::integer
+			, i_max_worker_processes => i_thread_max_count
+			, i_single_transaction => i_process_chunks_in_single_transaction
+			, i_polling_interval => l_polling_interval
+			, i_max_run_time => i_max_run_time
+			, i_application_name => '${project_internal_name}'
+			, i_close_process_pool_on_completion => true
+		)
 	;
 
 	if l_scheduled_task_id is not null then
