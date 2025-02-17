@@ -2,7 +2,7 @@ do $plpgsql$
 begin
 execute format($proc$
 create or replace procedure p_clean_pgpro_scheduler_log(
-	i_record_expiration_age_in_months integer = 1
+	i_record_expiration_age_in_months integer = 3
 )
 language plpgsql
 as $procedure$
