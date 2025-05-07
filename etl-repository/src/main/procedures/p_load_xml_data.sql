@@ -205,7 +205,8 @@ begin
 					quote_ident(a.column_name)
 					|| ' ' || case when not a.is_multivalued then 'text' else 'xml' end
 					|| ' path ''' 
-					|| regexp_replace(regexp_replace(a.relative_path, '(/)([^/\.@])', '\1tns:\2'), '^(\w+)$', 'tns:\1') 
+					|| regexp_replace(regexp_replace(a.relative_path, '(/)([^/\.@])', '\1tns:\2'), '^(\w+)$', 'tns:\1')
+					|| case when a.is_multivalued then '[1]' else '' end -- Annoying temporary workaround solution because of XPath 1.0 limitations					
 					|| ''''
 					, ', '
 				) as xml_table_columns
