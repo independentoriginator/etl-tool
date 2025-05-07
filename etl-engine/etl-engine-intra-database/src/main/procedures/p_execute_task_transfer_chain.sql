@@ -150,6 +150,7 @@ declare
 			t.id = i_task_id
 	);
 begin
+	-- set current task name within the session context 
 	perform
 		${stagingSchemaName}.f_session_context(
 			i_key => '${session_context_key_task_name}'
