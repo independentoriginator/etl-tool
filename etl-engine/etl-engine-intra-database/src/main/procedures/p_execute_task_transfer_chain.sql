@@ -135,7 +135,28 @@ declare
 	l_select_columns text;
 	l_chunk_id text;
 	l_processed_chunked_sequences ${type.id}[];
+	l_task_name text := (
+		select 
+			format(
+				'%s.%s'
+				, p.internal_name
+				, t.internal_name
+			)
+		from 
+			${mainSchemaName}.task t
+		join ${mainSchemaName}.project p
+			on p.id = t.project_id
+		where 
+			t.id = i_task_id
+	);
 begin
+	perform
+		${stagingSchemaName}.f_session_context(
+			i_key => '${session_context_key_task_name}'
+			, i_value => l_task_name
+		)
+	;
+
 	<<stages>>
 	for l_stage_rec in (
 		select

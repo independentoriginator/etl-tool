@@ -150,6 +150,10 @@
 							<name>dbms_extension.uuid-ossp.schema</name>
 							<value>${profile.dbms_extension.uuid-ossp.schema}</value>
 						</property>
+						<property>
+							<name>session_context_key_task_name</name>
+							<value>task_name</value>
+						</property>
 					</systemProperties>
 				</configuration>
 				<executions>
