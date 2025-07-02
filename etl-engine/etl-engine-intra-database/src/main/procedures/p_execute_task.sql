@@ -229,7 +229,7 @@ begin
 			${mainSchemaName}.scheduled_task_stage s
 		join ${mainSchemaName}.scheduled_task_stage prev_s
 			on prev_s.scheduled_task_id = s.scheduled_task_id
-			and prev_s.ordinal_position < s.ordinal_position
+			and prev_s.ordinal_position = i_scheduled_task_stage_ord_pos
 			and prev_s.is_next_stage_executed_recursively
 			and prev_s.is_disabled = false
 		join ${mainSchemaName}.task t 
