@@ -135,6 +135,17 @@ from (
 		where 
 			task_stage.scheduled_task_id = st.id
 			and task_stage.is_disabled = false
+			and not exists (
+				select 
+					1
+				from 
+					${mainSchemaName}.scheduled_task_stage prev_stage
+				where 
+					prev_stage.scheduled_task_id = task_stage.scheduled_task_id
+					and prev_stage.is_next_stage_executed_recursively 
+					and prev_stage.ordinal_position < task_stage.ordinal_position
+					and not prev_stage.is_disabled
+			)
 	) commands on true
 ) t
 left join target_scheduled_task target_task

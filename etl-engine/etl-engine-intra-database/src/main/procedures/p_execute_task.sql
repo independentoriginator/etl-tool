@@ -57,7 +57,7 @@ declare
 			i_scheduled_task_name => i_scheduled_task_name
 		)
 	;
-	l_scheduled_task_stage_id ${mainSchemaName}.scheduled_task_stage.id%type;
+	l_scheduled_task_stage_rec record;
 	l_polling_interval interval := make_interval(secs => i_wait_for_delay_in_seconds);
 begin
 	if l_scheduled_task_id is not null then
@@ -72,19 +72,24 @@ begin
 	end if
 	;
 
-	l_scheduled_task_stage_id := 
-		${mainSchemaName}.f_scheduled_task_stage_id(
-			i_scheduled_task_name => i_scheduled_task_name
-			, i_scheduled_task_stage_ord_pos => i_scheduled_task_stage_ord_pos
-		);
+	select 
+		s.id
+	into 
+		l_scheduled_task_stage_rec
+	from 
+		${mainSchemaName}.scheduled_task_stage s
+	where
+		s.scheduled_task_id = l_scheduled_task_id
+		and s.ordinal_position = i_scheduled_task_stage_ord_pos
+	;	
 	
-	if l_scheduled_task_stage_id is null then
+	if l_scheduled_task_stage_rec.id is null then
 		raise exception 'Unknown scheduled task stage specified: %.%', i_scheduled_task_name, i_scheduled_task_stage_ord_pos;
 	end if;
 
 	-- Cancel incompleted subjobs from the previous session
 	perform ${mainSchemaName}.f_cancel_pgpro_scheduler_subjobs(
-		i_scheduled_task_stage_id => l_scheduled_task_stage_id
+		i_scheduled_task_stage_id => l_scheduled_task_stage_rec.id
 	);
 
 	-- Clean staging subjob list
@@ -101,7 +106,7 @@ begin
 				and prev_session_task_stage.ordinal_position >= task_stage.ordinal_position
 				and prev_session_task_stage.is_disabled = false
 			where
-				task_stage.id = l_scheduled_task_stage_id
+				task_stage.id = l_scheduled_task_stage_rec.id
 		)
 	;
 
@@ -213,6 +218,45 @@ begin
 			)
 		;
 	end if
+	;
+
+	for l_scheduled_task_stage_rec in (
+		select 
+			s.ordinal_position
+			, t.internal_name as task_name
+			, p.internal_name as project_name
+		from 
+			${mainSchemaName}.scheduled_task_stage s
+		join ${mainSchemaName}.task t 
+			on t.id = s.task_id
+			and t.is_disabled = false
+		join ${mainSchemaName}.project p 
+			on p.id = t.project_id
+		where
+			s.scheduled_task_id = l_scheduled_task_id
+			and s.is_next_stage_executed_recursively = true
+			and s.ordinal_position > i_scheduled_task_stage_ord_pos
+			and s.is_disabled = false
+		order by 
+			s.ordinal_position
+		limit 
+			1
+	)
+	loop
+		call
+			${mainSchemaName}.p_execute_task(
+				i_task_name => l_scheduled_task_stage_rec.task_name
+				, i_project_name => l_scheduled_task_stage_rec.project_name
+				, i_scheduler_type_name => i_scheduler_type_name
+				, i_scheduled_task_name => i_scheduled_task_name
+				, i_scheduled_task_stage_ord_pos => l_scheduled_task_stage_rec.ordinal_position
+				, i_thread_max_count => i_thread_max_count
+				, i_wait_for_delay_in_seconds => i_wait_for_delay_in_seconds
+				, i_max_run_time => i_max_run_time
+				, i_process_chunks_in_single_transaction => i_process_chunks_in_single_transaction
+			)
+		;
+	end loop
 	;
 
 exception

@@ -524,4 +524,18 @@
 
 	</changeSet>
 	
+	<changeSet id="scheduled_task_stage: is_next_stage_executed_recursively" author="${default_author}">
+
+		<addColumn tableName="scheduled_task_stage">
+			<column 
+				name="is_next_stage_executed_recursively" 
+				type="boolean"
+				remarks="Is next stage executed recursively"
+				defaultValueBoolean="false">
+				<constraints nullable="false" />
+			</column>
+		</addColumn> 
+
+	</changeSet>
+	
 </databaseChangeLog>
