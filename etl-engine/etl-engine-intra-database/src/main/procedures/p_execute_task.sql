@@ -227,6 +227,11 @@ begin
 			, p.internal_name as project_name
 		from 
 			${mainSchemaName}.scheduled_task_stage s
+		join ${mainSchemaName}.scheduled_task_stage prev_s
+			on prev_s.scheduled_task_id = s.scheduled_task_id
+			and prev_s.ordinal_position < s.ordinal_position
+			and prev_s.is_next_stage_executed_recursively
+			and prev_s.is_disabled = false
 		join ${mainSchemaName}.task t 
 			on t.id = s.task_id
 			and t.is_disabled = false
@@ -234,7 +239,6 @@ begin
 			on p.id = t.project_id
 		where
 			s.scheduled_task_id = l_scheduled_task_id
-			and s.is_next_stage_executed_recursively = true
 			and s.ordinal_position > i_scheduled_task_stage_ord_pos
 			and s.is_disabled = false
 		order by 
