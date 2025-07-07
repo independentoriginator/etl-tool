@@ -43,6 +43,36 @@ begin
 		)::integer 
 		>= i_data_package_expiration_age_in_months
 	;
+
+	delete from  
+		${stagingSchemaName}.matview_stat_inquiry_log
+	where 
+		${mainSchemaName}.f_months_between(
+			current_date
+			, stat_inquiry_time::date
+		)::integer 
+		>= i_data_package_expiration_age_in_months
+	;
+
+	delete from  
+		${stagingSchemaName}.table_stat_explicit_update_log
+	where 
+		${mainSchemaName}.f_months_between(
+			current_date
+			, update_time::date
+		)::integer 
+		>= i_data_package_expiration_age_in_months
+	;
+
+	delete from  
+		${stagingSchemaName}.matview_stat_explicit_update_log
+	where 
+		${mainSchemaName}.f_months_between(
+			current_date
+			, update_time::date
+		)::integer 
+		>= i_data_package_expiration_age_in_months
+	;
 end
 $procedure$
 ;			
